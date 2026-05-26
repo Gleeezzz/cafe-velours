@@ -1,3 +1,31 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: product-service
+
+  # ─── LA LIGNE MAGIQUE À RAJOUTER ICI ───
+  sql:
+    init:
+      mode: always
+  jpa:
+    defer-datasource-initialization: true # 👈 Force Spring à créer les tables d'abord !
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true # En bonus pour voir la création des tables dans ta console
+
+  datasource:
+    url: jdbc:h2:mem:productdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address:
+        true: true # 👈 Force Eureka à utiliser l'IP brute au lieu de .mshome.net

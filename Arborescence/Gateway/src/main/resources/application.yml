@@ -1,0 +1,31 @@
+server:
+  port: 8080 # Le point d'entree UNIQUE du projet Cafe Velours !
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: false # Securite contre les petits ecarts de versions Spring Cloud
+
+    gateway:
+      routes:
+        # 1. Redirection de toutes les requetes produits vers PRODUCT-SERVICE
+        - id: product-service-route
+          uri: lb://PRODUCT-SERVICE # lb:// demande a Eureka de faire le Load Balancing
+          predicates:
+            - Path=/api/products/**
+
+        # 2. Redirection de toutes les requetes commandes vers ORDER-SERVICE
+        - id: order-service-route
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
