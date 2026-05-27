@@ -5,6 +5,7 @@ spring:
   application:
     name: order-service
 
+  # ─── CONFIGURATION BASE DE DONNÉES ET JPA ───
   jpa:
     defer-datasource-initialization: true
     database-platform: org.hibernate.dialect.H2Dialect
@@ -18,14 +19,14 @@ spring:
     username: sa
     password:
 
-  # LA PROPRIÉTÉ COMPATIBILITÉ EST BIEN PLACÉE ICI (SOUS LE BLOC SPRING GLOBAL)
+  # ─── CONFIGURATION SPRING CLOUD & CONSUL ───
   cloud:
     compatibility-verifier:
       enabled: false
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true # 👈 Force Eureka à utiliser l'IP brute au lieu de .mshome.net
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}-v4-${random.value}
+        prefer-ip-address: true
+        ip-address: 127.0.0.1    # ON FORCE LOCALHOST ICI !

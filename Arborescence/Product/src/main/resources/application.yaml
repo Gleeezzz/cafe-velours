@@ -5,27 +5,30 @@ spring:
   application:
     name: product-service
 
-  # ─── LA LIGNE MAGIQUE À RAJOUTER ICI ───
+  # ─── COMPATIBILITÉ ET CONFIGURATION CONFIG DE BASE ───
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}-v4-${random.value}
+        prefer-ip-address: true
+        ip-address: 127.0.0.1    # ON FORCE LOCALHOST ICI !
+  # ─── CONFIGURATION BASE DE DONNÉES ET JPA ───
   sql:
     init:
       mode: always
   jpa:
-    defer-datasource-initialization: true # 👈 Force Spring à créer les tables d'abord !
+    defer-datasource-initialization: true
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-    show-sql: true # En bonus pour voir la création des tables dans ta console
+    show-sql: true
 
   datasource:
     url: jdbc:h2:mem:productdb
     driverClassName: org.h2.Driver
     username: sa
     password:
-
-  eureka:
-    client:
-      service-url:
-        defaultZone: http://localhost:8761/eureka/
-    instance:
-      prefer-ip-address:
-        true: true # 👈 Force Eureka à utiliser l'IP brute au lieu de .mshome.net
