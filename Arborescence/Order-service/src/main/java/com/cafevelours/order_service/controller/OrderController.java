@@ -64,4 +64,18 @@ public class OrderController {
 
         return orders;
     }
+
+    @PostMapping
+    public Order createOrder(@RequestBody Order order) {
+        // 💡 Sécurité indispensable en JPA bidirectionnel :
+        // On parcourt chaque item reçu pour lui associer manuellement la commande parente
+        if (order.getItems() != null) {
+            for (OrderItem item : order.getItems()) {
+                item.setOrder(order); // Lier l'item à la commande globale
+            }
+        }
+
+        return orderRepository.save(order);
+    }
 }
+

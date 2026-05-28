@@ -1,5 +1,6 @@
 package com.cafevelours.order_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -23,6 +24,7 @@ public class OrderItem {
     // Rattachement à la commande parente
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnore // 💡 Bloque la boucle infinie dans le JSON !
     private Order order;
 
     // --- Constructeurs ---

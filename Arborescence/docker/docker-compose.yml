@@ -9,3 +9,25 @@ services:
       - "8500:8500" # Interface Web (UI) et API HTTP
       - "8600:8600/udp" # Serveur DNS interne
     command: "agent -dev -client=0.0.0.0"
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: cafe-velours-mysql
+    ports:
+      - "3310:3306" # 💡 Onglet Windows "3308" -> Conteneur Docker "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password # 💡 Ton mot de passe personnalisé
+      MYSQL_DATABASE: cafe_velours_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - cafe-velours-network
+
+# Déclaration globale des volumes
+volumes:
+  mysql_data:
+
+# Déclaration globale des réseaux
+networks:
+  cafe-velours-network:
+    driver: bridge

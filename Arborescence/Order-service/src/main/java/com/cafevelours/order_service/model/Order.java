@@ -21,7 +21,7 @@ public class Order {
     private String status;       // Ex: "Confirmée" ou "Expédiée"
 
     // Lien vers l'utilisateur qui a passé la commande
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST) // 💡 Permet de créer le User automatiquement lors de la commande !
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

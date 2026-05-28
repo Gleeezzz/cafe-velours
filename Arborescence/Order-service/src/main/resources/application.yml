@@ -1,25 +1,11 @@
 server:
-  port: 8083
+  port: 8081
 
 spring:
   application:
     name: order-service
 
-  # ─── CONFIGURATION BASE DE DONNÉES ET JPA ───
-  jpa:
-    defer-datasource-initialization: true
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-  datasource:
-    url: jdbc:h2:mem:orderdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-
-  # ─── CONFIGURATION SPRING CLOUD & CONSUL ───
+  # ─── COMPATIBILITÉ ET CONFIGURATION DE BASE CONSUL ───
   cloud:
     compatibility-verifier:
       enabled: false
@@ -30,3 +16,22 @@ spring:
         instance-id: ${spring.application.name}-v4-${random.value}
         prefer-ip-address: true
         ip-address: 127.0.0.1    # ON FORCE LOCALHOST ICI !
+
+  # ─── INITIALISATION SQL (Optionnel si vide) ───
+  sql:
+    init:
+      mode: never
+
+  # ─── CONFIGURATION BASE DE DONNÉES ET JPA ───
+  datasource:
+    url: jdbc:mysql://localhost:3310/cafe_velours_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: password # 💡 On met aussi "password" ici !
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect

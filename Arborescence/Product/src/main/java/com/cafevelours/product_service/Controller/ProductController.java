@@ -35,4 +35,10 @@ public class ProductController {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produit introuvable avec l'id : " + id));
     }
+
+    // 💡 Route pour AJOUTER un nouveau produit dans la base Docker !
+    @PostMapping
+    public Product createProduct(@RequestBody Product product) {
+        return productRepository.save(product);
+    }
 }
