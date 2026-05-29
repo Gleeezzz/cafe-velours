@@ -9,6 +9,7 @@
         <module name="webapp" />
         <module name="product-service" />
         <module name="order-service" />
+        <module name="payment-service" />
         <module name="gateway-service" />
       </profile>
     </annotationProcessing>
@@ -21,6 +22,7 @@
       <module name="eureka-server" options="-parameters" />
       <module name="gateway-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="webapp" options="-parameters" />
     </option>
