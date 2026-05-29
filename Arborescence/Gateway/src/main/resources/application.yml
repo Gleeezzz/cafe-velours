@@ -26,7 +26,14 @@ spring:
               uri: lb://order-service
               predicates:
                 - Path=/api/orders/**
+
             - id: product-service-route
               uri: lb://product-service
               predicates:
                 - Path=/api/products/**
+
+            # 🟢 LA NOUVELLE ROUTE AJOUTÉE ICI : Redirection vers le paiement
+            - id: payment-service-route
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/payments/**

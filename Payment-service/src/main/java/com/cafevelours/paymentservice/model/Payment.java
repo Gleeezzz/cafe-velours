@@ -23,8 +23,10 @@ public class Payment {
     @Column(nullable = false)
     private Double amount; // 💡 Montant payé
 
+    // 🟢 Correction ici : On utilise l'Enum au lieu d'un simple String pour sécuriser les états
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status; // 💡 PENDING, ACCEPTED, REFUSED
+    private PaymentStatus status;
 
     @Column(unique = true)
     private String transactionReference; // 💡 Numéro de transaction unique (ex: UUID)

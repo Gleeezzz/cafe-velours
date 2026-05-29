@@ -1,5 +1,6 @@
 package com.cafevelours.order_service.controller;
 
+import com.cafevelours.order_service.client.PaymentClient;
 import com.cafevelours.order_service.client.ProductClient;
 import com.cafevelours.order_service.dto.ProductDTO;
 import com.cafevelours.order_service.model.Order;
@@ -18,13 +19,15 @@ public class OrderController {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final ProductClient productClient; // Injection du client Openfeign
+    private final ProductClient productClient;
+    private final PaymentClient paymentClient;
 
-    // Injection des repositories par constructeur
-    public OrderController(OrderRepository orderRepository, UserRepository userRepository,  ProductClient productClient) {
+    public OrderController(OrderRepository orderRepository, UserRepository userRepository,
+                           ProductClient productClient, PaymentClient paymentClient) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productClient = productClient;
+        this.paymentClient = paymentClient;
     }
 
     // 1. Route pour récupérer les infos profil d'un utilisateur (Sophie Martin)
@@ -38,7 +41,8 @@ public class OrderController {
     public List<Order> getUserOrderHistory(@PathVariable Long userId) {
         // 1. On vérifie si l'utilisateur existe en base
         if (!userRepository.existsById(userId)) {
-            throw new RuntimeException("Utilisateur introuvable.");
+            // 🟢 Correction ici : On affiche la variable locale "userId" au lieu de l'import jpa
+            throw new RuntimeException("Utilisateur introuvable avec l'id : " + userId);
         }
 
         // 2. On récupère toutes ses commandes
@@ -49,13 +53,9 @@ public class OrderController {
             if (order.getItems() != null) {
                 for (OrderItem item : order.getItems()) {
                     try {
-                        // On appelle le microservice PRODUCT-SERVICE de manière transparente
                         ProductDTO product = productClient.getProductById(item.getProductId());
-
-                        // On injecte le nom récupéré dans notre champ @Transient
                         item.setProductName(product.getName());
                     } catch (Exception e) {
-                        // Sécurité : Si PRODUCT-SERVICE est en panne, l'historique s'affiche quand même !
                         item.setProductName("Produit Catalogue Indisponible");
                     }
                 }
@@ -65,17 +65,36 @@ public class OrderController {
         return orders;
     }
 
+    // 2. Route de création de commande connectée au cycle de paiement synchrone
     @PostMapping
     public Order createOrder(@RequestBody Order order) {
-        // 💡 Sécurité indispensable en JPA bidirectionnel :
-        // On parcourt chaque item reçu pour lui associer manuellement la commande parente
+
+        double totalAmount = 0.0;
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
-                item.setOrder(order); // Lier l'item à la commande globale
+                item.setOrder(order);
+
+                // Calcul du montant cumulé (Prix unitaire * Quantité)
+                if (item.getPrice() != null && item.getQuantity() != null) {
+                    totalAmount += item.getPrice() * item.getQuantity();
+                }
             }
         }
 
-        return orderRepository.save(order);
+        // On donne un statut temporaire à la commande avant de l'enregistrer une première fois
+        order.setStatus("PENDING");
+        Order savedOrder = orderRepository.save(order);
+
+        // Appel de communication inter-microservices synchrone avec OpenFeign !
+        try {
+            paymentClient.processPayment(savedOrder.getId(), totalAmount);
+            savedOrder.setStatus("PAID");
+
+        } catch (Exception e) {
+            savedOrder.setStatus("PAYMENT_FAILED");
+        }
+
+        // Mise à jour finale du statut de la commande en base de données
+        return orderRepository.save(savedOrder);
     }
 }
-
