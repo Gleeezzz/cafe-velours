@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173") // 💡 Autorise React à appeler ce service !
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "*")
 public class OrderController {
 
     // --- 1. DÉCLARATIONS DES DÉPENDANCES (TOUJOURS AU DÉBUT) ---
@@ -44,7 +44,7 @@ public class OrderController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable avec l'id : " + id));
     }
 
-    @GetMapping("/users/{userId}/history")
+    @GetMapping("/user/{userId}") // 💡 Aligné exactement sur l'appel Axios de React !
     public List<Order> getUserOrderHistory(@PathVariable Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new RuntimeException("Utilisateur introuvable avec l'id : " + userId);

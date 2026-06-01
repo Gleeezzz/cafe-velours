@@ -15,20 +15,22 @@ spring:
       discovery:
         instance-id: ${spring.application.name}-v4-${random.value}
         prefer-ip-address: true
-        ip-address: 127.0.0.1    # ON FORCE LOCALHOST ICI !
+        ip-address: 127.0.0.1
 
-  # ─── INITIALISATION SQL (Optionnel si vide) ───
+  # ─── INITIALISATION SQL ───
   sql:
     init:
-      mode: never
+      mode: always
 
   # ─── CONFIGURATION BASE DE DONNÉES ET JPA ───
   datasource:
     url: jdbc:mysql://localhost:3310/cafe_velours_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     username: root
-    password: password # 💡 On met aussi "password" ici !
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
+    defer-datasource-initialization: true # 💡 Bien placé au niveau de jpa !
     hibernate:
       ddl-auto: update
     show-sql: true

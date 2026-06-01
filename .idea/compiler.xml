@@ -6,7 +6,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="webapp" />
         <module name="product-service" />
         <module name="order-service" />
         <module name="payment-service" />
@@ -15,6 +14,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="eureka-server" target="17" />
+      <module name="webapp" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
