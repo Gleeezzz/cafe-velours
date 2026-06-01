@@ -8,6 +8,7 @@ import com.cafevelours.order_service.model.OrderItem;
 import com.cafevelours.order_service.model.User;
 import com.cafevelours.order_service.repository.OrderRepository;
 import com.cafevelours.order_service.repository.UserRepository;
+import com.cafevelours.order_service.service.OrderService; // 💡 Import du service
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,20 +18,26 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class OrderController {
 
+    // --- 1. DÉCLARATIONS DES DÉPENDANCES (TOUJOURS AU DÉBUT) ---
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductClient productClient;
     private final PaymentClient paymentClient;
+    private final OrderService orderService; // 💡 Ajout de notre service NoSQL
 
+    // --- 2. LE CONSTRUCTEUR POUR INJECTER LES COMPOSANTS ---
     public OrderController(OrderRepository orderRepository, UserRepository userRepository,
-                           ProductClient productClient, PaymentClient paymentClient) {
+                           ProductClient productClient, PaymentClient paymentClient,
+                           OrderService orderService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productClient = productClient;
         this.paymentClient = paymentClient;
+        this.orderService = orderService; // 💡 Initialisation
     }
 
-    // 1. Route pour récupérer les infos profil d'un utilisateur (Sophie Martin)
+    // --- 3. LES MÉTHODES DE REQUÊTES (GET, POST...) ---
+
     @GetMapping("/users/{id}")
     public User getUserProfile(@PathVariable Long id) {
         return userRepository.findById(id)
@@ -39,16 +46,12 @@ public class OrderController {
 
     @GetMapping("/users/{userId}/history")
     public List<Order> getUserOrderHistory(@PathVariable Long userId) {
-        // 1. On vérifie si l'utilisateur existe en base
         if (!userRepository.existsById(userId)) {
-            // 🟢 Correction ici : On affiche la variable locale "userId" au lieu de l'import jpa
             throw new RuntimeException("Utilisateur introuvable avec l'id : " + userId);
         }
 
-        // 2. On récupère toutes ses commandes
         List<Order> orders = orderRepository.findByUserId(userId);
 
-        // 3. Magie d'OpenFeign : Pour chaque commande, on parcourt ses lignes (items)
         for (Order order : orders) {
             if (order.getItems() != null) {
                 for (OrderItem item : order.getItems()) {
@@ -61,11 +64,10 @@ public class OrderController {
                 }
             }
         }
-
         return orders;
     }
 
-    // 2. Route de création de commande connectée au cycle de paiement synchrone
+    // 2. Route de création de commande (AU FINAL DU CODE)
     @PostMapping
     public Order createOrder(@RequestBody Order order) {
 
@@ -74,27 +76,27 @@ public class OrderController {
             for (OrderItem item : order.getItems()) {
                 item.setOrder(order);
 
-                // Calcul du montant cumulé (Prix unitaire * Quantité)
                 if (item.getPrice() != null && item.getQuantity() != null) {
                     totalAmount += item.getPrice() * item.getQuantity();
                 }
             }
         }
 
-        // On donne un statut temporaire à la commande avant de l'enregistrer une première fois
+        // 🌟 MAGIE NOSQL : Application de la remise via le service MongoDB avant le paiement !
+        totalAmount = orderService.applyNoSqlDiscount(totalAmount);
+
+        // On affecte le montant final calculé (potentiellement réduit) à la commande
         order.setStatus("PENDING");
         Order savedOrder = orderRepository.save(order);
 
-        // Appel de communication inter-microservices synchrone avec OpenFeign !
+        // Appel synchrone avec OpenFeign
         try {
             paymentClient.processPayment(savedOrder.getId(), totalAmount);
             savedOrder.setStatus("PAID");
-
         } catch (Exception e) {
             savedOrder.setStatus("PAYMENT_FAILED");
         }
 
-        // Mise à jour finale du statut de la commande en base de données
         return orderRepository.save(savedOrder);
     }
 }

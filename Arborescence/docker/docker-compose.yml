@@ -34,6 +34,12 @@ services:
     networks:
       - cafe-velours-network
 
+  mongodb:
+    image: mongo:latest
+    container_name: cafe-velours-mongo
+    ports:
+      - "27017:27017"
+
 volumes:
   mysql_data:
 
