@@ -48,10 +48,11 @@ function App() {
                 {!loading && !error && orders.length > 0 && (
                     <div style={{ display: 'grid', gap: '15px' }}>
                         {orders.map((order) => {
-                            // Détermination dynamique de la remise si le back ne l'envoie pas encore
-                            const hasDiscount = order.discountRate > 0 || order.totalAmount > 50;
-                            const currentDiscountRate = order.discountRate > 0 ? order.discountRate : (order.totalAmount > 50 ? 0.10 : 0);
-                            const currentFinalAmount = order.finalAmount ? order.finalAmount : (order.totalAmount * (1 - currentDiscountRate));
+                            // On se base uniquement sur ce que renvoie le Back-end NoSQL
+                            const currentDiscountRate = order.discountRate || 0;
+                            const hasDiscount = currentDiscountRate > 0;
+                             // On calcule le montant final en appliquant directement le taux reçu du Back
+                            const currentFinalAmount = hasDiscount ? (order.totalAmount * (1 - currentDiscountRate)) : order.totalAmount;
 
                             return (
                                 <div key={order.id} style={{ border: '1px solid #e0d7cc', borderRadius: '6px', padding: '15px', backgroundColor: '#fff' }}>

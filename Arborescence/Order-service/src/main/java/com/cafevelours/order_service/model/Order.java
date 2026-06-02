@@ -20,6 +20,31 @@ public class Order {
     private Double totalAmount;  // Ex: 36.40
     private String status;       // Ex: "Confirmée" ou "Expédiée"
 
+    // --- Attributs de la mécanique NoSQL (Ignorés par MySQL grâce à @Transient) ---
+    @Transient
+    private Double discountRate = 0.0;
+
+    @Transient
+    private Double finalAmount;
+
+    // --- Getters et Setters pour la mécanique NoSQL ---
+    public Double getDiscountRate() {
+        return discountRate;
+    }
+    public void setDiscountRate(Double discountRate) {
+        this.discountRate = discountRate;
+    }
+
+    public Double getFinalAmount() {
+        if (finalAmount == null && totalAmount != null) {
+            return totalAmount * (1 - (discountRate != null ? discountRate : 0.0));
+        }
+        return finalAmount;
+    }
+    public void setFinalAmount(Double finalAmount) {
+        this.finalAmount = finalAmount;
+    }
+
     // Lien vers l'utilisateur qui a passé la commande
     @ManyToOne(cascade = CascadeType.PERSIST) // 💡 Permet de créer le User automatiquement lors de la commande !
     @JoinColumn(name = "user_id", nullable = false)
@@ -38,6 +63,7 @@ public class Order {
         this.totalAmount = totalAmount;
         this.status = status;
         this.user = user;
+        this.discountRate = 0.0; // Ajout de  securite pour le constructeur
     }
 
     // --- Getters et Setters ---
