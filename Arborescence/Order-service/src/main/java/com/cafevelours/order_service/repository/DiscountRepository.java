@@ -6,4 +6,4 @@ import java.util.Optional;
 
 public interface DiscountRepository extends MongoRepository<Discount, String> {
     Optional<Discount> findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(double amount);
-}
+} //Comment faire la requete sur sql ?? montrer ça au jury
