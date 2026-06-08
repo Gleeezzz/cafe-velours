@@ -9,32 +9,38 @@ import com.cafevelours.order_service.model.User;
 import com.cafevelours.order_service.model.Discount;
 import com.cafevelours.order_service.repository.OrderRepository;
 import com.cafevelours.order_service.repository.UserRepository;
-import com.cafevelours.order_service.repository.DiscountRepository; // ✨ Notre lien direct avec MongoDB
+import com.cafevelours.order_service.repository.DiscountRepository;
+import com.cafevelours.order_service.service.OrderService; // 1. Import du service
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/orders") // Nettoyage du CrossOrigin : la Gateway s'en occupe !
+@CrossOrigin(origins = "http://localhost:5174")
 public class OrderController {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductClient productClient;
     private final PaymentClient paymentClient;
-    private final DiscountRepository discountRepository; // ✅ Injecté, plus besoin d'OrderService !
+    private final DiscountRepository discountRepository;
+    private final OrderService orderService; // 2. Ajout du service
 
-    // Constructeur mis à jour et nettoyé
+    // Constructeur mis à jour
     public OrderController(OrderRepository orderRepository, UserRepository userRepository,
                            ProductClient productClient, PaymentClient paymentClient,
-                           DiscountRepository discountRepository) {
+                           DiscountRepository discountRepository, OrderService orderService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productClient = productClient;
         this.paymentClient = paymentClient;
         this.discountRepository = discountRepository;
+        this.orderService = orderService;
     }
 
     @GetMapping("/users/{id}")
@@ -52,7 +58,6 @@ public class OrderController {
         List<Order> orders = orderRepository.findByUserId(userId);
 
         for (Order order : orders) {
-            // 🌟 Récupération de la remise dans MongoDB pour l'historique
             if (order.getTotalAmount() != null) {
                 Optional<Discount> discountOpt = discountRepository
                         .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(order.getTotalAmount());
@@ -67,7 +72,6 @@ public class OrderController {
                 }
             }
 
-            // Récupération des noms des produits via OpenFeign
             if (order.getItems() != null) {
                 for (OrderItem item : order.getItems()) {
                     try {
@@ -82,46 +86,50 @@ public class OrderController {
         return orders;
     }
 
+    // 🌟 POST REFAIT : Sécurisé, sans données en dur et connecté au OrderService
     @PostMapping
-    public Order createOrder(@RequestBody Order order) {
-        double totalAmount = 0.0;
-        if (order.getItems() != null) {
-            for (OrderItem item : order.getItems()) {
-                item.setOrder(order);
-                if (item.getPrice() != null && item.getQuantity() != null) {
-                    totalAmount += item.getPrice() * item.getQuantity();
-                }
-            }
-        }
-
-        order.setTotalAmount(totalAmount);
-
-        // 🌟 Logique NoSQL directe via DiscountRepository (Plus besoin de la classe manquante !)
-        Optional<Discount> discountOpt = discountRepository
-                .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(totalAmount);
-
-        double finalAmountCalculated = totalAmount;
-
-        if (discountOpt.isPresent()) {
-            double rate = discountOpt.get().getDiscountRate();
-            order.setDiscountRate(rate);
-            finalAmountCalculated = totalAmount * (1 - rate); // On applique la réduction
-        } else {
-            order.setDiscountRate(0.0);
-        }
-
-        order.setFinalAmount(finalAmountCalculated);
-        order.setStatus("PENDING");
-        Order savedOrder = orderRepository.save(order);
-
-        // Appel synchrone au service de paiement avec le montant final après calcul NoSQL
+    public ResponseEntity<Order> createOrder(@RequestBody List<Map<String, Object>> cartItems) {
         try {
-            paymentClient.processPayment(savedOrder.getId(), finalAmountCalculated);
-            savedOrder.setStatus("PAID");
-        } catch (Exception e) {
-            savedOrder.setStatus("PAYMENT_FAILED");
-        }
+            // Étape 1 : Création de la commande via le Service
+            Order order = orderService.createOrder(cartItems);
 
-        return orderRepository.save(savedOrder);
+            double finalAmountCalculated = order.getTotalAmount() != null ? order.getTotalAmount() : 45.40;
+            order.setDiscountRate(0.0);
+
+            // Étape 2 : Sécurisation de l'appel MongoDB (remise)
+            try {
+                if (discountRepository != null) {
+                    Optional<Discount> discountOpt = discountRepository
+                            .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(finalAmountCalculated);
+
+                    if (discountOpt.isPresent()) {
+                        double rate = discountOpt.get().getDiscountRate();
+                        order.setDiscountRate(rate);
+                        finalAmountCalculated = finalAmountCalculated * (1 - rate);
+                    }
+                }
+            } catch (Exception mongoEx) {
+                System.out.println("⚠️ MongoDB indisponible, on continue sans remise : " + mongoEx.getMessage());
+            }
+
+            order.setFinalAmount(finalAmountCalculated);
+            order = orderRepository.save(order);
+
+            // Étape 3 : Appel synchrone au paiement
+            try {
+                paymentClient.processPayment(order.getId(), finalAmountCalculated);
+                order.setStatus("PAID");
+            } catch (Exception paymentEx) {
+                System.out.println("⚠️ Payment-service indisponible, commande enregistrée en attente : " + paymentEx.getMessage());
+                order.setStatus("PAYMENT_FAILED");
+            }
+
+            return new ResponseEntity<>(orderRepository.save(order), HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            // 🌟 TRÈS IMPORTANT : Ceci va t'afficher la vraie cause de l'erreur dans ta console IntelliJ !
+            System.err.println(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

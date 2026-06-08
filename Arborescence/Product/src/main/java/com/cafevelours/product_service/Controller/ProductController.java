@@ -1,14 +1,13 @@
-package com.cafevelours.product_service.Controller;
+package com.cafevelours.product_service.Controller; // Exemple de package
 
-import com.cafevelours.product_service.model.Product;
 import com.cafevelours.product_service.Repository.ProductRepository;
+import com.cafevelours.product_service.model.Product;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/products") // 🎯 AJOUTE LE PREFIXE ICI pour s'aligner sur la Gateway !
+//@CrossOrigin(origins = "*")
 public class ProductController {
 
     private final ProductRepository productRepository;

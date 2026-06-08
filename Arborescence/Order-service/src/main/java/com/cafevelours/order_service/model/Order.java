@@ -45,9 +45,8 @@ public class Order {
         this.finalAmount = finalAmount;
     }
 
-    // Lien vers l'utilisateur qui a passé la commande
-    @ManyToOne(cascade = CascadeType.PERSIST) // 💡 Permet de créer le User automatiquement lors de la commande !
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne // 🌟 Sans cascade persist/all pour éviter qu'Hibernate ne re-sauvegarde le User
+    @JoinColumn(name = "user_id") // Le nom de ta colonne en BDD
     private User user;
 
     // Une commande contient plusieurs lignes d'articles (OrderItem)

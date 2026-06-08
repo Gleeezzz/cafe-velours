@@ -35,7 +35,7 @@ public class Product {
     @Column(length = 1000)
     private String description;   // Ex: "Récolté à 1600m d'altitude..."
 
-    @ElementCollection
+    @ElementCollection //
     @CollectionTable(name = "product_tasting_notes", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "note")
     private List<String> tastingNotes; // Ex: ["Caramel", "Amande grillée"]
