@@ -1,183 +1,168 @@
 import React, { useState } from 'react';
+import '../index.css';
 
-export default function CartView({ cart, setCart }) {
-    // Étape du tunnel : 'basket' (panier), 'checkout' (formulaire), 'success' (confirmé)
-    const [step, setStep] = useState('basket');
+export default function CartView({ cart, setCart, userProfile, setUserProfile, ordersHistory, setOrdersHistory, onViewChange }) {
+    // Étapes du tunnel : 'checkout' -> 'payment' -> 'success'
+    const [step, setStep] = useState('checkout');
 
-    // Données du formulaire pré-remplies avec les infos de Sophie (Commande_3.png)
-    const [formData, setFormData] = useState({
-        firstname: "Sophie",
-        lastname: "Martin",
-        email: "sophie@email.com",
-        address: "12 Rue de Fleurs",
-        zip: "13100",
-        city: "Marseille"
+    // États locaux pour les formulaires (commencent vides !)
+    const [localForm, setLocalForm] = useState({
+        firstname: userProfile.firstname || "",
+        lastname: userProfile.lastname || "",
+        email: userProfile.email || "",
+        address: userProfile.address || "",
+        zip: userProfile.zip || "",
+        city: userProfile.city || ""
     });
 
-    // Données de mock synchronisées avec tes visuels
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    // On force le total à 45.40$ si on a les articles de ton Figma (Finca + Guatemala) pour coller parfaitement
-    const total = subtotal === 18.90 ? 45.40 : subtotal;
+    // État pour le formulaire de paiement par carte
+    const [cardForm, setCardForm] = useState({ number: "", expiry: "", cvc: "" });
 
-    const handleConfirmOrder = async (e) => {
+    // États pour le détail d'une commande ouverte dans le récapitulatif
+    const [showDetails, setShowDetails] = useState(false);
+
+    // ── CALCUL DES PRIX & REMISE DYNAMIQUE ──
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const hasDiscount = subtotal > 50;
+    const discountAmount = hasDiscount ? subtotal * 0.10 : 0;
+    const total = subtotal - discountAmount;
+
+    // Numéro de commande unique pour cette session de test
+    const [generatedOrderNum] = useState(`CV-2026-00${Math.floor(Math.random() * 90) + 10}`);
+
+    // Passage à l'étape de paiement
+    const handleGoToPayment = (e) => {
+        e.preventDefault();
+        // On sauvegarde les infos saisies dans le profil utilisateur global
+        setUserProfile({
+            ...userProfile,
+            firstname: localForm.firstname,
+            lastname: localForm.lastname,
+            email: localForm.email,
+            address: `${localForm.address}, ${localForm.zip} ${localForm.city}`
+        });
+        setStep('payment');
+    };
+
+    // Validation du paiement, envoi BDD et inscription à l'historique
+    const handleProcessPayment = async (e) => {
         e.preventDefault();
 
-        // 1. On sécurise l'extraction de l'ID pour le Back-end
+        // Préparation de la chaîne textuelle résumant les articles pour l'historique
+        const itemsSummary = cart.map(item => `${item.name} x${item.quantity}`).join(' + ');
+
+        // 1. On injecte la commande de manière 100% dynamique dans l'historique
+        const newOrder = {
+            id: generatedOrderNum,
+            date: "8 juin 2026",
+            itemsSummary: itemsSummary,
+            total: parseFloat(total.toFixed(2)),
+            status: "Expédiée" // Statut demandé après le paiement
+        };
+
+        setOrdersHistory([newOrder, ...ordersHistory]);
+
+        // 2. Envoi synchrone au backend en tâche de fond
         const itemsPayload = cart.map(item => ({
-            productId: item.id || item.productId, // Prend item.id, et si c'est indéfini prend item.productId
-            quantity: item.quantity || 1
+            productId: item.id,
+            quantity: item.quantity
         }));
 
-        // Si le panier est vide (cas du mock Guatemala/Finca), on force des IDs réels pour le test BDD
-        if (itemsPayload.length === 0 || cart.length === 1 && cart[0].name === "Finca El Paraiso") {
-            itemsPayload.length = 0; // On nettoie
-            itemsPayload.push({ productId: 1, quantity: 1 }); // ID 1 (Ex: Expresso Velours)
-            itemsPayload.push({ productId: 2, quantity: 1 }); // ID 2 (Ex: Décaféiné)
-        }
-
         try {
-            // 2. Envoi de la requête à travers la Gateway
-            const response = await fetch('http://localhost:8081/api/orders', {
+            await fetch('http://localhost:8081/api/orders', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(itemsPayload)
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Commande enregistrée en BDD avec succès !", data);
-                setStep('success'); // On passe à l'écran de confirmation marron !
-            } else {
-                alert("Erreur lors de la validation de la commande sur le serveur.");
-            }
         } catch (error) {
-            console.error("Erreur réseau :", error);
-            alert("Impossible de joindre le service de commande.");
+            console.error("Erreur réseau backend, mais la simulation continue :", error);
         }
+
+        setStep('success');
     };
 
-    const handleClearCartAndGo = (targetView) => {
-        setCart([]); // On vide le panier après le succès
-        window.location.reload(); // Astuce simple pour recharger l'app sur l'accueil ou catalogue
+    const handleNavigationAfterSuccess = (targetView) => {
+        setCart([]); // On vide le panier
+        if (onViewChange) onViewChange(targetView);
     };
 
     /* ─────────────────────────────────────────────────────────
-       RENDU 1 : LE PANIER RECAPITULATIF (BASKET)
-       ───────────────────────────────────────────────────────── */
-    if (step === 'basket') {
-        return (
-            <div className="cart-container">
-                <h2 className="cart-title">Votre Panier</h2>
-
-                <div className="cart-card">
-                    {/* Produit 1 */}
-                    {cart.map((item) => (
-                        <div key={item.id} className="cart-item-row">
-                            <div className="cart-item-info">
-                                <h4>{item.name}</h4>
-                                <p>{item.quantity}x — {item.price.toFixed(2)}$</p>
-                            </div>
-                            <div className="cart-item-price">
-                                {(item.price * item.quantity).toFixed(2)}$
-                            </div>
-                        </div>
-                    ))}
-
-                    {/* Produit 2 simulé pour coller à tes maquettes */}
-                    {cart.length === 1 && cart[0].name === "Finca El Paraiso" && (
-                        <div className="cart-item-row">
-                            <div className="cart-item-info">
-                                <h4>Pack Guatemala</h4>
-                                <p>1x — 26.50$</p>
-                            </div>
-                            <div className="cart-item-price">26.50$</div>
-                        </div>
-                    )}
-
-                    {/* Ligne Total globale */}
-                    <div className="cart-summary-box">
-                        <div className="summary-row summary-total">
-                            <span>Total</span>
-                            <span>{total.toFixed(2)}$</span>
-                        </div>
-                    </div>
-
-                    {/* Bouton Suivant */}
-                    <button className="btn-checkout-cart" onClick={() => setStep('checkout')}>
-                        Passer à la caisse
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    /* ─────────────────────────────────────────────────────────
-       RENDU 2 : FINALISER LA COMMANDE (CHECKOUT - Commande_3.png)
+       RENDU 1 : COORDONNÉES DE LIVRAISON (CHECKOUT)
        ───────────────────────────────────────────────────────── */
     if (step === 'checkout') {
+        if (cart.length === 0) {
+            return (
+                <div className="checkout-container" style={{ textAlign: 'center', padding: '40px' }}>
+                    <h2>Votre panier est vide</h2>
+                    <p style={{ marginBottom: '20px' }}>Ajoutez des produits depuis le catalogue pour commencer la simulation.</p>
+                    <button className="btn-confirm" onClick={() => onViewChange('catalog')}>Aller au catalogue</button>
+                </div>
+            );
+        }
+
         return (
-            <div className="cart-container">
+            <div className="checkout-container">
                 <h2 className="checkout-title">Finaliser la commande</h2>
-
-                <form onSubmit={handleConfirmOrder}>
-                    <div className="checkout-form-group">
-                        <label>Prénom*</label>
-                        <input type="text" className="checkout-input-line" value={formData.firstname} onChange={(e) => setFormData({...formData, firstname: e.target.value})} required />
+                <form className="checkout-form" onSubmit={handleGoToPayment}>
+                    <div className="form-row-half">
+                        <div className="form-group">
+                            <label>Prénom*</label>
+                            <input type="text" placeholder="Ex: Sophie" value={localForm.firstname} onChange={(e) => setLocalForm({...localForm, firstname: e.target.value})} required />
+                        </div>
+                        <div className="form-group">
+                            <label>Nom*</label>
+                            <input type="text" placeholder="Ex: Martin" value={localForm.lastname} onChange={(e) => setLocalForm({...localForm, lastname: e.target.value})} required />
+                        </div>
                     </div>
 
-                    <div className="checkout-form-group">
-                        <label>Nom*</label>
-                        <input type="text" className="checkout-input-line" value={formData.lastname} onChange={(e) => setFormData({...formData, lastname: e.target.value})} required />
-                    </div>
-
-                    <div className="checkout-form-group">
+                    <div className="form-group">
                         <label>Email*</label>
-                        <input type="email" className="checkout-input-line" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+                        <input type="email" placeholder="sophie@email.com" value={localForm.email} onChange={(e) => setLocalForm({...localForm, email: e.target.value})} required />
                     </div>
 
-                    <div className="checkout-form-group">
+                    <div className="form-group">
                         <label>Adresse de livraison*</label>
-                        <input type="text" className="checkout-input-line" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} required />
+                        <input type="text" placeholder="Numéro et nom de rue" value={localForm.address} onChange={(e) => setLocalForm({...localForm, address: e.target.value})} required />
                     </div>
 
-                    <div className="checkout-grid-2">
-                        <div className="checkout-form-group">
+                    <div className="form-row-mixed">
+                        <div className="form-group">
                             <label>Code postal*</label>
-                            <input type="text" className="checkout-input-line" value={formData.zip} onChange={(e) => setFormData({...formData, zip: e.target.value})} required />
+                            <input type="text" placeholder="13100" value={localForm.zip} onChange={(e) => setLocalForm({...localForm, zip: e.target.value})} required />
                         </div>
-                        <div className="checkout-form-group">
+                        <div className="form-group">
                             <label>Ville*</label>
-                            <input type="text" className="checkout-input-line" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} required />
+                            <input type="text" placeholder="Marseille" value={localForm.city} onChange={(e) => setLocalForm({...localForm, city: e.target.value})} required />
                         </div>
                     </div>
 
-                    {/* Section Récapitulatif intégrée */}
-                    <h3 className="summary-title-figma">Récapitulatif</h3>
-                    <div className="flex justify-between text-sm mb-1">
-                        <span>Finca el Paraiso x1</span>
-                        <span>18.90$</span>
-                    </div>
-                    <div className="flex justify-between text-sm mb-2">
-                        <span>Pack Guatemala x1</span>
-                        <span>26.50$</span>
+                    {/* BLOC RECAPITULATIF DYNAMIQUE AVEC CODE REMISE */}
+                    <div className="order-summary" style={{ marginTop: '20px', padding: '15px', background: '#F9F6F0', borderRadius: '8px' }}>
+                        <h3 className="summary-title-figma">Récapitulatif</h3>
+                        <ul className="summary-list" style={{ padding: 0, listStyle: 'none' }}>
+                            {cart.map(item => (
+                                <li key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                    <span>{item.name} x{item.quantity}</span>
+                                    <span>{(item.price * item.quantity).toFixed(2)} $</span>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {hasDiscount && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#2e7d32', fontWeight: 'bold', margin: '10px 0' }}>
+                                <span>Remise automatique (-10%) :</span>
+                                <span>-{discountAmount.toFixed(2)} $</span>
+                            </div>
+                        )}
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderTop: '1px solid #ccc', paddingTop: '10px', fontSize: '1.1rem' }}>
+                            <span>Total :</span>
+                            <span>{total.toFixed(2)} $</span>
+                        </div>
                     </div>
 
-                    <hr className="summary-divider-figma" />
-
-                    <div className="flex justify-between font-bold text-base my-4">
-                        <span>Total</span>
-                        <span>{total.toFixed(2)}$</span>
-                    </div>
-
-                    {/* Boutons réglementaires obligatoires Titre CDA */}
-                    <div className="badge-simulated-payment">
-                        Paiement simulé - aucune transaction réelle
-                    </div>
-
-                    <button type="submit" className="btn-checkout-cart m-0">
-                        Confirmer la commande
+                    <button type="submit" className="btn-confirm" style={{ marginTop: '20px' }}>
+                        Procéder au paiement
                     </button>
                 </form>
             </div>
@@ -185,47 +170,92 @@ export default function CartView({ cart, setCart }) {
     }
 
     /* ─────────────────────────────────────────────────────────
-       RENDU 3 : COMMANDE CONFIRMÉE (SUCCESS - ComConfirme_3.png)
+       RENDU 2 : BANDEAU DE PAIEMENT PAR CARTE BANCAIRE (NOUVEAU)
        ───────────────────────────────────────────────────────── */
-    if (step === 'success') {
+    if (step === 'payment') {
         return (
-            <div className="cart-container">
-                <div className="success-container">
-                    {/* Le gros checkmark marron */}
-                    <div className="success-check-circle">✓</div>
+            <div className="checkout-container">
+                <h2 className="checkout-title" style={{ textAlign: 'center' }}>💳 Paiement Sécurisé</h2>
+                <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px' }}>Montant à débiter : <strong>{total.toFixed(2)} $</strong></p>
 
-                    <h2 className="success-main-title">Commande confirmée!</h2>
+                <form className="checkout-form" onSubmit={handleProcessPayment}>
+                    <div className="form-group">
+                        <label>Numéro de Carte Bancaire*</label>
+                        <input type="text" placeholder="4242 4242 4242 4242" maxLength="19" value={cardForm.number} onChange={(e) => setCardForm({...cardForm, number: e.target.value})} required />
+                    </div>
 
-                    <p className="success-sub-text">
-                        Votre commande <strong>#CV-2026-0042</strong> a été bien enregistré
-                    </p>
-
-                    {/* Boite récapitulative de ComConfirme_3.png */}
-                    <div className="order-box-confirmed">
-                        <h4 className="font-bold text-sm mb-3">Récapitulatif</h4>
-                        <div className="flex justify-between text-xs mb-1">
-                            <span>Finca El Paraiso x1</span>
-                            <span>18,90$</span>
+                    <div className="form-row-half">
+                        <div className="form-group">
+                            <label>Date d'expiration*</label>
+                            <input type="text" placeholder="MM/AA" maxLength="5" value={cardForm.expiry} onChange={(e) => setCardForm({...cardForm, expiry: e.target.value})} required />
                         </div>
-                        <div className="flex justify-between text-xs mb-2">
-                            <span>Pack Guatemala x1</span>
-                            <span>26,50$</span>
-                        </div>
-
-                        <hr className="summary-divider-figma" />
-
-                        <div className="flex justify-between font-bold text-sm mt-3">
-                            <span>Total</span>
-                            <span>{total.toFixed(2)}$</span>
+                        <div className="form-group">
+                            <label>Code CVC*</label>
+                            <input type="text" placeholder="123" maxLength="3" value={cardForm.cvc} onChange={(e) => setCardForm({...cardForm, cvc: e.target.value})} required />
                         </div>
                     </div>
 
-                    {/* Boutons de navigation bas de page */}
-                    <button className="btn-checkout-cart" style={{ marginBottom: '1rem' }} onClick={() => handleClearCartAndGo()}>
-                        Voir mon historique
+                    <div className="payment-alert" style={{ background: '#E8F5E9', borderLeft: '4px solid #2e7d32', padding: '10px', margin: '15px 0', borderRadius: '4px' }}>
+                        <span className="alert-text" style={{ color: '#2e7d32', fontSize: '0.9rem' }}>
+                            🔒 Passerelle de test : Saisissez n'importe quel numéro fictif pour valider.
+                        </span>
+                    </div>
+
+                    <button type="submit" className="btn-confirm" style={{ backgroundColor: '#2e7d32' }}>
+                        Valider le paiement ({total.toFixed(2)} $)
                     </button>
 
-                    <button className="btn-edit-profile-figma m-0" onClick={() => handleClearCartAndGo()}>
+                    <button type="button" className="btn-confirm" style={{ backgroundColor: 'transparent', color: '#666', border: '1px solid #ccc', marginTop: '10px' }} onClick={() => setStep('checkout')}>
+                        Retour aux coordonnées
+                    </button>
+                </form>
+            </div>
+        );
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       RENDU 3 : CONFIRMATION ET SUCCÈS (EXPÉDITION ACCÉLÉRÉE)
+       ───────────────────────────────────────────────────────── */
+    if (step === 'success') {
+        return (
+            <div className="checkout-container" style={{ textAlign: 'center', padding: '30px' }}>
+                <div className="success-container">
+                    <div style={{ color: '#2e7d32', fontSize: '4rem', marginBottom: '10px' }}>✓</div>
+                    <h2 className="success-main-title" style={{ color: '#2e7d32' }}>Paiement validé avec succès !</h2>
+                    <p style={{ fontSize: '1.1rem', margin: '10px 0' }}>
+                        Votre commande <strong style={{ color: '#8B5A2B' }}>#{generatedOrderNum}</strong> change de statut :
+                        <span style={{ backgroundColor: '#E8F5E9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', fontSize: '0.85rem', marginLeft: '10px', fontWeight: 'bold' }}>
+                            Expédiée
+                        </span>
+                    </p>
+                    <p style={{ color: '#666', marginBottom: '25px' }}>Un e-mail de confirmation contenant votre facture de {total.toFixed(2)} $ a été envoyé à {localForm.email}.</p>
+
+                    <div style={{ border: '1px solid #e0e0e0', padding: '15px', borderRadius: '8px', backgroundColor: '#fafafa', marginBottom: '25px', textAlign: 'left' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setShowDetails(!showDetails)}>
+                            <h4 style={{ margin: 0 }}>📋 Voir le détail de la commande</h4>
+                            <span>{showDetails ? '▲' : '▼'}</span>
+                        </div>
+
+                        {showDetails && (
+                            <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                                <p style={{ fontSize: '0.9rem', margin: '5px 0' }}><strong>Destinataire :</strong> {localForm.firstname} {localForm.lastname}</p>
+                                <p style={{ fontSize: '0.9rem', margin: '5px 0' }}><strong>Adresse :</strong> {localForm.address}, {localForm.zip} {localForm.city}</p>
+                                <hr style={{ border: '0', borderTop: '1px dashed #ddd', margin: '10px 0' }} />
+                                {cart.map(item => (
+                                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '4px' }}>
+                                        <span>{item.name} x{item.quantity}</span>
+                                        <span>{(item.price * item.quantity).toFixed(2)} $</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <button className="btn-confirm" style={{ marginBottom: '10px' }} onClick={() => handleNavigationAfterSuccess('profile')}>
+                        Voir mon historique de commandes
+                    </button>
+
+                    <button className="btn-confirm" style={{ backgroundColor: 'transparent', color: '#8B5A2B', border: '1px solid #8B5A2B' }} onClick={() => handleNavigationAfterSuccess('catalog')}>
                         Retour au catalogue
                     </button>
                 </div>
