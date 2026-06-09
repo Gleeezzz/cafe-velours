@@ -1109,3 +1109,83 @@
 .btn-confirm:hover {
   background-color: #6F441F;
 }
+
+/* Garder le style d'origine mais appliquer une transition fluide */
+.btn-add-to-cart {
+  transition: all 0.3s ease-in-out;
+}
+
+/* ─── AJUSTEMENTS ET INTERACTION DU CATALOGUE (CORRECTIFS) ─── */
+
+/* Force l'image du microservice à respecter le carré du wrapper sans déborder */
+.product-image-wrapper img {
+  width: auto !important;
+  height: auto !important;
+  max-width: 80% !important;
+  max-height: 80% !important;
+  object-fit: contain !important;
+  transition: transform 0.3s ease !important;
+}
+
+/* Effet d'élévation léger sur la carte produit au survol */
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+/* État interactif : Quand le produit est dans le panier */
+.btn-add-cart.btn-added {
+  background-color: #385723 !important; /* Vert forêt de validation */
+  color: #ffffff !important;
+  font-weight: bold !important;
+  border: none !important;
+}
+
+.btn-add-cart.btn-added:hover {
+  background-color: #2d421b !important; /* Vert un peu plus sombre au survol */
+}
+
+/* Transition générale pour adoucir le changement de couleur du bouton */
+.btn-add-cart {
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* ─── CONTROLEUR DE QUANTITÉ ADAPTATIF FIGMA ─── */
+.qty-selector-container {
+  display: flex !important;
+  align-items: center !important;
+  background-color: #385723 !important; /* Le vert forêt de validation */
+  border-radius: 0.75rem !important; /* Même arrondi que ton bouton d'origine */
+  overflow: hidden !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.qty-btn-minus, .qty-btn-plus {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 0.75rem !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s !important;
+}
+
+.qty-btn-minus:hover {
+  background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.qty-btn-plus:hover {
+  background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.qty-display-value {
+  color: #ffffff !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  padding: 0 0.25rem !important;
+  min-width: 20px !important;
+  text-align: center !important;
+}

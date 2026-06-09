@@ -1,10 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../index.css';
 
 export default function ProfileView({ userProfile, setUserProfile, orders, setCurrentView }) {
+    // État pour savoir quelle commande est actuellement déroulée (contient l'ID de la commande)
+    const [expandedOrderId, setExpandedOrderId] = useState(null);
 
-    const handleEditProfile = () => {
-        alert("Action : Modifier le profil");
+    // États pour le mode édition du profil
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState({
+        firstname: userProfile?.firstname || "Sophie",
+        lastname: userProfile?.lastname || "Martin",
+        email: userProfile?.email || "sophie@email.com",
+        address: userProfile?.address || "12 rue de Fleurs, 13100 Marseille",
+        phone: userProfile?.phone || "06 12 34 56 78"
+    });
+
+    const toggleOrderDetails = (orderId) => {
+        if (expandedOrderId === orderId) {
+            setExpandedOrderId(null); // On referme si on reclique dessus
+        } else {
+            setExpandedOrderId(orderId); // On ouvre
+        }
+    };
+
+    const handleSaveProfile = (e) => {
+        e.preventDefault();
+        setUserProfile({
+            ...userProfile,
+            firstname: editForm.firstname,
+            lastname: editForm.lastname,
+            email: editForm.email,
+            address: editForm.address,
+            phone: editForm.phone
+        });
+        setIsEditing(false);
     };
 
     // Fonction sécurisée pour formater le prix
@@ -16,36 +45,29 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         return `${price.toFixed(2)} $`;
     };
 
-    // ── CONDITION CRITIQUE : Si aucune commande, on bloque TOUT le reste du rendu ──
+    // ÉCRAN CONDITIONNEL : Si aucune commande
     if (!orders || orders.length === 0) {
         return (
             <div className="checkout-container" style={{ maxWidth: '500px', margin: '50px auto', textAlign: 'center', padding: '40px 20px' }}>
                 <div style={{ fontSize: '3.5rem', marginBottom: '20px' }}>☕</div>
-                <h2 style={{ fontSize: '1.4rem', color: '#8B5A2B', marginBottom: '10px' }}>
-                    Aucun profil actif
-                </h2>
+                <h2 style={{ fontSize: '1.4rem', color: '#8B5A2B', marginBottom: '10px' }}>Aucun profil actif</h2>
                 <p style={{ color: '#666', fontSize: '0.95rem', lineHeight: '1.5', marginBottom: '30px' }}>
                     Vous n'avez pas encore passé de commande. Votre historique et vos informations de profil apparaîtront ici dès votre premier achat !
                 </p>
-                <button
-                    className="btn-confirm"
-                    style={{ width: '100%', padding: '12px' }}
-                    onClick={() => setCurrentView('catalog')} // Aligné sur 'catalog' (minuscule) comme dans ton App.jsx
-                >
+                <button className="btn-confirm" style={{ width: '100%', padding: '12px' }} onClick={() => setCurrentView('catalog')}>
                     Découvrir notre Catalogue
                 </button>
             </div>
         );
     }
 
-    // ── RENDU NORMAL : S'affiche UNIQUEMENT si au moins une commande existe ──
-    const activeFirstname = userProfile?.firstname || "Client";
-    const activeLastname = userProfile?.lastname || "";
-    const activeEmail = userProfile?.email || "non-communique@email.com";
-    const activeAddress = userProfile?.address || "Adresse non renseignée";
+    const activeFirstname = userProfile?.firstname || "Sophie";
+    const activeLastname = userProfile?.lastname || "Martin";
+    const activeEmail = userProfile?.email || "sophie@email.com";
 
     return (
         <div className="checkout-container" style={{ maxWidth: '600px', margin: '30px auto' }}>
+
             {/* AVATAR & HEADER DYNAMIQUE */}
             <div style={{ textAlign: 'center', marginBottom: '30px' }}>
                 <div style={{
@@ -63,69 +85,128 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                     {activeEmail}
                 </p>
                 <span style={{ backgroundColor: '#E8F5E9', color: '#2e7d32', padding: '4px 12px', borderRadius: '15px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                    CLIENT
+                    CLIENT PREMIUM
                 </span>
             </div>
 
-            {/* HISTORIQUE DES COMMANDES */}
+            {/* BLOCK 1 : HISTORIQUE DES COMMANDES DYNAMIQUE AVEC ACCORDÉON DE DÉTAILS */}
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ fontSize: '1rem', color: '#8B5A2B', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '15px' }}>
                     Mes Commandes ({orders.length})
                 </h3>
 
-                {orders.map((order, index) => (
-                    <div key={order.id || index} style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '15px', marginBottom: '15px', backgroundColor: '#fff' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <strong style={{ fontSize: '1rem' }}>{order.id ? (order.id.startsWith('#') ? order.id : `#${order.id}`) : "#CV-2026-XXXX"}</strong>
-                            <span style={{
-                                backgroundColor: order.status === 'Expédiée' || order.status === 'Confirmée' ? '#E2F0D9' : '#FFF2CC',
-                                color: order.status === 'Expédiée' || order.status === 'Confirmée' ? '#385723' : '#D66011',
-                                padding: '3px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold'
-                            }}>
-                                {order.status || "En cours"}
-                            </span>
-                        </div>
-                        <p style={{ fontSize: '0.85rem', color: '#888', margin: '2px 0' }}>{order.date || "Récemment"}</p>
-                        <p style={{ fontSize: '0.9rem', color: '#444', margin: '8px 0' }}>{order.itemsSummary || "Articles de la commande"}</p>
+                {orders.map((order, index) => {
+                    const isExpanded = expandedOrderId === order.id;
+                    return (
+                        <div key={order.id || index} style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '15px', marginBottom: '15px', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <strong style={{ fontSize: '1rem' }}>{order.id ? (order.id.startsWith('#') ? order.id : `#${order.id}`) : "#CV-2026-XXXX"}</strong>
+                                <span style={{
+                                    backgroundColor: order.status === 'Expédiée' ? '#E2F0D9' : '#FFF2CC',
+                                    color: order.status === 'Expédiée' ? '#385723' : '#D66011',
+                                    padding: '3px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold'
+                                }}>
+                                    {order.status || "En cours"}
+                                </span>
+                            </div>
+                            <p style={{ fontSize: '0.85rem', color: '#888', margin: '2px 0' }}>Fait le : {order.date || "Récemment"}</p>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', borderTop: '1px solid #f5f5f5', paddingTop: '10px' }}>
-                            <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#111' }}>
-                                {formatPrice(order.total)}
-                            </span>
-                            <button
-                                style={{ backgroundColor: 'transparent', border: '1px solid #ccc', borderRadius: '4px', padding: '4px 12px', fontSize: '0.85rem', cursor: 'pointer' }}
-                                onClick={() => alert(`Détails de la commande ${order.id} : \n${order.itemsSummary || "Non spécifié"}`)}
-                            >
-                                Détails
-                            </button>
+                            {/* Le résumé court */}
+                            <p style={{ fontSize: '0.9rem', color: '#444', margin: '8px 0', fontWeight: '500' }}>
+                                {order.itemsSummary || "Articles de la commande"}
+                            </p>
+
+                            {/* ZONE DÉTAILS DÉROULANTE (S'affiche si cliqué) */}
+                            {isExpanded && (
+                                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #eee', backgroundColor: '#FAF9F6', padding: '10px', borderRadius: '6px' }}>
+                                    <h5 style={{ margin: '0 0 8px 0', color: '#8B5A2B' }}>Détails de livraison & facturation</h5>
+                                    <p style={{ fontSize: '0.85rem', margin: '3px 0' }}><strong>Destinataire :</strong> {activeFirstname} {activeLastname}</p>
+                                    <p style={{ fontSize: '0.85rem', margin: '3px 0' }}><strong>Adresse :</strong> {userProfile?.address || order.address || "Adresse enregistrée à la commande"}</p>
+                                    <p style={{ fontSize: '0.85rem', margin: '3px 0' }}><strong>Mode de paiement :</strong> Carte Bancaire (Simulé)</p>
+                                </div>
+                            )}
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', borderTop: '1px solid #f5f5f5', paddingTop: '10px' }}>
+                                <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#111' }}>
+                                    {formatPrice(order.total)}
+                                </span>
+                                <button
+                                    style={{
+                                        backgroundColor: isExpanded ? '#8B5A2B' : 'transparent',
+                                        color: isExpanded ? '#fff' : '#666',
+                                        border: '1px solid #ccc', borderRadius: '4px', padding: '5px 14px', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s'
+                                    }}
+                                    onClick={() => toggleOrderDetails(order.id)}
+                                >
+                                    {isExpanded ? 'Masquer' : 'Détails'}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
-            {/* DÉTAILS DU PROFIL (Désormais masqués si 0 commande) */}
-            <div>
-                <h3 style={{ fontSize: '1rem', color: '#8B5A2B', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '15px' }}>
+            {/* BLOCK 2 : MON PROFIL INTERACTIF (LECTURE OU ÉDITION) */}
+            <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '20px', borderRadius: '8px' }}>
+                <h3 style={{ fontSize: '1rem', color: '#8B5A2B', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '15px', marginTop: 0 }}>
                     Mon Profil
                 </h3>
-                <div style={{ fontSize: '0.95rem', lineHeight: '2' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: '#666' }}>Adresse</span>
-                        <span>{activeAddress}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: '#666' }}>Téléphone</span>
-                        <span>{userProfile?.phone || "06 12 34 56 78"}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: '#666' }}>Membre depuis</span>
-                        <span>{userProfile?.memberSince || "Juin 2026"}</span>
-                    </div>
-                </div>
 
-                <button className="btn-confirm" style={{ marginTop: '20px', width: '100%' }} onClick={handleEditProfile}>
-                    Modifier mon profil
-                </button>
+                {!isEditing ? (
+                    /* CONTEXTE VISUALISATION */
+                    <div style={{ fontSize: '0.95rem', lineHeight: '2.2' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#666' }}>Adresse</span>
+                            <span style={{ fontWeight: '500' }}>{userProfile?.address || "12 rue de Fleurs, 13100 Marseille"}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#666' }}>Téléphone</span>
+                            <span style={{ fontWeight: '500' }}>{userProfile?.phone || "06 12 34 56 78"}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#666' }}>Membre depuis</span>
+                            <span style={{ fontWeight: '500' }}>Juin 2026</span>
+                        </div>
+                        <button
+                            className="btn-confirm"
+                            style={{ marginTop: '20px', width: '100%', padding: '10px' }}
+                            onClick={() => setIsEditing(true)}
+                        >
+                            Modifier mon profil
+                        </button>
+                    </div>
+                ) : (
+                    /* CONTEXTE FORMULAIRE D'ÉDITION */
+                    <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.85rem', color: '#555' }}>Prénom</label>
+                                <input type="text" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} value={editForm.firstname} onChange={e => setEditForm({...editForm, firstname: e.target.value})} required />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.85rem', color: '#555' }}>Nom</label>
+                                <input type="text" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} value={editForm.lastname} onChange={e => setEditForm({...editForm, lastname: e.target.value})} required />
+                            </div>
+                        </div>
+                        <div>
+                            <label style={{ fontSize: '0.85rem', color: '#555' }}>Adresse Complète</label>
+                            <input type="text" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} value={editForm.address} onChange={e => setEditForm({...editForm, address: e.target.value})} required />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: '0.85rem', color: '#555' }}>Téléphone</label>
+                            <input type="text" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} required />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                            <button type="submit" className="btn-confirm" style={{ flex: 1, padding: '10px', backgroundColor: '#385723' }}>
+                                Sauvegarder
+                            </button>
+                            <button type="button" className="btn-confirm" style={{ flex: 1, padding: '10px', backgroundColor: 'transparent', color: '#666', border: '1px solid #ccc' }} onClick={() => setIsEditing(false)}>
+                                Annuler
+                            </button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );

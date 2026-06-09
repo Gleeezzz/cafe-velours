@@ -7,13 +7,8 @@ import Footer from './components/Footer';
 import CartView from './components/CartView';
 
 export default function App() {
-    // 1. On commence maintenant sur la page d'accueil ('home') pour le scénario réel
     const [currentView, setCurrentView] = useState('home');
-
-    // 2. Le panier démarre complètement VIDE
     const [cart, setCart] = useState([]);
-
-    // 3. Infos de profil initiales de Sophie (vides au départ ou modifiables)
     const [userProfile, setUserProfile] = useState({
         firstname: "",
         lastname: "",
@@ -24,12 +19,8 @@ export default function App() {
         phone: "06 12 34 56 78",
         memberSince: "Janvier 2026"
     });
-
-    // 4. Historique global des commandes passé au composant ProfileView
-    // Dans App.jsx, mets le tableau à vide au départ :
     const [ordersHistory, setOrdersHistory] = useState([]);
 
-    // Fonction de navigation
     const handleNavigate = (view) => {
         setCurrentView(view.toLowerCase());
     };
@@ -45,7 +36,22 @@ export default function App() {
         });
     };
 
-    // Calcul du nombre total d'articles pour la Navbar
+    // AJOUT DE LA FONCTION MANQUANTE : Décrémentation / Suppression du panier
+    const removeFromCart = (productId) => {
+        setCart(prevCart => {
+            const existing = prevCart.find(item => item.id === productId);
+            if (!existing) return prevCart;
+
+            if (existing.quantity === 1) {
+                // S'il n'en reste qu'un, on l'enlève complètement du panier
+                return prevCart.filter(item => item.id !== productId);
+            } else {
+                // Sinon, on baisse la quantité de 1
+                return prevCart.map(item => item.id === productId ? { ...item, quantity: item.quantity - 1 } : item);
+            }
+        });
+    };
+
     const totalArticles = cart.reduce((total, item) => total + item.quantity, 0);
 
     const renderView = () => {
@@ -53,14 +59,20 @@ export default function App() {
             case 'home':
                 return <HomeView onNavigate={handleNavigate} />;
             case 'catalog':
-                return <CatalogView onAddToCart={addToCart} />;
+                return (
+                    <CatalogView
+                        onAddToCart={addToCart}
+                        onRemoveFromCart={removeFromCart} // Maintenant, "removeFromCart" existe bien !
+                        cart={cart}
+                    />
+                );
             case 'profile':
                 return (
                     <ProfileView
                         userProfile={userProfile}
                         setUserProfile={setUserProfile}
-                        orders={ordersHistory} // Ton state contenant le tableau des commandes
-                        setCurrentView={setCurrentView} // Permet au bouton de renvoyer vers le catalogue
+                        orders={ordersHistory}
+                        setCurrentView={setCurrentView}
                     />
                 );
             case 'cart':
