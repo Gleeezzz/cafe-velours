@@ -6,6 +6,7 @@ import com.cafevelours.order_service.model.Order;
 import com.cafevelours.order_service.model.OrderItem;
 import com.cafevelours.order_service.model.User;
 import com.cafevelours.order_service.repository.OrderRepository;
+import com.cafevelours.order_service.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,14 +20,17 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
+    private final UserRepository userRepository;
 
-    public OrderService(OrderRepository orderRepository, ProductClient productClient) {
+    public OrderService(OrderRepository orderRepository, ProductClient productClient, UserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.productClient = productClient;
+        this.userRepository = userRepository;  // ✅ ajouté ici
     }
 
+
     @Transactional
-    public Order createOrder(List<Map<String, Object>> itemsFromFrontend) {
+    public Order createOrder(List<Map<String, Object>> itemsFromFrontend, Long userId) {
         Order order = new Order();
         List<OrderItem> orderItems = new ArrayList<>();
         double totalAmount = 0.0;
@@ -58,8 +62,8 @@ public class OrderService {
         order.setReference(generatedRef);
 
         // 🌟 Version propre utilisant l'import de la ligne 7
-        User user = new User();
-        user.setId(1L);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + userId));
         order.setUser(user);
 
         return orderRepository.save(order);

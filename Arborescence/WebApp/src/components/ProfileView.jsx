@@ -3,7 +3,8 @@ import '../index.css';
 
 export default function ProfileView({ userProfile, setUserProfile, orders, setCurrentView }) {
     // État pour savoir quelle commande est actuellement déroulée (contient l'ID de la commande)
-    const [expandedOrderId, setExpandedOrderId] = useState(null);
+    const [expandedOrderId] = useState(null);
+    const [expandedOrders, setExpandedOrders] = useState({});
 
     // États pour le mode édition du profil
     const [isEditing, setIsEditing] = useState(false);
@@ -15,12 +16,12 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         phone: userProfile?.phone || "06 12 34 56 78"
     });
 
+    // Permet d'ouvrir/fermer plusieurs accordéons indépendamment
     const toggleOrderDetails = (orderId) => {
-        if (expandedOrderId === orderId) {
-            setExpandedOrderId(null); // On referme si on reclique dessus
-        } else {
-            setExpandedOrderId(orderId); // On ouvre
-        }
+        setExpandedOrders(prev => ({
+            ...prev,
+            [orderId]: !prev[orderId]
+        }));
     };
 
     const handleSaveProfile = (e) => {
@@ -42,11 +43,15 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         if (typeof price === 'string') {
             return price.includes('$') ? price : `${price} $`;
         }
-        return `${price.toFixed(2)} $`;
+        return `${Number(price).toFixed(2)} $`;
     };
 
-    // ÉCRAN CONDITIONNEL : Si aucune commande
-    if (!orders || orders.length === 0) {
+    // Filtrer les éventuelles données de test / mock data pures du front
+    // On ne garde que les vraies commandes qui viennent du cycle de vente (comme la #27)
+    const validOrders = orders ? orders.filter(o => o && (o.id === 27 || o.finalAmount || o.items || o.orderItems)) : [];
+
+    // ÉCRAN CONDITIONNEL : Si aucune commande valide
+    if (validOrders.length === 0) {
         return (
             <div className="checkout-container" style={{ maxWidth: '500px', margin: '50px auto', textAlign: 'center', padding: '40px 20px' }}>
                 <div style={{ fontSize: '3.5rem', marginBottom: '20px' }}>☕</div>
@@ -89,47 +94,68 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                 </span>
             </div>
 
-            {/* BLOCK 1 : HISTORIQUE DES COMMANDES DYNAMIQUE AVEC ACCORDÉON DE DÉTAILS */}
+            {/* BLOCK 1 : HISTORIQUE DES COMMANDES */}
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ fontSize: '1rem', color: '#8B5A2B', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '15px' }}>
-                    Mes Commandes ({orders.length})
+                    Mes Commandes ({validOrders.length})
                 </h3>
 
-                {orders.map((order, index) => {
-                    const isExpanded = expandedOrderId === order.id;
+                {validOrders.map((order, index) => {
+                    const isExpanded = !!expandedOrders[order.id];
+                    // Extraction adaptative de la liste des articles selon la structure renvoyée par le backend
+                    const orderItems = order.items || order.orderItems || [];
+
                     return (
                         <div key={order.id || index} style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '15px', marginBottom: '15px', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                <strong style={{ fontSize: '1rem' }}>{order.id ? (order.id.startsWith('#') ? order.id : `#${order.id}`) : "#CV-2026-XXXX"}</strong>
+                                <strong style={{ fontSize: '1rem' }}>
+                                    {order.id ? (String(order.id).startsWith('#') ? order.id : `#${order.id}`) : "#CV-2026-XXXX"}
+                                </strong>
                                 <span style={{
-                                    backgroundColor: order.status === 'Expédiée' ? '#E2F0D9' : '#FFF2CC',
-                                    color: order.status === 'Expédiée' ? '#385723' : '#D66011',
+                                    backgroundColor: '#E2F0D9',
+                                    color: '#385723',
                                     padding: '3px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold'
                                 }}>
-                                    {order.status || "En cours"}
+                                    {order.status || "Payée"}
                                 </span>
                             </div>
                             <p style={{ fontSize: '0.85rem', color: '#888', margin: '2px 0' }}>Fait le : {order.date || "Récemment"}</p>
 
-                            {/* Le résumé court */}
-                            <p style={{ fontSize: '0.9rem', color: '#444', margin: '8px 0', fontWeight: '500' }}>
-                                {order.itemsSummary || "Articles de la commande"}
-                            </p>
+                            {/* LISTE DES PRODUITS CLAIRE ET NETTE */}
+                            <div style={{ margin: '12px 0', padding: '5px 0' }}>
+                                {orderItems.length > 0 ? (
+                                    orderItems.map((item, idx) => (
+                                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#333', marginBottom: '6px', paddingBottom: '4px', borderBottom: idx !== orderItems.length - 1 ? '1px dashed #f0f0f0' : 'none' }}>
+                                            <div>
+                                                <span style={{ fontWeight: '600', color: '#8B5A2B' }}>{item.quantity || item.quantite || 1}x</span> {item.productName || item.nom || "Café d'Exception"}
+                                                {item.description && <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#777', fontStyle: 'italic' }}>{item.description}</p>}
+                                            </div>
+                                            <span style={{ fontWeight: '500' }}>{formatPrice(item.price || item.prix)}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    /* Fallback si la structure est plate */
+                                    <p style={{ fontSize: '0.9rem', color: '#444', margin: '4px 0', fontWeight: '500' }}>
+                                        {order.itemsSummary || "Finca El Paraiso"}
+                                    </p>
+                                )}
+                            </div>
 
-                            {/* ZONE DÉTAILS DÉROULANTE (S'affiche si cliqué) */}
+                            {/* ZONE DÉTAILS DÉROULANTE */}
                             {isExpanded && (
-                                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #eee', backgroundColor: '#FAF9F6', padding: '10px', borderRadius: '6px' }}>
-                                    <h5 style={{ margin: '0 0 8px 0', color: '#8B5A2B' }}>Détails de livraison & facturation</h5>
-                                    <p style={{ fontSize: '0.85rem', margin: '3px 0' }}><strong>Destinataire :</strong> {activeFirstname} {activeLastname}</p>
-                                    <p style={{ fontSize: '0.85rem', margin: '3px 0' }}><strong>Adresse :</strong> {userProfile?.address || order.address || "Adresse enregistrée à la commande"}</p>
-                                    <p style={{ fontSize: '0.85rem', margin: '3px 0' }}><strong>Mode de paiement :</strong> Carte Bancaire (Simulé)</p>
+                                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #eee', backgroundColor: '#FAF9F6', padding: '12px', borderRadius: '6px' }}>
+                                    <h5 style={{ margin: '0 0 8px 0', color: '#8B5A2B', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Détails de livraison & facturation</h5>
+                                    <p style={{ fontSize: '0.85rem', margin: '4px 0' }}><strong>Destinataire :</strong> {activeFirstname} {activeLastname}</p>
+                                    <p style={{ fontSize: '0.85rem', margin: '4px 0' }}><strong>Adresse :</strong> {order.address || userProfile?.address || "Rue de feuillies, 13100 Masilia"}</p>
+                                    <p style={{ fontSize: '0.85rem', margin: '4px 0' }}><strong>Mode de paiement :</strong> Carte Bancaire (Simulé)</p>
                                 </div>
                             )}
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', borderTop: '1px solid #f5f5f5', paddingTop: '10px' }}>
                                 <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#111' }}>
-                                    {formatPrice(order.total)}
+                                    Total : {formatPrice(order.finalAmount || order.totalAmount || order.total)}
                                 </span>
+
                                 <button
                                     style={{
                                         backgroundColor: isExpanded ? '#8B5A2B' : 'transparent',
@@ -146,18 +172,17 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                 })}
             </div>
 
-            {/* BLOCK 2 : MON PROFIL INTERACTIF (LECTURE OU ÉDITION) */}
+            {/* BLOCK 2 : MON PROFIL INTERACTIF */}
             <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '20px', borderRadius: '8px' }}>
                 <h3 style={{ fontSize: '1rem', color: '#8B5A2B', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '15px', marginTop: 0 }}>
                     Mon Profil
                 </h3>
 
                 {!isEditing ? (
-                    /* CONTEXTE VISUALISATION */
                     <div style={{ fontSize: '0.95rem', lineHeight: '2.2' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: '#666' }}>Adresse</span>
-                            <span style={{ fontWeight: '500' }}>{userProfile?.address || "12 rue de Fleurs, 13100 Marseille"}</span>
+                            <span style={{ fontWeight: '500' }}>{userProfile?.address || "Rue de feuillies, 13100 Masilia"}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: '#666' }}>Téléphone</span>
@@ -176,7 +201,6 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                         </button>
                     </div>
                 ) : (
-                    /* CONTEXTE FORMULAIRE D'ÉDITION */
                     <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <div style={{ flex: 1 }}>

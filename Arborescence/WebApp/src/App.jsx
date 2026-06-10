@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HomeView from './components/HomeView';
 import ProfileView from './components/ProfileView';
 import CatalogView from "./components/CatalogView.jsx";
 import Footer from './components/Footer';
 import CartView from './components/CartView';
+import LoginView from './components/LoginView';
 
 export default function App() {
     const [currentView, setCurrentView] = useState('home');
     const [cart, setCart] = useState([]);
+
+    // ✅ userId dynamique — plus de hardcode !
+    const [userId, setUserId] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
     const [userProfile, setUserProfile] = useState({
         firstname: "",
         lastname: "",
@@ -19,13 +25,48 @@ export default function App() {
         phone: "06 12 34 56 78",
         memberSince: "Janvier 2026"
     });
+
     const [ordersHistory, setOrdersHistory] = useState([]);
 
+    // ✅ Appelé par LoginView quand le login/register réussit
+    const handleLoginSuccess = (user) => {
+        // On split le name "Rafael Nadal" en firstname + lastname
+        const nameParts = (user.name || "").split(" ");
+        const firstname = nameParts[0] || "";
+        const lastname = nameParts.slice(1).join(" ") || "";
+
+        setUserId(user.id);
+        setUserProfile({
+            firstname,
+            lastname,
+            email: user.email || "",
+            address: user.address || "",
+            phone: user.phoneNumber || "06 12 34 56 78",
+            memberSince: user.memberSince || "Juin 2026"
+        });
+        setIsLoggedIn(true);
+        fetchOrderHistory(user.id);
+    };
+
+    const fetchOrderHistory = async (uid) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/orders/user/${uid}`);
+            if (response.ok) {
+                const data = await response.json();
+                setOrdersHistory(data);
+            }
+        } catch (error) {
+            console.error("Erreur réseau lors de la récupération de l'historique :", error);
+        }
+    };
+
     const handleNavigate = (view) => {
+        if (view.toLowerCase() === 'profile') {
+            fetchOrderHistory(userId);
+        }
         setCurrentView(view.toLowerCase());
     };
 
-    // Gestion de l'ajout au panier
     const addToCart = (product) => {
         setCart(prevCart => {
             const existing = prevCart.find(item => item.id === product.id);
@@ -36,17 +77,13 @@ export default function App() {
         });
     };
 
-    // AJOUT DE LA FONCTION MANQUANTE : Décrémentation / Suppression du panier
     const removeFromCart = (productId) => {
         setCart(prevCart => {
             const existing = prevCart.find(item => item.id === productId);
             if (!existing) return prevCart;
-
             if (existing.quantity === 1) {
-                // S'il n'en reste qu'un, on l'enlève complètement du panier
                 return prevCart.filter(item => item.id !== productId);
             } else {
-                // Sinon, on baisse la quantité de 1
                 return prevCart.map(item => item.id === productId ? { ...item, quantity: item.quantity - 1 } : item);
             }
         });
@@ -62,7 +99,7 @@ export default function App() {
                 return (
                     <CatalogView
                         onAddToCart={addToCart}
-                        onRemoveFromCart={removeFromCart} // Maintenant, "removeFromCart" existe bien !
+                        onRemoveFromCart={removeFromCart}
                         cart={cart}
                     />
                 );
@@ -85,6 +122,9 @@ export default function App() {
                         ordersHistory={ordersHistory}
                         setOrdersHistory={setOrdersHistory}
                         onViewChange={handleNavigate}
+                        userId={userId}
+                        isLoggedIn={isLoggedIn}
+                        onLoginSuccess={handleLoginSuccess}
                     />
                 );
             default:

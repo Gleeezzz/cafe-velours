@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import '../index.css';
+import LoginView from "./LoginView.jsx";
 
-export default function CartView({ cart, setCart, userProfile, setUserProfile, ordersHistory, setOrdersHistory, onViewChange }) {
+export default function CartView({ cart, setCart, userProfile, setUserProfile, ordersHistory, setOrdersHistory, onViewChange, userId, isLoggedIn, onLoginSuccess }) {
     // Étapes du tunnel : 'checkout' -> 'payment' -> 'success'
     const [step, setStep] = useState('checkout');
+    const [isProcessing, setIsProcessing] = useState(false);
 
-    // États locaux pour les formulaires (commencent vides !)
+    // États locaux pour les formulaires
     const [localForm, setLocalForm] = useState({
         firstname: userProfile.firstname || "",
         lastname: userProfile.lastname || "",
@@ -21,14 +23,26 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
     // États pour le détail d'une commande ouverte dans le récapitulatif
     const [showDetails, setShowDetails] = useState(false);
 
+    // Garder une trace de l'ID de commande généré par le backend pour l'écran de succès
+    const [backendOrderId, setBackendOrderId] = useState(null);
+    if (!isLoggedIn) {
+        return (
+            <div className="checkout-container"
+                 style={{maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '30px'}}>
+                <div style={{fontSize: '2rem', marginBottom: '15px'}}>🔒</div>
+                <h2 style={{color: '#8B5A2B', marginBottom: '10px'}}>Connectez-vous pour commander</h2>
+                <p style={{color: '#666', marginBottom: '25px'}}>Vous avez {cart.length} article(s) dans votre
+                    panier.</p>
+                <LoginView onLoginSuccess={onLoginSuccess}/>
+            </div>
+        );
+    }
+
     // ── CALCUL DES PRIX & REMISE DYNAMIQUE ──
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasDiscount = subtotal > 50;
     const discountAmount = hasDiscount ? subtotal * 0.10 : 0;
     const total = subtotal - discountAmount;
-
-    // Numéro de commande unique pour cette session de test
-    const [generatedOrderNum] = useState(`CV-2026-00${Math.floor(Math.random() * 90) + 10}`);
 
     // Passage à l'étape de paiement
     const handleGoToPayment = (e) => {
@@ -44,41 +58,51 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
         setStep('payment');
     };
 
-    // Validation du paiement, envoi BDD et inscription à l'historique
+    // 🌟 CONNEXION BACKEND : Validation du paiement et envoi au OrderController
     const handleProcessPayment = async (e) => {
         e.preventDefault();
+        setIsProcessing(true);
 
-        // Préparation de la chaîne textuelle résumant les articles pour l'historique
-        const itemsSummary = cart.map(item => `${item.name} x${item.quantity}`).join(' + ');
-
-        // 1. On injecte la commande de manière 100% dynamique dans l'historique
-        const newOrder = {
-            id: generatedOrderNum,
-            date: "8 juin 2026",
-            itemsSummary: itemsSummary,
-            total: parseFloat(total.toFixed(2)),
-            status: "Expédiée" // Statut demandé après le paiement
-        };
-
-        setOrdersHistory([newOrder, ...ordersHistory]);
-
-        // 2. Envoi synchrone au backend en tâche de fond
+        // 1. Formatage du payload pour correspondre à List<Map<String, Object>> attendu par ton `@PostMapping`
         const itemsPayload = cart.map(item => ({
             productId: item.id,
             quantity: item.quantity
         }));
 
         try {
-            await fetch('http://localhost:8081/api/orders', {
+            // 2. Envoi de la commande à la Gateway (Port 8080)
+            const response = await fetch('http://localhost:8080/api/orders', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(itemsPayload)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    items: itemsPayload
+                })
             });
-        } catch (error) {
-            console.error("Erreur réseau backend, mais la simulation continue :", error);
-        }
 
-        setStep('success');
+            if (response.ok) {
+                // 3. Récupération de l'objet Order complet généré par ton Spring Boot
+                const savedOrder = await response.json();
+
+                // On stocke l'ID généré par la BDD (ex: MySQL id auto-incrémenté)
+                setBackendOrderId(savedOrder.id);
+
+                // 4. Inscription de la vraie commande BDD en tête de ton historique local
+                setOrdersHistory([savedOrder, ...ordersHistory]);
+
+                // 5. Passage à l'écran de succès
+                setStep('success');
+            } else {
+                alert("Erreur retournée par le serveur de commande.");
+            }
+        } catch (error) {
+            console.error("Erreur réseau backend lors du paiement :", error);
+            alert("Impossible de joindre la Gateway (8080). Vérifie tes microservices.");
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const handleNavigationAfterSuccess = (targetView) => {
@@ -136,7 +160,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                         </div>
                     </div>
 
-                    {/* BLOC RECAPITULATIF DYNAMIQUE AVEC CODE REMISE */}
+                    {/* BLOC RECAPITULATIF */}
                     <div className="order-summary" style={{ marginTop: '20px', padding: '15px', background: '#F9F6F0', borderRadius: '8px' }}>
                         <h3 className="summary-title-figma">Récapitulatif</h3>
                         <ul className="summary-list" style={{ padding: 0, listStyle: 'none' }}>
@@ -170,7 +194,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
     }
 
     /* ─────────────────────────────────────────────────────────
-       RENDU 2 : BANDEAU DE PAIEMENT PAR CARTE BANCAIRE (NOUVEAU)
+       RENDU 2 : BANDEAU DE PAIEMENT PAR CARTE BANCAIRE
        ───────────────────────────────────────────────────────── */
     if (step === 'payment') {
         return (
@@ -197,15 +221,15 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
 
                     <div className="payment-alert" style={{ background: '#E8F5E9', borderLeft: '4px solid #2e7d32', padding: '10px', margin: '15px 0', borderRadius: '4px' }}>
                         <span className="alert-text" style={{ color: '#2e7d32', fontSize: '0.9rem' }}>
-                            🔒 Passerelle de test : Saisissez n'importe quel numéro fictif pour valider.
+                            🔒 Passerelle de test liée à l'order-service et au payment-service.
                         </span>
                     </div>
 
-                    <button type="submit" className="btn-confirm" style={{ backgroundColor: '#2e7d32' }}>
-                        Valider le paiement ({total.toFixed(2)} $)
+                    <button type="submit" className="btn-confirm" style={{ backgroundColor: '#2e7d32' }} disabled={isProcessing}>
+                        {isProcessing ? "Traitement bancaire..." : `Valider le paiement (${total.toFixed(2)} $)`}
                     </button>
 
-                    <button type="button" className="btn-confirm" style={{ backgroundColor: 'transparent', color: '#666', border: '1px solid #ccc', marginTop: '10px' }} onClick={() => setStep('checkout')}>
+                    <button type="button" className="btn-confirm" style={{ backgroundColor: 'transparent', color: '#666', border: '1px solid #ccc', marginTop: '10px' }} onClick={() => setStep('checkout')} disabled={isProcessing}>
                         Retour aux coordonnées
                     </button>
                 </form>
@@ -214,7 +238,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
     }
 
     /* ─────────────────────────────────────────────────────────
-       RENDU 3 : CONFIRMATION ET SUCCÈS (EXPÉDITION ACCÉLÉRÉE)
+       RENDU 3 : CONFIRMATION ET SUCCÈS
        ───────────────────────────────────────────────────────── */
     if (step === 'success') {
         return (
@@ -223,9 +247,9 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                     <div style={{ color: '#2e7d32', fontSize: '4rem', marginBottom: '10px' }}>✓</div>
                     <h2 className="success-main-title" style={{ color: '#2e7d32' }}>Paiement validé avec succès !</h2>
                     <p style={{ fontSize: '1.1rem', margin: '10px 0' }}>
-                        Votre commande <strong style={{ color: '#8B5A2B' }}>#{generatedOrderNum}</strong> change de statut :
+                        Votre commande <strong style={{ color: '#8B5A2B' }}>#{backendOrderId || "Générée"}</strong> a bien été enregistrée :
                         <span style={{ backgroundColor: '#E8F5E9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', fontSize: '0.85rem', marginLeft: '10px', fontWeight: 'bold' }}>
-                            Expédiée
+                            PAID
                         </span>
                     </p>
                     <p style={{ color: '#666', marginBottom: '25px' }}>Un e-mail de confirmation contenant votre facture de {total.toFixed(2)} $ a été envoyé à {localForm.email}.</p>

@@ -15,13 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orders") // Nettoyage du CrossOrigin : la Gateway s'en occupe !
-@CrossOrigin(origins = "http://localhost:5174")
+//@CrossOrigin(origins = "http://localhost:5174")
 public class OrderController {
 
     private final OrderRepository orderRepository;
@@ -55,7 +56,7 @@ public class OrderController {
             throw new RuntimeException("Utilisateur introuvable avec l'id : " + userId);
         }
 
-        List<Order> orders = orderRepository.findByUserId(userId);
+        List<Order> orders = orderRepository.findByUser_Id(userId);
 
         for (Order order : orders) {
             if (order.getTotalAmount() != null) {
@@ -88,10 +89,12 @@ public class OrderController {
 
     // 🌟 POST REFAIT : Sécurisé, sans données en dur et connecté au OrderService
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody List<Map<String, Object>> cartItems) {
+    public ResponseEntity<Order> createOrder(@RequestBody Map<String, Object> body) {
         try {
+            Long userId = Long.valueOf(body.get("userId").toString());
+            List<Map<String, Object>> cartItems = (List<Map<String, Object>>) body.get("items");
             // Étape 1 : Création de la commande via le Service
-            Order order = orderService.createOrder(cartItems);
+            Order order = orderService.createOrder(cartItems, userId);
 
             double finalAmountCalculated = order.getTotalAmount() != null ? order.getTotalAmount() : 45.40;
             order.setDiscountRate(0.0);
@@ -131,5 +134,31 @@ public class OrderController {
             System.err.println(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        return userRepository.findByEmail(email)
+                .map(user -> ResponseEntity.ok(user))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        String email = body.get("email");
+
+        // Vérifie que l'email n'existe pas déjà
+        if (userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        User newUser = new User();
+        newUser.setName(name);
+        newUser.setEmail(email);
+        newUser.setMemberSince(LocalDate.now());
+
+        User savedUser = userRepository.save(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 }
