@@ -138,7 +138,7 @@ export default function App() {
             <main className="flex-grow">
                 {renderView()}
             </main>
-            <Footer />
+            <Footer onNavigate={handleNavigate} />
         </div>
     );
 }
