@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function CatalogView({ onAddToCart, onRemoveFromCart, cart = [] }) {
-
+export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onViewProduct }) {
     const getProductQuantity = (productId) => {
         const item = cart.find(i => i.id === productId);
         return item ? item.quantity : 0;
@@ -10,7 +9,14 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart = [] }
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeFilter, setActiveFilter] = useState('Tous');
+    const [activeFilter, setActiveFilter] = useState(() => {
+        const savedFilter = localStorage.getItem('activeCatalogCategory');
+        if (savedFilter) {
+            localStorage.removeItem('activeCatalogCategory'); // On nettoie tout de suite après lecture
+            return savedFilter;
+        }
+        return 'Tous'; // Valeur par défaut (ton bouton marron initial)
+    });
 
     useEffect(() => {
         const GATEWAY_URL = 'http://localhost:8080/api/products';
@@ -83,7 +89,15 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart = [] }
                     return (
                         <div key={product.id} className="product-card">
 
-                            <div className="product-image-wrapper">
+                            {/* Clic fonctionnel sur l'image */}
+                            <div
+                                className="product-image-wrapper cursor-pointer"
+                                onClick={() => {
+                                    if (typeof onViewProduct === 'function') {
+                                        onViewProduct(product.id);
+                                    }
+                                }}
+                            >
                                 <img
                                     src={product.imageUrl || "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=300"}
                                     alt={product.name}
@@ -92,7 +106,17 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart = [] }
                             </div>
 
                             <div className="product-info">
-                                <h3 className="product-name">{product.name}</h3>
+                                {/* Clic fonctionnel sur le titre */}
+                                <h3
+                                    className="product-name cursor-pointer hover:text-[#8d6e63] transition-colors"
+                                    onClick={() => {
+                                        if (typeof onViewProduct === 'function') {
+                                            onViewProduct(product.id);
+                                        }
+                                    }}
+                                >
+                                    {product.name}
+                                </h3>
                                 <p className="product-desc">{product.description || "Un café d'exception rigoureusement sélectionné."}</p>
                             </div>
 

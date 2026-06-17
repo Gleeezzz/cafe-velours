@@ -248,6 +248,12 @@ export default function HomeView({ onNavigate }) {
                         Chaque pack duo est le fruit d'une sélection rigoureuse pour vous offrir l'accord parfait.
                     </p>
                 </div>
+                <button
+                    onClick={() => onNavigate('philosophy')}
+                    className="mt-4 px-6 py-2 bg-[#271206] text-white font-medium rounded hover:bg-[#4e2f1d] transition-colors"
+                >
+                    Découvrir
+                </button>
             </section>
         </div>
     );

@@ -6,12 +6,24 @@ import CatalogView from "./components/CatalogView.jsx";
 import Footer from './components/Footer';
 import CartView from './components/CartView';
 import LoginView from './components/LoginView';
+import PhilosophyView from './components/PhilosophyView';
+import ProductDetailView from './components/ProductDetailView';
 
 export default function App() {
-    const [currentView, setCurrentView] = useState('home');
+
+    // ✅ CORRECTION 1 : Initialisation de la vue avec le Hash présent dans l'URL (anti-refresh)
+    const [currentView, setCurrentView] = useState(() => {
+        const hash = window.location.hash.replace('#', '').toLowerCase();
+        return hash || 'home';
+    });
+
     const [cart, setCart] = useState([]);
 
-    // ✅ userId dynamique — plus de hardcode !
+    // ✅ CORRECTION 2 : Initialisation du produit sélectionné avec localStorage (anti-refresh)
+    const [selectedProductId, setSelectedProductId] = useState(() => {
+        return localStorage.getItem('selectedProductId') || null;
+    });
+
     const [userId, setUserId] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -28,9 +40,31 @@ export default function App() {
 
     const [ordersHistory, setOrdersHistory] = useState([]);
 
-    // ✅ Appelé par LoginView quand le login/register réussit
+    // ✅ CORRECTION 3 : Écouteur global pour gérer les boutons "Précédent / Suivant" du navigateur
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.replace('#', '').toLowerCase();
+
+            if (hash.startsWith('product-detail/')) {
+                const id = hash.split('/')[1];
+                setSelectedProductId(id);
+                localStorage.setItem('selectedProductId', id);
+                setCurrentView('product-detail');
+            } else if (hash) {
+                setCurrentView(hash);
+                if (hash === 'profile' && userId) {
+                    fetchOrderHistory(userId);
+                }
+            } else {
+                setCurrentView('home');
+            }
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, [userId]);
+
     const handleLoginSuccess = (user) => {
-        // On split le name "Rafael Nadal" en firstname + lastname
         const nameParts = (user.name || "").split(" ");
         const firstname = nameParts[0] || "";
         const lastname = nameParts.slice(1).join(" ") || "";
@@ -60,11 +94,22 @@ export default function App() {
         }
     };
 
+    // ✅ CORRECTION 4 : handleNavigate modifie maintenant l'URL Hash en tâche de fond
     const handleNavigate = (view) => {
-        if (view.toLowerCase() === 'profile') {
+        const targetView = view.toLowerCase();
+        if (targetView === 'profile') {
             fetchOrderHistory(userId);
         }
-        setCurrentView(view.toLowerCase());
+        window.location.hash = targetView;
+        setCurrentView(targetView);
+    };
+
+    // ✅ CORRECTION 5 : handleViewProduct synchronisé avec l'URL Hash spécifique
+    const handleViewProduct = (productId) => {
+        setSelectedProductId(productId);
+        localStorage.setItem('selectedProductId', productId);
+        window.location.hash = `product-detail/${productId}`;
+        setCurrentView('product-detail');
     };
 
     const addToCart = (product) => {
@@ -92,7 +137,7 @@ export default function App() {
     const totalArticles = cart.reduce((total, item) => total + item.quantity, 0);
 
     const renderView = () => {
-        switch (currentView.toLowerCase()) {
+        switch (currentView) {
             case 'home':
                 return <HomeView onNavigate={handleNavigate} />;
             case 'catalog':
@@ -101,6 +146,18 @@ export default function App() {
                         onAddToCart={addToCart}
                         onRemoveFromCart={removeFromCart}
                         cart={cart}
+                        onViewProduct={handleViewProduct}
+                    />
+                );
+            case 'philosophy':
+            case 'philosophie':
+                return <PhilosophyView />;
+            case 'product-detail':
+                return (
+                    <ProductDetailView
+                        productId={selectedProductId}
+                        onAddToCart={addToCart}
+                        onNavigate={handleNavigate} // Passe bien l'action de navigation pour le bouton Figma
                     />
                 );
             case 'profile':
@@ -109,7 +166,7 @@ export default function App() {
                         userProfile={userProfile}
                         setUserProfile={setUserProfile}
                         orders={ordersHistory}
-                        setCurrentView={setCurrentView}
+                        setCurrentView={handleNavigate} // Correction pour forcer l'usage du Hash
                     />
                 );
             case 'cart':
