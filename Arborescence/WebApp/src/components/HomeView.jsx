@@ -1,13 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
-export default function HomeView({ onNavigate }) {
+export default function HomeView({ onNavigate, onViewProduct }) {
 
     const featuredPacks = [
-        { id: 'pack-guatemala', name: 'Pack Guatemala', price: '26,50$', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400' },
-        { id: 'pack-ethiopie', name: 'Pack Éthiopie', price: '27,00$', img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=400' },
-        { id: 'pack-colombie', name: 'Pack Colombie', price: '25,00$', img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=400' },
-        { id: 'pack-bresil', name: 'Pack Brésil', price: '24,50$', img: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=400' },
-        { id: 'pack-kenya', name: 'Pack Kenya', price: '28,00$', img: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=400' },
+        { id: 23, name: 'Pack Guatemala', price: '26,50$', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400' },
+        { id: 20, name: 'Duo Intense Éthiopie', price: '27,00$', img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=400' },
+        { id: 19, name: 'Duo Signature Colombie', price: '25,00$', img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=400' },
+        { id: 21, name: 'Duo Douceur Brésilienne', price: '24,50$', img: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=400' },
+        { id: 22, name: 'Duo Exploration Épicée', price: '28,00$', img: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=400' },
     ];
 
     const featuredProducts = [
@@ -55,10 +55,14 @@ export default function HomeView({ onNavigate }) {
                         transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                         willChange: 'transform'
                     }}>
-                        {featuredPacks.map((pack, index) => (
+                        {featuredPacks.map((pack) => (
                             <div
                                 key={pack.id}
-                                onClick={() => onNavigate('catalog')}
+                                onClick={() => {
+                                    if (typeof onViewProduct === 'function') {
+                                        onViewProduct(pack.id);
+                                    }
+                                }}
                                 style={{
                                     minWidth: `calc(${100 / visibleCount}% - ${16 * (visibleCount - 1) / visibleCount}px)`,
                                     height: '260px',
@@ -178,7 +182,11 @@ export default function HomeView({ onNavigate }) {
                                 e.currentTarget.style.transform = 'translateY(0)';
                                 e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
                             }}
-                            onClick={() => onNavigate('catalog')}
+                            onClick={() => {
+                                if (typeof onViewProduct === 'function') {
+                                    onViewProduct(product.id);
+                                }
+                            }}
                         >
                             {/* Image */}
                             <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
@@ -199,8 +207,8 @@ export default function HomeView({ onNavigate }) {
                                     color: '#fff', padding: '4px 12px', borderRadius: '20px',
                                     fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.5px'
                                 }}>
-                        {product.type}
-                    </span>
+                                    {product.type}
+                                </span>
                             </div>
 
                             {/* Contenu */}
@@ -221,9 +229,14 @@ export default function HomeView({ onNavigate }) {
                                     }}
                                     onMouseEnter={e => e.currentTarget.style.backgroundColor = '#6d4422'}
                                     onMouseLeave={e => e.currentTarget.style.backgroundColor = '#8B5A2B'}
-                                    onClick={(e) => { e.stopPropagation(); onNavigate('catalog'); }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (typeof onViewProduct === 'function') {
+                                            onViewProduct(product.id);
+                                        }
+                                    }}
                                 >
-                                    Voir au catalogue →
+                                    Voir la description →
                                 </button>
                             </div>
                         </div>

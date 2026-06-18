@@ -139,7 +139,12 @@ export default function App() {
     const renderView = () => {
         switch (currentView) {
             case 'home':
-                return <HomeView onNavigate={handleNavigate} />;
+                return (
+                    <HomeView
+                        onNavigate={handleNavigate}
+                        onViewProduct={handleViewProduct}
+                    />
+                );
             case 'catalog':
                 return (
                     <CatalogView
@@ -151,13 +156,13 @@ export default function App() {
                 );
             case 'philosophy':
             case 'philosophie':
-                return <PhilosophyView />;
+                return <PhilosophyView/>;
             case 'product-detail':
                 return (
                     <ProductDetailView
                         productId={selectedProductId}
                         onAddToCart={addToCart}
-                        onNavigate={handleNavigate} // Passe bien l'action de navigation pour le bouton Figma
+                        onNavigate={handleNavigate}
                     />
                 );
             case 'profile':
@@ -166,7 +171,7 @@ export default function App() {
                         userProfile={userProfile}
                         setUserProfile={setUserProfile}
                         orders={ordersHistory}
-                        setCurrentView={handleNavigate} // Correction pour forcer l'usage du Hash
+                        setCurrentView={handleNavigate}
                     />
                 );
             case 'cart':
@@ -185,10 +190,16 @@ export default function App() {
                     />
                 );
             default:
-                return <HomeView onNavigate={handleNavigate} />;
+                return (
+                    <HomeView
+                        onNavigate={handleNavigate}
+                        onViewProduct={handleViewProduct}
+                    />
+                );
         }
     };
 
+    // 🌟 LA PIÈCE MANQUANTE : L'affichage HTML global de ton application !
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFBF7]">
             <Navbar currentView={currentView} onNavigate={handleNavigate} cartCount={totalArticles} />

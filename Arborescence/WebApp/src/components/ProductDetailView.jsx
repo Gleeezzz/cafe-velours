@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function ProductDetailView({ productId = 1, onAddToCart }) {
+export default function ProductDetailView({ productId = 1, onAddToCart, onNavigate }) {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -23,6 +23,13 @@ export default function ProductDetailView({ productId = 1, onAddToCart }) {
     if (loading) return <p style={{ textAlign: 'center', padding: '50px' }}>Chargement de l'expérience sensorielle...</p>;
     if (!product) return <p style={{ textAlign: 'center', padding: '50px' }}>Produit introuvable.</p>;
 
+    // Liste exacte des 6 cafés vedettes de tes wireframes possédant un Pack Duo dédié
+    const cafesAvecPack = ["Velours", "Guatemala", "Ethiopie", "Kenya", "Bresil", "Colombie"];
+
+    // Détection de correspondance (en ignorant les accents et les casses pour éviter les pièges de saisie BDD)
+    const normaliserTexte = (str) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+    const aUnPackDedie = cafesAvecPack.some(nom => normaliserTexte(product.name).includes(normaliserTexte(nom)));
+
     // Mock de caractéristiques sensorielles selon la catégorie pour faire briller ta présentation jury
     const tastingNotes = product.category.includes('Grain') || product.category.includes('Moulu')
         ? { intensite: '8/10', corps: 'Onctueux', acidite: 'Légère', aromes: 'Jasmin, Agrumes, Caramel' }
@@ -35,7 +42,7 @@ export default function ProductDetailView({ productId = 1, onAddToCart }) {
                 {/* Gauche : Image Block */}
                 <div style={{ flex: '1', minWidth: '350px', textAlign: 'center', backgroundColor: '#fdfbf7', padding: '30px', borderRadius: '12px' }}>
                     <img
-                        src={product.image_url ? `/images/${product.image_url}` : "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400"}
+                        src={product.imageUrl || "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400"}
                         alt={product.name}
                         style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }}
                     />
@@ -51,7 +58,7 @@ export default function ProductDetailView({ productId = 1, onAddToCart }) {
                             {product.name}
                         </h1>
                         <p style={{ fontSize: '22px', fontWeight: 'bold', color: '#8d6e63', marginBottom: '20px' }}>
-                            {parseFloat(product.price).toFixed(2)} $
+                            {parseFloat(product.price || 0).toFixed(2)} $
                         </p>
                         <p style={{ lineHeight: '1.6', color: '#5d4037', marginBottom: '30px' }}>
                             {product.description || "Une expérience gustative mémorable issue d'une agriculture éthique et raisonnée."}
@@ -67,12 +74,13 @@ export default function ProductDetailView({ productId = 1, onAddToCart }) {
                                 <tr style={{ borderBottom: '1px solid #f5f0eb' }}><td style={{ padding: '8px 0', fontWeight: 'bold' }}>Intensité</td><td style={{ textAlign: 'right' }}>{tastingNotes.intensite}</td></tr>
                                 <tr style={{ borderBottom: '1px solid #f5f0eb' }}><td style={{ padding: '8px 0', fontWeight: 'bold' }}>Profil de Corps</td><td style={{ textAlign: 'right' }}>{tastingNotes.corps}</td></tr>
                                 <tr style={{ borderBottom: '1px solid #f5f0eb' }}><td style={{ padding: '8px 0', fontWeight: 'bold' }}>Acidité</td><td style={{ textAlign: 'right' }}>{tastingNotes.acidite}</td></tr>
-                                <tr style={{ borderBottom: '1px solid #f5f0eb' }}><td style={{ padding: '8px 0', fontWeight: 'bold' }}>Notes Aromatiques</td><td style={{ textAlign: 'right', color: '#8d6e63', italic: 'true' }}>{tastingNotes.aromes}</td></tr>
+                                <tr style={{ borderBottom: '1px solid #f5f0eb' }}><td style={{ padding: '8px 0', fontWeight: 'bold' }}>Notes Aromatiques</td><td style={{ textAlign: 'right', color: '#8d6e63', fontStyle: 'italic' }}>{tastingNotes.aromes}</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
+                    {/* Bouton d'ajout principal */}
                     <button
                         onClick={() => onAddToCart(product)}
                         style={{
@@ -89,13 +97,17 @@ export default function ProductDetailView({ productId = 1, onAddToCart }) {
                         onMouseOver={(e) => e.target.style.backgroundColor = '#4e2f1d'}
                         onMouseOut={(e) => e.target.style.backgroundColor = '#271206'}
                     >
-                        Ajouter à la Sélection — {parseFloat(product.price).toFixed(2)} $
+                        Ajouter à la Sélection — {parseFloat(product.price || 0).toFixed(2)} $
                     </button>
-                    {/* 🆕 AJOUT : Bouton de ton wireframe Figma "Voir les packs associés" */}
+
+                    {/* 2. Bouton secondaire corrigé (Nettoyé et harmonisé) */}
                     <button
                         onClick={() => {
-                            window.location.hash = 'catalog';
+                            // On stocke la catégorie pour que le catalogue sache quel onglet ouvrir
                             localStorage.setItem('activeCatalogCategory', 'Packs Duos');
+
+                            // On déclenche la navigation
+                            window.location.hash = 'catalog';
                             if (typeof onNavigate === 'function') {
                                 onNavigate('catalog');
                             }
@@ -124,7 +136,7 @@ export default function ProductDetailView({ productId = 1, onAddToCart }) {
                             e.currentTarget.style.backgroundColor = 'transparent';
                         }}
                     >
-                        <span>Voir les packs associés</span>
+                        <span>Découvrir nos Packs Duos</span>
                         <span style={{ fontSize: '18px', transition: 'transform 0.2s' }}>→</span>
                     </button>
                 </div>

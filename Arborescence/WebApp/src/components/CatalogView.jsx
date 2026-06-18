@@ -15,7 +15,7 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onVie
             localStorage.removeItem('activeCatalogCategory'); // On nettoie tout de suite après lecture
             return savedFilter;
         }
-        return 'Tous'; // Valeur par défaut (ton bouton marron initial)
+        return 'Tous'; // Valeur par défaut
     });
 
     useEffect(() => {
@@ -37,6 +37,36 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onVie
                 setLoading(false);
             });
     }, []);
+
+    // ÉTAPE 2 : Gestion du scroll automatique vers le pack associé
+    useEffect(() => {
+        if (activeFilter === 'Packs Duos') {
+            const targetPackSearch = localStorage.getItem('targetPackSearch');
+            if (targetPackSearch) {
+                // On attend 400ms pour laisser le temps au DOM de React de monter entièrement les cartes
+                setTimeout(() => {
+                    const element = document.getElementById(`pack-${targetPackSearch}`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Ajout d'une animation de bordure marron pour l'effet "Wow" devant le jury
+                        element.style.transition = "all 0.5s ease-in-out";
+                        element.style.border = "3px solid #8d6e63";
+                        element.style.boxShadow = "0px 10px 20px rgba(141, 110, 99, 0.2)";
+
+                        // On retire l'effet après 2,5 secondes
+                        setTimeout(() => {
+                            element.style.border = "none";
+                            element.style.boxShadow = "none";
+                        }, 2500);
+                    } else {
+                        console.warn(`Alerte intégration : Aucun pack trouvé avec l'id HTML: pack-${targetPackSearch}`);
+                    }
+                    localStorage.removeItem('targetPackSearch');
+                }, 400);
+            }
+        }
+    }, [activeFilter]);
 
     const categories = ['Tous', 'Cafés Grains', 'Cafés Moulus', 'Chocolats Fins', 'Packs Duos'];
 
@@ -62,6 +92,9 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onVie
         );
     }
 
+    // Fonction de nettoyage de texte pour l'identification robuste
+    const normaliserTexte = (str) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+
     return (
         <div className="catalog-container">
             <div className="catalog-breadcrumb-bar">
@@ -86,8 +119,19 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onVie
                 {filteredProducts.map(product => {
                     const qtyInCart = getProductQuantity(product.id);
 
+                    // ÉTAPE 3 : Détermination ultra-robuste de l'ID HTML pour le défilement fluide
+                    let packHtmlId = "";
+                    const nameClean = normaliserTexte(product.name);
+
+                    if (nameClean.includes("colombie") || nameClean.includes("paraiso")) packHtmlId = "pack-Colombie";
+                    else if (nameClean.includes("ethiopie") || nameClean.includes("yirgacheffe")) packHtmlId = "pack-Ethiopie";
+                    else if (nameClean.includes("bresil") || nameClean.includes("douceur") || nameClean.includes("soyeux")) packHtmlId = "pack-Bresil";
+                    else if (nameClean.includes("kenya") || nameClean.includes("kilimandjaro") || nameClean.includes("exploration")) packHtmlId = "pack-Kenya";
+                    else if (nameClean.includes("guatemala") || nameClean.includes("cerrado")) packHtmlId = "pack-Guatemala";
+                    else if (nameClean.includes("velours")) packHtmlId = "pack-Velours";
+
                     return (
-                        <div key={product.id} className="product-card">
+                        <div key={product.id} id={packHtmlId} className="product-card">
 
                             {/* Clic fonctionnel sur l'image */}
                             <div
@@ -121,7 +165,7 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onVie
                             </div>
 
                             <div className="product-footer">
-                                <span className="product-price">{parseFloat(product.price).toFixed(2)} $</span>
+                                <span className="product-price">{parseFloat(product.price || 0).toFixed(2)} $</span>
 
                                 {qtyInCart > 0 ? (
                                     <div className="qty-selector-container">
