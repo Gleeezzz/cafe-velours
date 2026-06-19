@@ -11,10 +11,10 @@ export default function HomeView({ onNavigate, onViewProduct }) {
     ];
 
     const featuredProducts = [
-        { id: 1, name: 'Finca el Paraiso', type: 'Café', price: '18,90$', img: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=400' },
-        { id: 5, name: 'Noir Pérou 72%', type: 'Chocolat', price: '9,50$', img: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?q=80&w=400' },
-        { id: 2, name: 'Yirgacheffe Héritage', type: 'Café', price: '16,20$', img: 'https://images.unsplash.com/photo-1504630083234-14187a9df0f5?q=80&w=400' },
-        { id: 6, name: 'Lait Caramel Fleur de Sel', type: 'Chocolat', price: '8,90$', img: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?q=80&w=400' },
+        { id: 3, name: 'Finca el Paraiso', type: 'Café', price: '18,90$', img: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=400' },
+        { id: 16, name: 'Noir Fleur de Sel & Piment', type: 'Chocolat', price: '9,50$', img: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?q=80&w=400' },
+        { id: 5, name: 'Yirgacheffe Héritage', type: 'Café', price: '16,20$', img: 'https://images.unsplash.com/photo-1504630083234-14187a9df0f5?q=80&w=400' },
+        { id: 15, name: 'Lait Gourmand & Noisettes', type: 'Chocolat', price: '8,90$', img: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?q=80&w=400' },
     ];
 
     // --- Logique du carrousel ---

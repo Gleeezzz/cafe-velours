@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import '../index.css';
 
-export default function ProfileView({ userProfile, setUserProfile, orders, setCurrentView }) {
-    // État pour savoir quelle commande est actuellement déroulée (contient l'ID de la commande)
-    const [expandedOrderId] = useState(null);
+export default function ProfileView({ userProfile, setUserProfile, orders, setCurrentView, userId, onLogout, onDeleteAccount }) {
     const [expandedOrders, setExpandedOrders] = useState({});
-
-    // États pour le mode édition du profil
     const [isEditing, setIsEditing] = useState(false);
+
     const [editForm, setEditForm] = useState({
         firstname: userProfile?.firstname || "Sophie",
         lastname: userProfile?.lastname || "Martin",
@@ -16,7 +13,6 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         phone: userProfile?.phone || "06 12 34 56 78"
     });
 
-    // Permet d'ouvrir/fermer plusieurs accordéons indépendamment
     const toggleOrderDetails = (orderId) => {
         setExpandedOrders(prev => ({
             ...prev,
@@ -37,7 +33,6 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         setIsEditing(false);
     };
 
-    // Fonction sécurisée pour formater le prix
     const formatPrice = (price) => {
         if (price === undefined || price === null) return "0.00 $";
         if (typeof price === 'string') {
@@ -46,11 +41,8 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         return `${Number(price).toFixed(2)} $`;
     };
 
-    // Filtrer les éventuelles données de test / mock data pures du front
-    // On ne garde que les vraies commandes qui viennent du cycle de vente (comme la #27)
     const validOrders = orders ? orders.filter(o => o && (o.id === 27 || o.finalAmount || o.items || o.orderItems)) : [];
 
-    // ÉCRAN CONDITIONNEL : Si aucune commande valide
     if (validOrders.length === 0) {
         return (
             <div className="checkout-container" style={{ maxWidth: '500px', margin: '50px auto', textAlign: 'center', padding: '40px 20px' }}>
@@ -102,7 +94,6 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
 
                 {validOrders.map((order, index) => {
                     const isExpanded = !!expandedOrders[order.id];
-                    // Extraction adaptative de la liste des articles selon la structure renvoyée par le backend
                     const orderItems = order.items || order.orderItems || [];
 
                     return (
@@ -121,32 +112,28 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                             </div>
                             <p style={{ fontSize: '0.85rem', color: '#888', margin: '2px 0' }}>Fait le : {order.date || "Récemment"}</p>
 
-                            {/* LISTE DES PRODUITS CLAIRE ET NETTE */}
                             <div style={{ margin: '12px 0', padding: '5px 0' }}>
                                 {orderItems.length > 0 ? (
                                     orderItems.map((item, idx) => (
                                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#333', marginBottom: '6px', paddingBottom: '4px', borderBottom: idx !== orderItems.length - 1 ? '1px dashed #f0f0f0' : 'none' }}>
                                             <div>
                                                 <span style={{ fontWeight: '600', color: '#8B5A2B' }}>{item.quantity || item.quantite || 1}x</span> {item.productName || item.nom || "Café d'Exception"}
-                                                {item.description && <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#777', fontStyle: 'italic' }}>{item.description}</p>}
                                             </div>
                                             <span style={{ fontWeight: '500' }}>{formatPrice(item.price || item.prix)}</span>
                                         </div>
                                     ))
                                 ) : (
-                                    /* Fallback si la structure est plate */
                                     <p style={{ fontSize: '0.9rem', color: '#444', margin: '4px 0', fontWeight: '500' }}>
                                         {order.itemsSummary || "Finca El Paraiso"}
                                     </p>
                                 )}
                             </div>
 
-                            {/* ZONE DÉTAILS DÉROULANTE */}
                             {isExpanded && (
                                 <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #eee', backgroundColor: '#FAF9F6', padding: '12px', borderRadius: '6px' }}>
                                     <h5 style={{ margin: '0 0 8px 0', color: '#8B5A2B', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Détails de livraison & facturation</h5>
                                     <p style={{ fontSize: '0.85rem', margin: '4px 0' }}><strong>Destinataire :</strong> {activeFirstname} {activeLastname}</p>
-                                    <p style={{ fontSize: '0.85rem', margin: '4px 0' }}><strong>Adresse :</strong> {order.address || userProfile?.address || "Rue de feuillies, 13100 Masilia"}</p>
+                                    <p style={{ fontSize: '0.85rem', margin: '4px 0' }}><strong>Adresse :</strong> {order.address || userProfile?.address || "Rue de fleurs, 13100 Marseille"}</p>
                                     <p style={{ fontSize: '0.85rem', margin: '4px 0' }}><strong>Mode de paiement :</strong> Carte Bancaire (Simulé)</p>
                                 </div>
                             )}
@@ -155,7 +142,6 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                                 <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#111' }}>
                                     Total : {formatPrice(order.finalAmount || order.totalAmount || order.total)}
                                 </span>
-
                                 <button
                                     style={{
                                         backgroundColor: isExpanded ? '#8B5A2B' : 'transparent',
@@ -173,7 +159,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
             </div>
 
             {/* BLOCK 2 : MON PROFIL INTERACTIF */}
-            <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '20px', borderRadius: '8px' }}>
+            <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
                 <h3 style={{ fontSize: '1rem', color: '#8B5A2B', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '15px', marginTop: 0 }}>
                     Mon Profil
                 </h3>
@@ -182,7 +168,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                     <div style={{ fontSize: '0.95rem', lineHeight: '2.2' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: '#666' }}>Adresse</span>
-                            <span style={{ fontWeight: '500' }}>{userProfile?.address || "Rue de feuillies, 13100 Masilia"}</span>
+                            <span style={{ fontWeight: '500' }}>{userProfile?.address || "Rue de fleurs, 13100 Marseille"}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: '#666' }}>Téléphone</span>
@@ -190,7 +176,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: '#666' }}>Membre depuis</span>
-                            <span style={{ fontWeight: '500' }}>Juin 2026</span>
+                            <span style={{ fontWeight: '500' }}>{userProfile?.memberSince || "Juin 2026"}</span>
                         </div>
                         <button
                             className="btn-confirm"
@@ -220,7 +206,6 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                             <label style={{ fontSize: '0.85rem', color: '#555' }}>Téléphone</label>
                             <input type="text" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} required />
                         </div>
-
                         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                             <button type="submit" className="btn-confirm" style={{ flex: 1, padding: '10px', backgroundColor: '#385723' }}>
                                 Sauvegarder
@@ -232,6 +217,94 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                     </form>
                 )}
             </div>
+
+            {/* 🌟 LE BOUTON RETOUR ET LES OPTIONS DE SÉCURITÉ MIS AU BON ENDROIT (HORS DU FORMULAIRE) */}
+            <button
+                onClick={() => setCurrentView('catalog')}
+                style={{
+                    width: '100%',
+                    padding: '10px 16px',
+                    backgroundColor: 'transparent',
+                    color: '#8B5A2B',
+                    border: '1px solid #8B5A2B',
+                    borderRadius: '8px',
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => {
+                    e.currentTarget.style.backgroundColor = '#8B5A2B';
+                    e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={e => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#8B5A2B';
+                }}
+            >
+                ← Retourner au catalogue
+            </button>
+
+            {/* --- ESPACE COMPTE & SÉCURITÉ RGPD --- */}
+            <div style={{ marginTop: '25px', paddingTop: '20px', borderTop: '1px dashed #e0e0e0' }}>
+                <h4 style={{ color: '#666', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+                    Options du compte
+                </h4>
+
+                {/* Bouton Se déconnecter */}
+                <button
+                    onClick={onLogout}
+                    style={{
+                        width: '100%',
+                        padding: '10px 16px',
+                        backgroundColor: '#f5f5f5',
+                        color: '#333',
+                        border: '1px solid #ccc',
+                        borderRadius: '8px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        marginBottom: '10px',
+                        transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#e0e0e0'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                >
+                    🚪 Se déconnecter
+                </button>
+
+                {/* Bouton Supprimer le compte */}
+                <button
+                    onClick={() => {
+                        if (window.confirm("⚠️ Êtes-vous sûr de vouloir supprimer définitivement votre compte et vos données ? Cette action est irréversible (Conforme RGPD).")) {
+                            onDeleteAccount(userId);
+                        }
+                    }}
+                    style={{
+                        width: '100%',
+                        padding: '10px 16px',
+                        backgroundColor: 'transparent',
+                        color: '#d32f2f',
+                        border: '1px solid #d32f2f',
+                        borderRadius: '8px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={e => {
+                        e.currentTarget.style.backgroundColor = '#d32f2f';
+                        e.currentTarget.style.color = '#fff';
+                    }}
+                    onMouseLeave={e => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = '#d32f2f';
+                    }}
+                >
+                    🗑️ Supprimer mon compte
+                </button>
+            </div>
+
         </div>
     );
 }

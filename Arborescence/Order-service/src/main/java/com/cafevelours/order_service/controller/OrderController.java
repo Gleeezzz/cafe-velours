@@ -161,4 +161,34 @@ public class OrderController {
         User savedUser = userRepository.save(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUserAccount(@PathVariable Long id) {
+        try {
+            // 1. Vérifier si l'utilisateur existe dans ta base de données
+            if (!userRepository.existsById(id)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Utilisateur introuvable avec l'id : " + id);
+            }
+
+            // 2. Nettoyage de sécurité (Optionnel mais recommandé) :
+            // Si l'utilisateur a des commandes, MySQL peut bloquer la suppression à cause des clés étrangères (FK).
+            // On supprime d'abord les commandes liées à cet ID utilisateur.
+            List<Order> userOrders = orderRepository.findByUser_Id(id);
+            if (userOrders != null && !userOrders.isEmpty()) {
+                orderRepository.deleteAll(userOrders);
+            }
+
+            // 3. Suppression définitive de l'utilisateur (RGPD)
+            userRepository.deleteById(id);
+
+            return ResponseEntity.ok().body(Map.of("message", "Compte supprimé avec succès"));
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la suppression du compte : " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur serveur lors de la suppression.");
+        }
+    }
 }
+

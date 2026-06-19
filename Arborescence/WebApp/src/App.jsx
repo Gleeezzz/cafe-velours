@@ -11,16 +11,23 @@ import ProductDetailView from './components/ProductDetailView';
 
 export default function App() {
 
-    // ✅ CORRECTION 1 : Initialisation de la vue avec le Hash présent dans l'URL (anti-refresh)
+    // 🛠️ FIX 1 : Initialisation robuste capable de lire 'product-detail/23' dès le rafraîchissement
     const [currentView, setCurrentView] = useState(() => {
         const hash = window.location.hash.replace('#', '').toLowerCase();
+        if (hash.startsWith('product-detail/')) {
+            return 'product-detail';
+        }
         return hash || 'home';
     });
 
     const [cart, setCart] = useState([]);
 
-    // ✅ CORRECTION 2 : Initialisation du produit sélectionné avec localStorage (anti-refresh)
+    // 🛠️ FIX 2 : Si on est sur un rafraîchissement de fiche produit, on extrait l'ID depuis l'URL en priorité
     const [selectedProductId, setSelectedProductId] = useState(() => {
+        const hash = window.location.hash.replace('#', '').toLowerCase();
+        if (hash.startsWith('product-detail/')) {
+            return hash.split('/')[1] || null;
+        }
         return localStorage.getItem('selectedProductId') || null;
     });
 
@@ -40,7 +47,7 @@ export default function App() {
 
     const [ordersHistory, setOrdersHistory] = useState([]);
 
-    // ✅ CORRECTION 3 : Écouteur global pour gérer les boutons "Précédent / Suivant" du navigateur
+    // Écouteur global pour gérer les boutons "Précédent / Suivant" du navigateur
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash.replace('#', '').toLowerCase();
@@ -61,6 +68,9 @@ export default function App() {
         };
 
         window.addEventListener('hashchange', handleHashChange);
+        // Force l'analyse du hash au tout premier montage du composant
+        handleHashChange();
+
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, [userId]);
 
@@ -94,7 +104,6 @@ export default function App() {
         }
     };
 
-    // ✅ CORRECTION 4 : handleNavigate modifie maintenant l'URL Hash en tâche de fond
     const handleNavigate = (view) => {
         const targetView = view.toLowerCase();
         if (targetView === 'profile') {
@@ -104,7 +113,6 @@ export default function App() {
         setCurrentView(targetView);
     };
 
-    // ✅ CORRECTION 5 : handleViewProduct synchronisé avec l'URL Hash spécifique
     const handleViewProduct = (productId) => {
         setSelectedProductId(productId);
         localStorage.setItem('selectedProductId', productId);
@@ -135,6 +143,45 @@ export default function App() {
     };
 
     const totalArticles = cart.reduce((total, item) => total + item.quantity, 0);
+
+    // 🌟 FONCTION 1 : Déconnexion de l'utilisateur
+    const handleLogout = () => {
+        setUserId(null);
+        setIsLoggedIn(false);
+        setUserProfile({
+            firstname: "",
+            lastname: "",
+            email: "",
+            address: "",
+            zip: "",
+            city: "",
+            phone: "06 12 34 56 78",
+            memberSince: ""
+        });
+        setOrdersHistory([]);
+        window.location.hash = 'home'; // Redirection vers l'accueil
+    };
+
+// 🌟 FONCTION 2 : Suppression du compte via API Spring Boot
+    const handleDeleteAccount = async (uid) => {
+        if (!uid) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/orders/users/${uid}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                alert("Votre compte a été supprimé avec succès conformément au RGPD.");
+                handleLogout(); // Déconnecte et redirige après suppression
+            } else {
+                alert("Erreur lors de la suppression du compte sur le serveur.");
+            }
+        } catch (error) {
+            console.error("Erreur réseau lors de la suppression :", error);
+            alert("Impossible de joindre le serveur pour supprimer le compte.");
+        }
+    };
 
     const renderView = () => {
         switch (currentView) {
@@ -172,6 +219,9 @@ export default function App() {
                         setUserProfile={setUserProfile}
                         orders={ordersHistory}
                         setCurrentView={handleNavigate}
+                        userId={userId}             // 👈 Ajouté
+                        onLogout={handleLogout}     // 👈 Ajouté
+                        onDeleteAccount={handleDeleteAccount} // 👈 Ajouté
                     />
                 );
             case 'cart':
@@ -199,7 +249,6 @@ export default function App() {
         }
     };
 
-    // 🌟 LA PIÈCE MANQUANTE : L'affichage HTML global de ton application !
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFBF7]">
             <Navbar currentView={currentView} onNavigate={handleNavigate} cartCount={totalArticles} />

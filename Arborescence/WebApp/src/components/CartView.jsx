@@ -25,6 +25,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
 
     // Garder une trace de l'ID de commande généré par le backend pour l'écran de succès
     const [backendOrderId, setBackendOrderId] = useState(null);
+
     if (!isLoggedIn) {
         return (
             <div className="checkout-container"
@@ -38,8 +39,15 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
         );
     }
 
-    // ── CALCUL DES PRIX & REMISE DYNAMIQUE ──
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // ── 🛠️ FIX SECURE : Nettoyage et conversion des prix pour éviter le NaN ──
+    const safeParsePrice = (price) => {
+        if (typeof price === 'number') return price;
+        if (!price) return 0;
+        // Supprime le symbole '$', remplace la virgule par un point et convertit
+        return parseFloat(price.toString().replace('$', '').replace(',', '.')) || 0;
+    };
+
+    const subtotal = cart.reduce((sum, item) => sum + (safeParsePrice(item.price) * item.quantity), 0);
     const hasDiscount = subtotal > 50;
     const discountAmount = hasDiscount ? subtotal * 0.10 : 0;
     const total = subtotal - discountAmount;
@@ -47,13 +55,15 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
     // Passage à l'étape de paiement
     const handleGoToPayment = (e) => {
         e.preventDefault();
-        // On sauvegarde les infos saisies dans le profil utilisateur global
+        // 🛠️ FIX : On conserve la structure propre et séparée pour éviter de casser le formulaire au rechargement
         setUserProfile({
             ...userProfile,
             firstname: localForm.firstname,
             lastname: localForm.lastname,
             email: localForm.email,
-            address: `${localForm.address}, ${localForm.zip} ${localForm.city}`
+            address: localForm.address,
+            zip: localForm.zip,
+            city: localForm.city
         });
         setStep('payment');
     };
@@ -63,14 +73,12 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
         e.preventDefault();
         setIsProcessing(true);
 
-        // 1. Formatage du payload pour correspondre à List<Map<String, Object>> attendu par ton `@PostMapping`
         const itemsPayload = cart.map(item => ({
             productId: item.id,
             quantity: item.quantity
         }));
 
         try {
-            // 2. Envoi de la commande à la Gateway (Port 8080)
             const response = await fetch('http://localhost:8080/api/orders', {
                 method: 'POST',
                 headers: {
@@ -83,16 +91,9 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
             });
 
             if (response.ok) {
-                // 3. Récupération de l'objet Order complet généré par ton Spring Boot
                 const savedOrder = await response.json();
-
-                // On stocke l'ID généré par la BDD (ex: MySQL id auto-incrémenté)
                 setBackendOrderId(savedOrder.id);
-
-                // 4. Inscription de la vraie commande BDD en tête de ton historique local
                 setOrdersHistory([savedOrder, ...ordersHistory]);
-
-                // 5. Passage à l'écran de succès
                 setStep('success');
             } else {
                 alert("Erreur retournée par le serveur de commande.");
@@ -167,7 +168,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                             {cart.map(item => (
                                 <li key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                     <span>{item.name} x{item.quantity}</span>
-                                    <span>{(item.price * item.quantity).toFixed(2)} $</span>
+                                    <span>{(safeParsePrice(item.price) * item.quantity).toFixed(2)} $</span>
                                 </li>
                             ))}
                         </ul>
@@ -268,7 +269,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                                 {cart.map(item => (
                                     <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '4px' }}>
                                         <span>{item.name} x{item.quantity}</span>
-                                        <span>{(item.price * item.quantity).toFixed(2)} $</span>
+                                        <span>{(safeParsePrice(item.price) * item.quantity).toFixed(2)} $</span>
                                     </div>
                                 ))}
                             </div>
