@@ -90,6 +90,9 @@ export default function App() {
         });
         setIsLoggedIn(true);
         fetchOrderHistory(user.id);
+
+        // 🔄 FIX : Rediriger l'utilisateur vers la boutique plutôt que de le laisser bloqué
+        handleNavigate('catalog');
     };
 
     const fetchOrderHistory = async (uid) => {

@@ -20,6 +20,7 @@ public class User {
     private String address; // Ex: "12 rue de Fleurs, Marseille"
     private String phoneNumber; // Ex: "06 12 34 56 78"
     private LocalDate memberSince; // Ex: Janvier 2026
+    private String password;
 
     // --- Constructeurs ---
     public User() {}
@@ -42,6 +43,10 @@ public class User {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
+    public String getPassword() {
+        return password;
+    }
+
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
@@ -50,4 +55,6 @@ public class User {
 
     public LocalDate getMemberSince() { return memberSince; }
     public void setMemberSince(LocalDate memberSince) { this.memberSince = memberSince; }
+
+    public void setPassword(String password) { this.password = password; }
 }

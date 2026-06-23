@@ -10,10 +10,11 @@ import com.cafevelours.order_service.model.Discount;
 import com.cafevelours.order_service.repository.OrderRepository;
 import com.cafevelours.order_service.repository.UserRepository;
 import com.cafevelours.order_service.repository.DiscountRepository;
-import com.cafevelours.order_service.service.OrderService; // 1. Import du service
+import com.cafevelours.order_service.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,35 +22,83 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/orders") // Nettoyage du CrossOrigin : la Gateway s'en occupe !
-//@CrossOrigin(origins = "http://localhost:5174")
+@RequestMapping("/api/orders")
 public class OrderController {
 
+    // INJECTIONS DE DÉPENDANCES SÉCURISÉES
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductClient productClient;
     private final PaymentClient paymentClient;
     private final DiscountRepository discountRepository;
-    private final OrderService orderService; // 2. Ajout du service
+    private final OrderService orderService;
+    private final PasswordEncoder passwordEncoder; // Injection de l'encodeur BCrypt
 
-    // Constructeur mis à jour
+    // UN SEUL CONSTRUCTEUR UNIQUE ET PROPRE
     public OrderController(OrderRepository orderRepository, UserRepository userRepository,
                            ProductClient productClient, PaymentClient paymentClient,
-                           DiscountRepository discountRepository, OrderService orderService) {
+                           DiscountRepository discountRepository, OrderService orderService,
+                           PasswordEncoder passwordEncoder) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productClient = productClient;
         this.paymentClient = paymentClient;
         this.discountRepository = discountRepository;
         this.orderService = orderService;
+        this.passwordEncoder = passwordEncoder;
     }
 
+    // 🔐 SIGN UP : Inscription unique avec hachage du mot de passe (RGPD & Sécurité)
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        String email = body.get("email");
+        String rawPassword = body.get("password");
+
+        if (userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        User newUser = new User();
+        newUser.setName(name);
+        newUser.setEmail(email);
+        newUser.setMemberSince(LocalDate.now());
+
+        // Hachage à sens unique avant insertion SQL
+        String hashedPassword = passwordEncoder.encode(rawPassword);
+        newUser.setPassword(hashedPassword);
+
+        User savedUser = userRepository.save(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
+
+    // 🔑 SIGN IN : Connexion unique sécurisée avec comparaison de Hash
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String rawPassword = body.get("password");
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            // Comparaison sécurisée du password en clair fourni avec le hash SQL
+            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
+                return ResponseEntity.ok(user);
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    // GET /api/orders/users/{id} → Profil utilisateur
     @GetMapping("/users/{id}")
     public User getUserProfile(@PathVariable Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable avec l'id : " + id));
     }
 
+    // GET /api/orders/user/{userId} → Historique commandes
     @GetMapping("/user/{userId}")
     public List<Order> getUserOrderHistory(@PathVariable Long userId) {
         if (!userRepository.existsById(userId)) {
@@ -87,19 +136,17 @@ public class OrderController {
         return orders;
     }
 
-    // 🌟 POST REFAIT : Sécurisé, sans données en dur et connecté au OrderService
+    // POST /api/orders → Passer une commande
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Map<String, Object> body) {
         try {
             Long userId = Long.valueOf(body.get("userId").toString());
             List<Map<String, Object>> cartItems = (List<Map<String, Object>>) body.get("items");
-            // Étape 1 : Création de la commande via le Service
-            Order order = orderService.createOrder(cartItems, userId);
 
+            Order order = orderService.createOrder(cartItems, userId);
             double finalAmountCalculated = order.getTotalAmount() != null ? order.getTotalAmount() : 45.40;
             order.setDiscountRate(0.0);
 
-            // Étape 2 : Sécurisation de l'appel MongoDB (remise)
             try {
                 if (discountRepository != null) {
                     Optional<Discount> discountOpt = discountRepository
@@ -118,7 +165,6 @@ public class OrderController {
             order.setFinalAmount(finalAmountCalculated);
             order = orderRepository.save(order);
 
-            // Étape 3 : Appel synchrone au paiement
             try {
                 paymentClient.processPayment(order.getId(), finalAmountCalculated);
                 order.setStatus("PAID");
@@ -130,58 +176,26 @@ public class OrderController {
             return new ResponseEntity<>(orderRepository.save(order), HttpStatus.CREATED);
 
         } catch (Exception e) {
-            // 🌟 TRÈS IMPORTANT : Ceci va t'afficher la vraie cause de l'erreur dans ta console IntelliJ !
             System.err.println(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        return userRepository.findByEmail(email)
-                .map(user -> ResponseEntity.ok(user))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
 
-    @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody Map<String, String> body) {
-        String name = body.get("name");
-        String email = body.get("email");
-
-        // Vérifie que l'email n'existe pas déjà
-        if (userRepository.findByEmail(email).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-
-        User newUser = new User();
-        newUser.setName(name);
-        newUser.setEmail(email);
-        newUser.setMemberSince(LocalDate.now());
-
-        User savedUser = userRepository.save(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-    }
-
+    // DELETE /api/orders/users/{id} → Suppression de compte (RGPD)
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUserAccount(@PathVariable Long id) {
         try {
-            // 1. Vérifier si l'utilisateur existe dans ta base de données
             if (!userRepository.existsById(id)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Utilisateur introuvable avec l'id : " + id);
             }
 
-            // 2. Nettoyage de sécurité (Optionnel mais recommandé) :
-            // Si l'utilisateur a des commandes, MySQL peut bloquer la suppression à cause des clés étrangères (FK).
-            // On supprime d'abord les commandes liées à cet ID utilisateur.
             List<Order> userOrders = orderRepository.findByUser_Id(id);
             if (userOrders != null && !userOrders.isEmpty()) {
                 orderRepository.deleteAll(userOrders);
             }
 
-            // 3. Suppression définitive de l'utilisateur (RGPD)
             userRepository.deleteById(id);
-
             return ResponseEntity.ok().body(Map.of("message", "Compte supprimé avec succès"));
 
         } catch (Exception e) {
@@ -191,4 +205,3 @@ public class OrderController {
         }
     }
 }
-

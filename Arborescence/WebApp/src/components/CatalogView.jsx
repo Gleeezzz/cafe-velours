@@ -98,23 +98,45 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onVie
     return (
         <div className="catalog-container">
             <div className="catalog-breadcrumb-bar">
-                <span>Accueil</span> / <span>Catalogue</span> / <strong>{activeFilter}</strong>
+                {/* 🏠 Lien vers l'Accueil */}
+                <span
+                    className="breadcrumb-link"
+                    onClick={() => window.location.hash = 'home'}
+                    style={{
+                        cursor: 'pointer',
+                        color: '#F5E6D3',
+                        transition: 'opacity 0.2s',
+                        opacity: 0.85
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '0.85'}
+                >
+        Accueil
+    </span>
+
+                <span style={{ margin: '0 8px', color: '#F5E6D3', opacity: 0.5 }}>/</span>
+
+                {/* ☕ Lien vers le Catalogue global */}
+                <span
+                    className="breadcrumb-link"
+                    onClick={() => setActiveFilter('Tous')}
+                    style={{
+                        cursor: 'pointer',
+                        color: '#F5E6D3',
+                        transition: 'opacity 0.2s',
+                        opacity: 0.85
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '0.85'}
+                >
+        Catalogue
+    </span>
+
+                <span style={{ margin: '0 8px', color: '#F5E6D3', opacity: 0.5 }}>/</span>
+
+                {/* 🏷️ Filtre actif actuel (Texte en Blanc pur pour ressortir au maximum) */}
+                <strong style={{ color: '#FFFFFF', fontWeight: '600' }}>{activeFilter}</strong>
             </div>
-
-            <h2 className="catalog-title">Notre Sélection d'Exception</h2>
-
-            <div className="filter-tabs">
-                {categories.map(cat => (
-                    <button
-                        key={cat}
-                        className={`filter-btn ${activeFilter === cat ? 'active-filter' : ''}`}
-                        onClick={() => setActiveFilter(cat)}
-                    >
-                        {cat}
-                    </button>
-                ))}
-            </div>
-
             <div className="products-grid">
                 {filteredProducts.map(product => {
                     const qtyInCart = getProductQuantity(product.id);
