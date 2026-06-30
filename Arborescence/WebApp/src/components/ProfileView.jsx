@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import '../index.css';
 
+/* Ce composant gère l'affichage des informations de l'utilisateur, l'édition de ses coordonnées,
+* l'historique complet de ses achats, ainsi que les actions de conformité RGPD (Suppression/Déconnexion).
+*/
+
 export default function ProfileView({ userProfile, setUserProfile, orders, setCurrentView, userId, onLogout, onDeleteAccount }) {
+    /* ─── 🧊 INTERFACE & NAVIGATION DYNAMIQUE (HOOKS) ─── */
+
+    /* Gestion de l'affichage accordéon des commandes.
+       Stocke un objet de type `{ [orderId]: true/false }` permettant d'ouvrir le détail
+       de chaque commande indépendamment les unes des autres. */
     const [expandedOrders, setExpandedOrders] = useState({});
+
+    // Toggle d'état : false = Mode consultation | true = Formulaire d'édition ouvert
     const [isEditing, setIsEditing] = useState(false);
 
+    // État du formulaire d'édition pré-rempli avec les données existantes ou des valeurs de repli (fallback)
     const [editForm, setEditForm] = useState({
         firstname: userProfile?.firstname || "Sophie",
         lastname: userProfile?.lastname || "Martin",
@@ -13,15 +25,24 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         phone: userProfile?.phone || "06 12 34 56 78"
     });
 
+
+    /**
+     * TOGGLE ACCORDÉON : Ouvre ou ferme le tiroir de détails d'une commande
+     * @param orderId Identifiant unique de la commande cliquée
+     */
     const toggleOrderDetails = (orderId) => {
         setExpandedOrders(prev => ({
             ...prev,
-            [orderId]: !prev[orderId]
+            [orderId]: !prev[orderId]  // Inverse l'état booléen de la clé orderId
         }));
     };
 
+    /**
+     * PERSISTANCE LOCAL DU PROFIL (MUTATION D'ÉTAT)
+     */
     const handleSaveProfile = (e) => {
         e.preventDefault();
+        // Met à jour l'état global détenu par App.jsx en y déversant les nouvelles valeurs du formulaire
         setUserProfile({
             ...userProfile,
             firstname: editForm.firstname,
@@ -41,8 +62,14 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         return `${Number(price).toFixed(2)} $`;
     };
 
+    /* 🧼 NETTOYAGE DES DONNÉES ENTRANTES (DATA SANITIZATION)
+       On filtre le tableau des commandes pour éliminer les objets corrompus, mal formés ou vides
+       qui auraient pu transiter lors des phases de tests inter-services. */
+
     const validOrders = orders ? orders.filter(o => o && (o.id === 27 || o.finalAmount || o.items || o.orderItems)) : [];
 
+    /* 🔀 RENDU CONDITIONNEL D'ÉCRAN VIDE (EARLY RETURN)
+       Si l'historique est vierge, on court-circuite le rendu pour afficher un écran d'incitation à l'achat (UX propre). */
     if (validOrders.length === 0) {
         return (
             <div className="checkout-container" style={{ maxWidth: '500px', margin: '50px auto', textAlign: 'center', padding: '40px 20px' }}>
@@ -58,6 +85,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
         );
     }
 
+    // Extraction des valeurs actives pour un affichage fluide
     const activeFirstname = userProfile?.firstname || "Sophie";
     const activeLastname = userProfile?.lastname || "Martin";
     const activeEmail = userProfile?.email || "sophie@email.com";
@@ -72,6 +100,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                     color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '1.8rem', fontWeight: 'bold', margin: '0 auto 10px auto'
                 }}>
+                    {/* Génération automatique des initiales de l'utilisateur (Ex: "SM") */}
                     {activeFirstname.charAt(0).toUpperCase()}
                     {activeLastname ? activeLastname.charAt(0).toUpperCase() : ""}
                 </div>
@@ -92,6 +121,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                     Mes Commandes ({validOrders.length})
                 </h3>
 
+                {/* Itération sur le tableau des commandes via la méthode .map() */}
                 {validOrders.map((order, index) => {
                     const isExpanded = !!expandedOrders[order.id];
                     const orderItems = order.items || order.orderItems || [];
@@ -128,7 +158,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                                     </p>
                                 )}
                             </div>
-
+                            {/* TIROIR ACCORDÉON DE LIVRAISON SÉLECTIONNÉ */}
                             {isExpanded && (
                                 <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #eee', backgroundColor: '#FAF9F6', padding: '12px', borderRadius: '6px' }}>
                                     <h5 style={{ margin: '0 0 8px 0', color: '#8B5A2B', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Détails de livraison & facturation</h5>
@@ -165,6 +195,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                 </h3>
 
                 {!isEditing ? (
+                    /* Vue Consultation simple */
                     <div style={{ fontSize: '0.95rem', lineHeight: '2.2' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: '#666' }}>Adresse</span>
@@ -187,6 +218,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                         </button>
                     </div>
                 ) : (
+                    /* Vue Édition de profil avec formulaire contrôlé */
                     <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <div style={{ flex: 1 }}>
@@ -218,7 +250,7 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                 )}
             </div>
 
-            {/* 🌟 LE BOUTON RETOUR ET LES OPTIONS DE SÉCURITÉ MIS AU BON ENDROIT (HORS DU FORMULAIRE) */}
+            {/* LE BOUTON CATALOGUE INTERACTIF */}
             <button
                 onClick={() => setCurrentView('catalog')}
                 style={{
@@ -274,6 +306,10 @@ export default function ProfileView({ userProfile, setUserProfile, orders, setCu
                 </button>
 
                 {/* Bouton Supprimer le compte */}
+                /* → Via cette fonctionnalité d'effacement du compte. Conformément à la loi sur le "Droit à l'oubli",
+                le client peut déclencher un nettoyage complet. L'application demande une confirmation de sécurité,
+                puis appelle la méthode `onDeleteAccount` qui va envoyer une requête DELETE au Back-end pour purger
+                toutes les données personnelles de l'utilisateur stockées en base MySQL. */
                 <button
                     onClick={() => {
                         if (window.confirm("⚠️ Êtes-vous sûr de vouloir supprimer définitivement votre compte et vos données ? Cette action est irréversible (Conforme RGPD).")) {

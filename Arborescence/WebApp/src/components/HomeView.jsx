@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 export default function HomeView({ onNavigate, onViewProduct }) {
 
+    // Données statiques des packs promotionnels mis en avant
     const featuredPacks = [
         { id: 23, name: 'Pack Guatemala', price: '26,50$', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400' },
         { id: 20, name: 'Duo Intense Éthiopie', price: '27,00$', img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=400' },
@@ -9,7 +10,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
         { id: 21, name: 'Duo Douceur Brésilienne', price: '24,50$', img: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=400' },
         { id: 22, name: 'Duo Exploration Épicée', price: '28,00$', img: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=400' },
     ];
-
+    // Données statiques des packs promotionnels mis en avant
     const featuredProducts = [
         { id: 3, name: 'Finca el Paraiso', type: 'Café', price: '18,90$', img: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=400' },
         { id: 16, name: 'Noir Fleur de Sel & Piment', type: 'Chocolat', price: '9,50$', img: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?q=80&w=400' },
@@ -18,10 +19,16 @@ export default function HomeView({ onNavigate, onViewProduct }) {
     ];
 
     // --- Logique du carrousel ---
+
+    // → J'utilise l'état local `currentIndex` combiné aux propriétés CSS de rendu matériel (`transform` et `willChange`).
+    //   Chaque clic sur 'Suivant' ou 'Précédent' fait évoluer l'index. Dans le JSX, le conteneur (`track`) calcule dynamiquement son décalage en pixels ou pourcentage via un template string :
+    //   `translateX(calc(-${currentIndex * ...}%))`.
+    //   Le navigateur utilise l'accélération matérielle du GPU pour animer la translation de manière fluide à 60fps.
     const [currentIndex, setCurrentIndex] = useState(0);
-    const visibleCount = 3;
+    const visibleCount = 3;  // Nombre de cartes visibles simultanément à l'écran
     const maxIndex = featuredPacks.length - visibleCount;
 
+    // Fonctions de calcul sécurisées utilisant les bornes Math.min et Math.max pour éviter les décalages infinis
     const goNext = () => setCurrentIndex(prev => Math.min(prev + 1, maxIndex));
     const goPrev = () => setCurrentIndex(prev => Math.max(prev - 1, 0));
 
@@ -77,6 +84,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                                     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                                     overflow: 'hidden'
                                 }}
+                                /* Animations JS Inline réactives au survol de la souris */
                                 onMouseEnter={e => {
                                     e.currentTarget.style.transform = 'scale(1.03)';
                                     e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.25)';
@@ -86,8 +94,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                                     e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
                                 }}
                             >
-                                {/* Overlay dégradé */}
-                                <div style={{
+                                {/* Overlay dégradé linéaire pour garantir le contraste et la lisibilité du texte sur l'image */}                                <div style={{
                                     position: 'absolute', bottom: 0, left: 0, right: 0,
                                     background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
                                     padding: '20px 16px 16px',
@@ -101,8 +108,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                     </div>
                 </div>
 
-                {/* Contrôles */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+                {/* Contrôles du Carrousel (Flèches et Points indicateurs) */}                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
                     <button
                         onClick={goPrev}
                         disabled={currentIndex === 0}
@@ -115,8 +121,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                         }}
                     >←</button>
 
-                    {/* Dots */}
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                {/* Pagination par points dynamiques reliés à l'index courant */}                    <div style={{ display: 'flex', gap: '8px' }}>
                         {Array.from({ length: maxIndex + 1 }).map((_, i) => (
                             <span
                                 key={i}
@@ -149,13 +154,15 @@ export default function HomeView({ onNavigate, onViewProduct }) {
 
             <hr className="section-divider" />
 
-            {/* 3. CATALOGUE APERÇU */}
+                {/* 3. CATALOGUE APERÇU */}
             <section className="home-section">
                 <h2 className="section-main-title" style={{ marginBottom: '12px' }}>Catalogue Aperçu</h2>
                 <p className="section-sub-title" style={{ marginBottom: '30px', maxWidth: '600px', margin: '0 auto 30px auto', lineHeight: '1.7' }}>
                     Une sélection de nos meilleurs cafés single-origin et chocolats premium — torréfiés avec passion,
                     choisis pour révéler les meilleurs accords sensoriels.
                 </p>
+
+                {/* Structure en Grille CSS responsive (Grid layout) */}
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -188,8 +195,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                                 }
                             }}
                         >
-                            {/* Image */}
-                            <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
+                                {/* Section Image */}                            <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
                                 <img
                                     src={product.img}
                                     alt={product.name}
@@ -211,14 +217,17 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                                 </span>
                             </div>
 
-                            {/* Contenu */}
-                            <div style={{ padding: '16px 18px 20px' }}>
+                                {/* Section Descriptif de la carte */}                            <div style={{ padding: '16px 18px 20px' }}>
                                 <h4 style={{ margin: '0 0 6px', fontSize: '1rem', color: '#1a1a1a', fontWeight: '700' }}>
                                     {product.name}
                                 </h4>
                                 <p style={{ margin: '0 0 14px', color: '#8B5A2B', fontWeight: '600', fontSize: '1rem' }}>
                                     {product.price}
                                 </p>
+
+                            {/*→ C'est une mesure d'arrêt de la propagation des événements bulles (Event Bubbling).
+                            Comme la carte entière possède déjà un événement `onClick`, cliquer sur le bouton déclencherait l'événement du bouton ET celui de la carte parente par ricochet.
+                             Ajouter `e.stopPropagation()` isole l'action du bouton et évite une double exécution involontaire dans l'arbre React. */}
                                 <button
                                     style={{
                                         width: '100%', padding: '10px',

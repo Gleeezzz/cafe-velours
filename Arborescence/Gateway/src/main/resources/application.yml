@@ -9,38 +9,46 @@ spring:
     compatibility-verifier:
       enabled: false
 
+    # 🔗 CONFIGURATION ALIGNÉE POUR LE CONTENEUR DOCKER
     consul:
       host: localhost
       port: 8500
       discovery:
         instance-id: ${spring.application.name}-v4-${random.value}
         prefer-ip-address: true
-        ip-address: 127.0.0.1
+        # 👇 Votre adresse IPv4 Wi-Fi physique pour que Docker sorte vers IntelliJ
+        ip-address: ${spring.cloud.client.ip-address}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        health-check-critical-timeout: 30s # Nettoie automatiquement les anciens échecs en 30 secondes
 
-    # Nouvelle arborescence officielle Spring Boot 3.5+
+    # 🗺️ ROUTAGE & CORS ADAPTÉS À SPRING BOOT 3.5+
     gateway:
       server:
         webflux:
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns: "http://localhost:5174"
+                allowedMethods: [GET, POST, PUT, DELETE, OPTIONS]
+                allowedHeaders: "*"
+                allowCredentials: true
           routes:
             - id: product-service-route
               uri: lb://product-service
               predicates:
                 - Path=/api/products/**
-
             - id: order-service-route
               uri: lb://order-service
               predicates:
-                - Path=/api/orders/** # <--- TOUTES LES REQUÊTES PANIER/COMMANDE PASSERONT PAR ICI
-          globalcors:
-            add-to-simple-url-handler-mapping: true
-            cors-configurations:
-              '[/**]':
-                allowedOriginPatterns: "*"
-                allowedMethods:
-                  - GET
-                  - POST
-                  - PUT
-                  - DELETE
-                  - OPTIONS
-                allowedHeaders: "*"
-                allowCredentials: true
+                - Path=/api/orders/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

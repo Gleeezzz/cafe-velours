@@ -4,10 +4,14 @@ import LoginView from "./LoginView.jsx";
 
 export default function CartView({ cart, setCart, userProfile, setUserProfile, ordersHistory, setOrdersHistory, onViewChange, userId, isLoggedIn, onLoginSuccess }) {
     // Étapes du tunnel : 'checkout' -> 'payment' -> 'success'
+    // Machine à états simple pour le suivi de l'étape du tunnel d'achat
     const [step, setStep] = useState('checkout');
     const [isProcessing, setIsProcessing] = useState(false);
 
     // États locaux pour les formulaires
+    // → En React, les 'props' sont en lecture seule (immuables). On ne peut pas les modifier directement depuis un champ d'entrée.
+    //   Créer un état local modifiable permet à l'utilisateur de corriger ou compléter ses informations de livraison (ex: code postal, ville)
+    //   sans impacter immédiatement l'état global tant qu'il n'a pas cliqué sur 'Valider'.
     const [localForm, setLocalForm] = useState({
         firstname: userProfile.firstname || "",
         lastname: userProfile.lastname || "",
@@ -26,6 +30,9 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
     // Garder une trace de l'ID de commande généré par le backend pour l'écran de succès
     const [backendOrderId, setBackendOrderId] = useState(null);
 
+    // → La vue est totalement protégée par un gardien d'authentification conditionnel (`if (!isLoggedIn)`).
+    //   Si l'état global de session est faux, React court-circuite le rendu du formulaire et affiche immédiatement une invite
+    //   de sécurité embarquant le composant `LoginView`. L'accès aux formulaires de livraison et de paiement est strictement impossible.
     if (!isLoggedIn) {
         return (
             <div className="checkout-container"
@@ -39,7 +46,10 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
         );
     }
 
-    // ── 🛠️ FIX SECURE : Nettoyage et conversion des prix pour éviter le NaN ──
+    // ── FIX SECURE : Nettoyage et conversion des prix pour éviter le NaN ──
+    // → C'est une mesure de robustesse défensive essentielle (Sanitization). Selon la provenance des données du catalogue
+    //   (Base de données ou APIs externes), le prix peut arriver formaté avec un symbole (ex: '15.50 $') ou une virgule (ex: '15,50').
+    //   Cette fonction nettoie la chaîne, harmonise les séparateurs décimaux, et renvoie un nombre strict ou 0 par défaut pour interdire tout calcul donnant un résultat 'NaN' (Not a Number).
     const safeParsePrice = (price) => {
         if (typeof price === 'number') return price;
         if (!price) return 0;
@@ -47,12 +57,14 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
         return parseFloat(price.toString().replace('$', '').replace(',', '.')) || 0;
     };
 
+    // ── LOGIQUE MÉTIER DE CALCUL DU PANIER ──
     const subtotal = cart.reduce((sum, item) => sum + (safeParsePrice(item.price) * item.quantity), 0);
     const hasDiscount = subtotal > 50;
     const discountAmount = hasDiscount ? subtotal * 0.10 : 0;
     const total = subtotal - discountAmount;
 
     // Passage à l'étape de paiement
+    // Enregistre les modifications de coordonnées de livraison dans l'état global et passe au paiement
     const handleGoToPayment = (e) => {
         e.preventDefault();
         // 🛠️ FIX : On conserve la structure propre et séparée pour éviter de casser le formulaire au rechargement
@@ -68,7 +80,12 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
         setStep('payment');
     };
 
-    // 🌟 CONNEXION BACKEND : Validation du paiement et envoi au OrderController
+        // CONNEXION BACKEND : Validation du paiement et envoi au OrderController
+         // 1. On filtre et transforme le panier en un objet JSON allégé (`itemsPayload`) contenant uniquement `productId` et `quantity`.
+        //      L'Order-Service n'a pas besoin de recevoir le prix ou le nom du produit depuis le Front-end (ce serait une énorme faille, l'utilisateur pourrait tricher sur le prix !).
+        //   2. On émet une requête HTTP `POST` vers l'API Gateway (port 8080) sur la route `/api/orders`.
+        //   3. La Gateway route cet appel vers l'Order-Service, qui calcule lui-même le vrai prix final (en contactant le Product-Service via OpenFeign), applique la remise, et persiste la commande en BDD.
+        //   4. En cas de succès (HTTP 200/201), on met à jour l'historique des commandes local et on bascule sur l'écran de succès.
     const handleProcessPayment = async (e) => {
         e.preventDefault();
         setIsProcessing(true);
@@ -93,6 +110,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
             if (response.ok) {
                 const savedOrder = await response.json();
                 setBackendOrderId(savedOrder.id);
+                // Ajoute la nouvelle commande en haut du tableau historique (Immuabilité)
                 setOrdersHistory([savedOrder, ...ordersHistory]);
                 setStep('success');
             } else {
@@ -106,6 +124,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
         }
     };
 
+    // Nettoie le panier d'achat à la sortie de l'écran de succès pour éviter les doublons de commande
     const handleNavigationAfterSuccess = (targetView) => {
         setCart([]); // On vide le panier
         if (onViewChange) onViewChange(targetView);
@@ -161,8 +180,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                         </div>
                     </div>
 
-                    {/* BLOC RECAPITULATIF */}
-                    <div className="order-summary" style={{ marginTop: '20px', padding: '15px', background: '#F9F6F0', borderRadius: '8px' }}>
+                    {/* BLOC RECAPITULATIF FINANCIER DYNAMIQUE */}                    <div className="order-summary" style={{ marginTop: '20px', padding: '15px', background: '#F9F6F0', borderRadius: '8px' }}>
                         <h3 className="summary-title-figma">Récapitulatif</h3>
                         <ul className="summary-list" style={{ padding: 0, listStyle: 'none' }}>
                             {cart.map(item => (
@@ -173,6 +191,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                             ))}
                         </ul>
 
+                    {/* Rendu conditionnel de la réduction commerciale */}
                         {hasDiscount && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#2e7d32', fontWeight: 'bold', margin: '10px 0' }}>
                                 <span>Remise automatique (-10%) :</span>
@@ -255,6 +274,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                     </p>
                     <p style={{ color: '#666', marginBottom: '25px' }}>Un e-mail de confirmation contenant votre facture de {total.toFixed(2)} $ a été envoyé à {localForm.email}.</p>
 
+                    {/* Menu accordéon dépliable géré par l'état local showDetails */}
                     <div style={{ border: '1px solid #e0e0e0', padding: '15px', borderRadius: '8px', backgroundColor: '#fafafa', marginBottom: '25px', textAlign: 'left' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setShowDetails(!showDetails)}>
                             <h4 style={{ margin: 0 }}>📋 Voir le détail de la commande</h4>

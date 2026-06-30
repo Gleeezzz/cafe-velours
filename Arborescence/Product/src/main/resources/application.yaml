@@ -5,7 +5,7 @@ spring:
   application:
     name: product-service
 
-  # ─── COMPATIBILITÉ ET CONFIGURATION DE BASE CONSUL ───
+  # ─── CONFIGURATION CONSUL (ALIGNÉE SUR LE RÉSEAU) ───
   cloud:
     compatibility-verifier:
       enabled: false
@@ -15,23 +15,34 @@ spring:
       discovery:
         instance-id: ${spring.application.name}-v4-${random.value}
         prefer-ip-address: true
-        ip-address: 127.0.0.1    # ON FORCE LOCALHOST ICI !
+        # 👇 Votre IP Wi-Fi physique pour que Consul (Docker) sorte vers IntelliJ
+        ip-address: ${spring.cloud.client.ip-address}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
 
-  # ─── INITIALISATION SQL (Optionnel si vide) ───
+  # ─── INITIALISATION SQL ───
   sql:
     init:
-      mode: never #on le passe a never pour laisser Hibernate créer les tables d'abord
+      mode: never
 
   # ─── CONFIGURATION BASE DE DONNÉES ET JPA ───
   datasource:
     url: jdbc:mysql://localhost:3310/cafe_velours_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     username: root
-    password: password # 💡 On met aussi "password" ici !
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+
+# 👇 Exposition de l'Actuator pour le Health Check Consul
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

@@ -1,16 +1,33 @@
 server:
-  port: 8083
+  port: 8084 # ✅ Parfait pour éviter les conflits
 
 spring:
   application:
     name: payment-service
+
+  # ─── CONFIGURATION CONSUL (ALIGNÉE SUR VOTRE RÉSEAU) ───
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}-v4-${random.value}
+        prefer-ip-address: true
+        # 👇 Votre IP Wi-Fi physique pour que Consul (dans Docker) puisse joindre IntelliJ
+        ip-address: ${spring.cloud.client.ip-address}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+
+  # ─── CONFIGURATION BASE DE DONNÉES (MySQL) ───
   datasource:
-    # ? On cible le port 3310. L'option 'createDatabaseIfNotExist=true'
-    # va demander � MySQL de cr�er automatiquement la base 'payment_db' si elle n'existe pas.
-    url: jdbc:mysql://localhost:3310/payment_db?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    # 👇 Port corrigé à 3312 pour cibler le bon conteneur 'payment-db'
+    url: jdbc:mysql://localhost:3312/payment_db?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: password  # ? Workbench
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,3 +35,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+# 👇 N'oubliez pas d'exposer l'Actuator pour que le Health Check fonctionne !
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

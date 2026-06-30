@@ -1,20 +1,25 @@
 version: '3.8'
 
 services:
+  # 1. L'ANNUAIRE DE SERVICES (HASHICORP CONSUL)
   consul:
     image: hashicorp/consul:1.15
     container_name: consul-server
     restart: always
     ports:
-      - "8500:8500"
-      - "8600:8600/udp"
+      - "8500:8500"       # Interface Web & API HTTP
+      - "8600:8600/udp"   # Résolution DNS interne
     command: "agent -dev -client=0.0.0.0"
+    networks:
+      - cafe-velours-network
 
+  # 2. BASE DE DONNÉES PRINCIPALE (MYSQL - PRODUITS ET COMMANDES)
   mysql-db:
     image: mysql:8.0
     container_name: cafe-velours-mysql
+    restart: always
     ports:
-      - "3310:3306"
+      - "3310:3306"       # Redirection externe 3310 pour éviter les conflits hôte
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: cafe_velours_db
@@ -23,26 +28,34 @@ services:
     networks:
       - cafe-velours-network
 
+  # 3. BASE DE DONNÉES DU SERVICE PAIEMENT (MYSQL ISOLÉ)
   payment-db:
     image: mysql:8.0
     container_name: payment-db
+    restart: always
     ports:
-      - "3312:3306"
+      - "3312:3306"       # Redirection externe 3312
     environment:
-      MYSQL_ROOT_PASSWORD: password # 💡 Changé en "password" pour s'aligner sur ton Workbench !
+      MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: payment_db
     networks:
       - cafe-velours-network
 
+  # 4. BASE DE DONNÉES DES REMISES COMMERCIALES (MONGODB)
   mongodb:
     image: mongo:latest
     container_name: cafe-velours-mongo
+    restart: always
     ports:
-      - "27017:27017"
+      - "27017:27017"     # Port standard MongoDB
+    networks:
+      - cafe-velours-network
 
+# DÉCLARATION DES VOLUMES PERSISTANTS
 volumes:
   mysql_data:
 
+# CONFIGURATION DU RÉSEAU ISOLÉ (DOCKER NETWORK)
 networks:
   cafe-velours-network:
     driver: bridge

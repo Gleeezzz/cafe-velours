@@ -15,10 +15,9 @@ export default function PhilosophyView() {
                 <div style={{ width: '60px', height: '2px', backgroundColor: '#8d6e63', margin: '20px auto' }}></div>
             </div>
 
-            {/* C'est ici que continuent tes sections suivantes (Histoire, Valeurs...) */}
+                {/* C'est ici que continuent tes sections suivantes (Histoire, Valeurs...) */}
 
-            {/* Section 1: Histoire */}
-            <div style={{ display: 'flex', gap: '40px', alignItems: 'center', marginBottom: '80px', flexWrap: 'wrap' }}>
+                {/* Section 1: Histoire — Mise en page Flexbox responsive */}            <div style={{ display: 'flex', gap: '40px', alignItems: 'center', marginBottom: '80px', flexWrap: 'wrap' }}>
                 <div style={{ flex: '1', minWidth: '300px' }}>
                     <h2 style={{ fontFamily: 'serif', fontSize: '2rem', marginBottom: '20px' }}>Une Quête de Saveurs Oubliées</h2>
                     <p style={{ lineHeight: '1.8', color: '#5d4037' }}>
@@ -32,10 +31,11 @@ export default function PhilosophyView() {
                         style={{ width: '100%', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', objectFit: 'cover', height: '350px' }}
                     />
                 </div>
-            </div>
+                {/* → Grâce à l'utilisation combinée de dimensions fixes et de la propriété CSS `objectFit: 'cover'`.
+                Cela force le navigateur à découper et adapter l'image harmonieusement dans son conteneur de 350px de haut sans jamais l'écraser ni l'étirer, peu importe le ratio d'image d'origine renvoyé par le serveur CDN. */}
+                </div>
 
-            {/* Section 2: Valeurs (Cards) */}
-            <div style={{ backgroundColor: '#fdfbf7', padding: '60px 40px', borderRadius: '12px', marginBottom: '40px' }}>
+                {/* Section 2: Valeurs (Cartes d'engagements éthiques) */}            <div style={{ backgroundColor: '#fdfbf7', padding: '60px 40px', borderRadius: '12px', marginBottom: '40px' }}>
                 <h2 style={{ textAlign: 'center', fontFamily: 'serif', fontSize: '2rem', marginBottom: '40px' }}>Nos Piliers Fondateurs</h2>
                 <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
 

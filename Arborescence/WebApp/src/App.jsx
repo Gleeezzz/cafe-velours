@@ -11,7 +11,9 @@ import ProductDetailView from './components/ProductDetailView';
 
 export default function App() {
 
-    // 🛠️ FIX 1 : Initialisation robuste capable de lire 'product-detail/23' dès le rafraîchissement
+    // → C'est ce qu'on appelle le 'Lazy State Initialization' (initialisation paresseuse).
+    // Si j'exécutais le code directement dans l'état, React relirait l'URL du navigateur à CHAQUE re-rendu du composant, ce qui nuit aux performances.
+    // Passer une fonction garantit que la lecture de l'URL n'est faite qu'UNE seule fois, au tout premier chargement (montage) de l'application.
     const [currentView, setCurrentView] = useState(() => {
         const hash = window.location.hash.replace('#', '').toLowerCase();
         if (hash.startsWith('product-detail/')) {
@@ -20,9 +22,10 @@ export default function App() {
         return hash || 'home';
     });
 
+    // État global du panier d'achat, partagé entre la Navbar (pour le compteur) et la CartView
     const [cart, setCart] = useState([]);
 
-    // 🛠️ FIX 2 : Si on est sur un rafraîchissement de fiche produit, on extrait l'ID depuis l'URL en priorité
+    // Gestion de la fiche produit active : on tente de la récupérer depuis l'URL ou à défaut dans le LocalStorage
     const [selectedProductId, setSelectedProductId] = useState(() => {
         const hash = window.location.hash.replace('#', '').toLowerCase();
         if (hash.startsWith('product-detail/')) {
@@ -31,9 +34,11 @@ export default function App() {
         return localStorage.getItem('selectedProductId') || null;
     });
 
+    // États globaux de session utilisateur
     const [userId, setUserId] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+    // Profil de l'utilisateur connecté (initialisé avec des valeurs par défaut)
     const [userProfile, setUserProfile] = useState({
         firstname: "",
         lastname: "",
@@ -45,9 +50,15 @@ export default function App() {
         memberSince: "Janvier 2026"
     });
 
+    // Stockage de l'historique des commandes récupéré depuis l'Order-Service via l'API
     const [ordersHistory, setOrdersHistory] = useState([]);
 
     // Écouteur global pour gérer les boutons "Précédent / Suivant" du navigateur
+
+    // → Il permet de gérer nativement l'historique du navigateur.
+    // Si l'utilisateur clique sur le bouton 'Précédent' (flèche retour) ou 'Suivant' du navigateur, l'URL change.
+    // Cet effet intercepte ce changement, extrait la nouvelle vue, et met à jour l'état `currentView` pour afficher dynamiquement le bon composant sans recharger la page.
+    // Le tableau de dépendances contient `userId` pour réactualiser l'historique si l'utilisateur change.
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash.replace('#', '').toLowerCase();
@@ -69,11 +80,19 @@ export default function App() {
 
         window.addEventListener('hashchange', handleHashChange);
         // Force l'analyse du hash au tout premier montage du composant
-        handleHashChange();
+        handleHashChange(); // Force l'analyse initiale au premier montage
 
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, [userId]);
 
+
+    // → Lorsque l'API valide les identifiants, elle renvoie l'objet utilisateur complet.
+    // Cette fonction découpe le nom complet reçu pour isoler le prénom et le nom de famille,
+    // met à jour les états globaux (`userId`, `isLoggedIn`, `userProfile`),
+    // lance la récupération de l'historique, et redirige directement vers le catalogue.
+
+    // → Pour centraliser la donnée. L'historique des commandes est requis à la fois dans le profil et lors de la validation finale du panier.
+    // Centraliser l'appel HTTP ici permet de distribuer la donnée sous forme de props, évitant des appels API redondants et inutiles.
     const handleLoginSuccess = (user) => {
         const nameParts = (user.name || "").split(" ");
         const firstname = nameParts[0] || "";
@@ -107,6 +126,7 @@ export default function App() {
         }
     };
 
+    // Change la vue en mettant à jour le hash de l'URL et l'état interne
     const handleNavigate = (view) => {
         const targetView = view.toLowerCase();
         if (targetView === 'profile') {
@@ -115,7 +135,7 @@ export default function App() {
         window.location.hash = targetView;
         setCurrentView(targetView);
     };
-
+    // Ouvre la vue de détail d'un produit spécifique et sauvegarde son ID dans l'URL et le LocalStorage
     const handleViewProduct = (productId) => {
         setSelectedProductId(productId);
         localStorage.setItem('selectedProductId', productId);
@@ -123,6 +143,9 @@ export default function App() {
         setCurrentView('product-detail');
     };
 
+    // → En React, on ne doit JAMAIS modifier directement un état (ex: `prevCart.push()`). Il faut renvoyer une nouvelle référence d'objet.
+    // J'utilise la forme fonctionnelle de `setCart` : si l'article est déjà présent, je crée un nouveau tableau via `.map()` en incrémentant la quantité de l'objet ciblé cloné via le spread operator `{...item}`.
+    // S'il est absent, je crée un nouveau tableau fusionnant le panier précédent et le nouvel objet.
     const addToCart = (product) => {
         setCart(prevCart => {
             const existing = prevCart.find(item => item.id === product.id);
@@ -132,7 +155,7 @@ export default function App() {
             return [...prevCart, { ...product, quantity: 1, price: parseFloat(product.price) }];
         });
     };
-
+    // Retire un article du panier ou diminue sa quantité de façon immuable
     const removeFromCart = (productId) => {
         setCart(prevCart => {
             const existing = prevCart.find(item => item.id === productId);
@@ -144,10 +167,10 @@ export default function App() {
             }
         });
     };
-
+    // Calcul dynamique du total d'articles dans le panier via une réduction de tableau
     const totalArticles = cart.reduce((total, item) => total + item.quantity, 0);
 
-    // 🌟 FONCTION 1 : Déconnexion de l'utilisateur
+    // Fonction de réinitialisation de session lors de la déconnexion
     const handleLogout = () => {
         setUserId(null);
         setIsLoggedIn(false);
@@ -165,7 +188,9 @@ export default function App() {
         window.location.hash = 'home'; // Redirection vers l'accueil
     };
 
-// 🌟 FONCTION 2 : Suppression du compte via API Spring Boot
+    // → L'utilisateur peut demander la suppression définitive de ses données depuis son profil.
+    // Un appel HTTP avec la méthode `DELETE` est envoyé à la Gateway (qui route vers l'Order-Service).
+    // Si le serveur confirme la suppression complète des lignes MySQL, l'interface déconnecte immédiatement l'utilisateur et nettoie le cache d'état.
     const handleDeleteAccount = async (uid) => {
         if (!uid) return;
 
@@ -185,7 +210,8 @@ export default function App() {
             alert("Impossible de joindre le serveur pour supprimer le compte.");
         }
     };
-
+    // → J'utilise un simple pattern `switch(currentView)`.
+    // En fonction de la chaîne stockée dans l'état, la fonction retourne le composant JavaScript (JSX) correspondant en lui injectant les fonctions et données requises via les 'props'.
     const renderView = () => {
         switch (currentView) {
             case 'home':

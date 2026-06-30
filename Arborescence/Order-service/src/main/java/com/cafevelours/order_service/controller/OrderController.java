@@ -28,11 +28,11 @@ public class OrderController {
     // INJECTIONS DE DÉPENDANCES SÉCURISÉES
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final ProductClient productClient;
-    private final PaymentClient paymentClient;
-    private final DiscountRepository discountRepository;
+    private final ProductClient productClient;  // Client OpenFeign vers Product-Service
+    private final PaymentClient paymentClient; // Client OpenFeign vers Payment-Service
+    private final DiscountRepository discountRepository; // Dépôt NoSQL (MongoDB) pour les règles de remises
     private final OrderService orderService;
-    private final PasswordEncoder passwordEncoder; // Injection de l'encodeur BCrypt
+    private final PasswordEncoder passwordEncoder; // BCrypt pour sécuriser les mots de passe
 
     // UN SEUL CONSTRUCTEUR UNIQUE ET PROPRE
     public OrderController(OrderRepository orderRepository, UserRepository userRepository,
@@ -48,13 +48,17 @@ public class OrderController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // 🔐 SIGN UP : Inscription unique avec hachage du mot de passe (RGPD & Sécurité)
+
+    // SIGN UP : Inscription unique avec hachage du mot de passe (RGPD & Sécurité)
+    // → Pour respecter les directives de la CNIL et du RGPD.
+    // Stocker un mot de passe en clair dans une base de données est une faille de sécurité majeure. `passwordEncoder.encode()`
+    // utilise l'algorithme BCrypt, qui génère un sel aléatoire et un hachage à sens unique (impossible à inverser en cas de fuite de la base de données SQL).
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody Map<String, String> body) {
         String name = body.get("name");
         String email = body.get("email");
         String rawPassword = body.get("password");
-
+        // Vérification d'unicité de l'identifiant pour éviter les doublons de comptes/
         if (userRepository.findByEmail(email).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
@@ -72,7 +76,10 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
-    // 🔑 SIGN IN : Connexion unique sécurisée avec comparaison de Hash
+    // SIGN IN : Connexion unique sécurisée avec comparaison de Hash
+    // → On utilise `passwordEncoder.matches(en_clair, hash_bdd)`.
+    // On ne décrypte jamais le hash. À la place, l'algorithme prend le mot de passe en clair saisi par l'utilisateur,
+    // lui applique le même algorithme (avec le sel extrait du hash de la BDD), et compare si les empreintes numériques finales concordent.
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
@@ -91,14 +98,17 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    // GET /api/orders/users/{id} → Profil utilisateur
-    @GetMapping("/users/{id}")
+    // GET /api/orders/users/{id} → Extraction des informations du profil utilisateur    @GetMapping("/users/{id}")
     public User getUserProfile(@PathVariable Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable avec l'id : " + id));
     }
 
     // GET /api/orders/user/{userId} → Historique commandes
+    // → C'est un mécanisme d'enrichissement de DTO ou d'hydratation asynchrone client-serveur.
+    // La table de commande SQL ne stocke que les identifiants techniques des produits (`productId`).
+    // Pour afficher un historique lisible à l'utilisateur, l'Order-Service appelle dynamiquement le client OpenFeign
+    // `productClient.getProductById()` pour récupérer le nom réel du produit depuis la base du `Product-Service`.
     @GetMapping("/user/{userId}")
     public List<Order> getUserOrderHistory(@PathVariable Long userId) {
         if (!userRepository.existsById(userId)) {
@@ -108,6 +118,7 @@ public class OrderController {
         List<Order> orders = orderRepository.findByUser_Id(userId);
 
         for (Order order : orders) {
+            // Partie 1 : Application dynamique de la remise lue depuis MongoDB
             if (order.getTotalAmount() != null) {
                 Optional<Discount> discountOpt = discountRepository
                         .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(order.getTotalAmount());
@@ -122,6 +133,7 @@ public class OrderController {
                 }
             }
 
+            // Partie 2 : Hydratation OpenFeign avec gestion de la résilience
             if (order.getItems() != null) {
                 for (OrderItem item : order.getItems()) {
                     try {
@@ -143,10 +155,12 @@ public class OrderController {
             Long userId = Long.valueOf(body.get("userId").toString());
             List<Map<String, Object>> cartItems = (List<Map<String, Object>>) body.get("items");
 
+            // Étape 1 : Initialisation de la commande (MySQL)
             Order order = orderService.createOrder(cartItems, userId);
             double finalAmountCalculated = order.getTotalAmount() != null ? order.getTotalAmount() : 45.40;
             order.setDiscountRate(0.0);
 
+            // Étape 2 : Recherche de réduction (MongoDB) avec gestion de panne isolée
             try {
                 if (discountRepository != null) {
                     Optional<Discount> discountOpt = discountRepository
@@ -159,16 +173,20 @@ public class OrderController {
                     }
                 }
             } catch (Exception mongoEx) {
+                // 🛡️ Si le serveur MongoDB est inaccessible, le client peut quand même commander ! L'application ignore la remise mais valide le panier.
                 System.out.println("⚠️ MongoDB indisponible, on continue sans remise : " + mongoEx.getMessage());
             }
 
             order.setFinalAmount(finalAmountCalculated);
             order = orderRepository.save(order);
 
+            // Étape 3 : Traitement du paiement synchrone via OpenFeign
             try {
                 paymentClient.processPayment(order.getId(), finalAmountCalculated);
                 order.setStatus("PAID");
             } catch (Exception paymentEx) {
+                // Si le service de paiement échoue ou subit un timeout réseau, la commande n'est pas perdue ! Elle est sauvegardée avec le statut 'PAYMENT_FAILED'
+                // afin d'être re-traitée ultérieurement sans forcer l'utilisateur à refaire son panier.
                 System.out.println("⚠️ Payment-service indisponible, commande enregistrée en attente : " + paymentEx.getMessage());
                 order.setStatus("PAYMENT_FAILED");
             }
@@ -182,6 +200,10 @@ public class OrderController {
     }
 
     // DELETE /api/orders/users/{id} → Suppression de compte (RGPD)
+    // → Pour respecter le Règlement Général sur la Protection des Données (RGPD), l'utilisateur doit pouvoir supprimer ses données personnelles.
+    // Techniquement, pour éviter de violer les contraintes de clés étrangères (Foreign Keys SQL),
+    // la méthode supprime d'abord en cascade toutes les commandes rattachées à cet identifiant (`orderRepository.deleteAll(userOrders)`)
+    // avant de supprimer définitivement la ligne de l'utilisateur de la table `User`.
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUserAccount(@PathVariable Long id) {
         try {
@@ -190,6 +212,7 @@ public class OrderController {
                         .body("Utilisateur introuvable avec l'id : " + id);
             }
 
+            // Suppression en cascade manuelle pour préserver la cohérence transactionnelle de la BDD
             List<Order> userOrders = orderRepository.findByUser_Id(id);
             if (userOrders != null && !userOrders.isEmpty()) {
                 orderRepository.deleteAll(userOrders);

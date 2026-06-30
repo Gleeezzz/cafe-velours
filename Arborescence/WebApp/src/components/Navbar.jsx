@@ -5,6 +5,8 @@ export default function Navbar({ currentView, onNavigate, cartCount }) {
         <header className="custom-header">
             <nav className="navbar-container">
                 {/* Logo cliquable */}
+                {/* L'attribut href="#home" assure une sémantique de base, mais l'événement est intercepté
+                    par JavaScript pour piloter notre routage interne. */}
                 <a href="#home" onClick={() => onNavigate('home')} className="brand-logo">
                     Café <span>Velours</span>
                 </a>
@@ -22,11 +24,15 @@ export default function Navbar({ currentView, onNavigate, cartCount }) {
                     <li>
                         <button
                             onClick={() => onNavigate('catalog')}
+                            /* → En combinant une expression de template string JavaScript et un opérateur ternaire :
+                                 `${currentView === 'home' ? 'active-link' : ''}`.
+                                 Si l'état courant correspond à la vue, la classe CSS `.active-link` s'applique à la volée. */
                             className={`nav-link-btn ${currentView === 'catalog' ? 'active-link' : ''}`}
                         >
                             Catalogue
                         </button>
                     </li>
+                    {/* Onglet Catalogue */}
                     <li>
                         <button
                             onClick={() => onNavigate('profile')}
@@ -36,7 +42,7 @@ export default function Navbar({ currentView, onNavigate, cartCount }) {
                         </button>
                     </li>
 
-                    {/* 🛒 AJOUT DU BOUTON PANIER AVEC BADGE COMME SUR TON FIGMA */}
+                    {/* AJOUT DU BOUTON PANIER AVEC BADGE COMME SUR TON FIGMA */}
                     <li>
                         <button
                             onClick={() => onNavigate('cart')}
@@ -44,6 +50,10 @@ export default function Navbar({ currentView, onNavigate, cartCount }) {
                             style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
                         >
                             🛒
+                            {/* RENDU CONDITIONNEL ET SHORT-CIRCUIT EVALUATION (&&) */}
+                            {/* Si la condition de gauche est fausse (panier vide),
+                            React ignore instantanément la partie droite. Le badge rouge ne s'affiche dans le DOM
+                            que s'il y a au moins un produit dans le panier, évitant d'afficher un "0" inutile. */}
                             {cartCount > 0 && (
                                 <span className="nav-cart-badge">
                                     {cartCount}

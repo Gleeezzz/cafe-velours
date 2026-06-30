@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-
+/**
+ * ─── 📦 DICTIONNAIRE DE DONNÉES CENTRALISÉ (STATIC DATA) ───
+ * Plutôt que de dupliquer ou de créer 6 composants de modales différents,
+ * on utilise un objet de configuration JavaScript. C'est propre, maintenable et évolutif.
+ */
 const MODAL_CONTENT = {
     livraison: {
         title: "🚚 Livraison",
@@ -78,14 +82,27 @@ Projet fictif — CDA 2026`
     }
 };
 
+/**
+ * ─── 🧱 LE COMPOSANT FOOTER ───
+ * @param onNavigate Fonction Callback reçue du composant parent (App.jsx) pour piloter le routage virtuel.
+ */
+
 export default function Footer({ onNavigate }) {
+    /* GESTION DE L'ÉTAT LOCAL DE LA MODALE
+       activeModal contient soit null (modale fermée), soit une string ('livraison', 'faq'...)
+       indiquant quelle clé du dictionnaire MODAL_CONTENT charger dynamiquement. */
     const [activeModal, setActiveModal] = useState(null);
 
+    // Fonctions de mise à jour de l'état (Setters encapsulés)
     const openModal = (key) => setActiveModal(key);
     const closeModal = () => setActiveModal(null);
 
+    /**
+     * Gestion de la soumission fictive de la newsletter
+     * Redirige l'utilisateur vers le panier pour l'exemple
+     */
     const handleSubscribe = (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Bloque le rechargement par défaut de la page HTML
         if (onNavigate) onNavigate('cart');
     };
 
@@ -103,6 +120,9 @@ export default function Footer({ onNavigate }) {
                     </div>
 
                     {/* Colonne 2 : Informations */}
+                    {/** → Accessibilité web (A11y) : Un lien <a> sert exclusivement à changer d'URL ou de page.
+                    * Pour déclencher une action de script JavaScript sur la page courante (comme ouvrir une modale),
+                    * la sémantique HTML exige l'utilisation d'une balise <button>. */}
                     <div className="footer-links-column">
                         <h4>Informations</h4>
                         <ul>
@@ -137,12 +157,14 @@ export default function Footer({ onNavigate }) {
                 <div className="footer-bottom-bar">
                     <hr className="footer-divider" />
                     <p className="footer-credits">
+                        {/* Détermination dynamique de l'année en cours (2026) pour éviter l'obsolescence du code */}
                         &copy; {new Date().getFullYear()} Café Velours — Projet fictif CDA — Tous droits réservés.
                     </p>
                 </div>
             </footer>
 
-            {/* MODALE */}
+            {/* ─ RENDU CONDITIONNEL DE LA MODALE UNIQUE ─── */}
+            {/* Si activeModal est null, React ignore complètement ce bloc. S'il contient une clé, il l'affiche à l'écran. */}
             {activeModal && (
                 <div
                     style={{
@@ -158,7 +180,13 @@ export default function Footer({ onNavigate }) {
                             maxWidth: '560px', width: '90%', maxHeight: '80vh',
                             overflowY: 'auto', position: 'relative'
                         }}
+                        /*
+                           → C'est pour stopper la 'propagation de l'événement' (Event Bubbling).
+                             Sans cela, un clic *à l'intérieur* de la boîte blanche remonterait jusqu'à l'overlay parent
+                             et déclencherait accidentellement `closeModal`. Cela permet de garder la modale ouverte
+                             quand on clique sur le texte. */
                         onClick={(e) => e.stopPropagation()}
+
                     >
                         <button
                             onClick={closeModal}

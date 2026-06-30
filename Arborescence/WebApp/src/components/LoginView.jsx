@@ -1,22 +1,33 @@
 import React, { useState } from 'react';
 import '../index.css';
-
+/* * @param onLoginSuccess Callback renvoyé au parent (App.jsx) contenant l'objet de l'utilisateur connecté */
 export default function LoginView({ onLoginSuccess }) {
     // Mode 'login' (Sign In) ou 'register' (Sign Up)
+
+    // Toggle d'état : false = Mode Connexion (Sign In) | true = Mode Inscription (Sign Up)
     const [isRegisterMode, setIsRegisterMode] = useState(false);
 
+    // Formulaire unique : Regroupe les données dans un objet pour optimiser le nombre de useState
     const [form, setForm] = useState({ name: '', email: '', password: '' });
+
+    // État d'attente (UX) : Bloque les boutons pendant le chargement pour éviter le double-clic
     const [isLoading, setIsLoading] = useState(false);
+
+    // Message d'erreur dynamique renvoyé à l'utilisateur
     const [error, setError] = useState('');
 
+    /* → Parce qu'elle effectue une requête réseau asynchrone (`fetch`). Le mot-clé `async`
+    * nous permet d'utiliser `await`, ce qui suspend proprement l'exécution de la fonction
+    * en attendant la réponse de l'API sans bloquer le thread principal du navigateur (le rendu visuel reste fluide).
+    */
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError('');
+        e.preventDefault();  // Empêche le rechargement brutal de la page HTML lors du submit
+        setIsLoading(true); // Active l'effet visuel de chargement
+        setError('');   // Réinitialise les erreurs précédentes
 
         try {
             if (!isRegisterMode) {
-                // 🔑 1. SIGN IN : Tentative de connexion
+                //  1. SIGN IN : Tentative de connexion
                 const response = await fetch('http://localhost:8080/api/orders/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -28,14 +39,14 @@ export default function LoginView({ onLoginSuccess }) {
 
                 if (response.ok) {
                     const user = await response.json();
-                    onLoginSuccess(user);
+                    onLoginSuccess(user); // Remonte les données au parent pour passer l'application en mode "connecté"
                 } else if (response.status === 401) {
                     setError("Email ou mot de passe incorrect.");
                 } else {
                     setError("Identifiants incorrects ou compte inexistant.");
                 }
             } else {
-                // 🔐 2. SIGN UP : Tentative d'inscription
+                //  2. SIGN UP : Tentative d'inscription
                 const registerResponse = await fetch('http://localhost:8080/api/orders/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -46,6 +57,7 @@ export default function LoginView({ onLoginSuccess }) {
                     })
                 });
 
+                // Traitement du conflit HTTP 409 (L'email existe déjà dans la base MySQL)
                 if (registerResponse.status === 409) {
                     setError("Cet email est déjà utilisé.");
                 } else if (registerResponse.ok) {
@@ -57,9 +69,10 @@ export default function LoginView({ onLoginSuccess }) {
                 }
             }
         } catch (err) {
+            // S'exécute si le Gateway ou la base de données est hors ligne (Problème réseau / CORS)
             setError("Impossible de joindre le serveur de sécurité.");
         } finally {
-            setIsLoading(false);
+            setIsLoading(false); // S'exécute TOUJOURS : coupe l'effet visuel de chargement
         }
     };
 
@@ -103,7 +116,8 @@ export default function LoginView({ onLoginSuccess }) {
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
 
-                {/* Le champ Nom complet s'affiche uniquement en mode Inscription */}
+                {/* RENDU CONDITIONNEL SMART
+                    Le champ Nom complet s'injecte et s'affiche dans le DOM uniquement en mode Inscription */}
                 {isRegisterMode && (
                     <div className="form-group">
                         <label>Nom complet*</label>
@@ -111,6 +125,9 @@ export default function LoginView({ onLoginSuccess }) {
                             type="text"
                             placeholder="Ex: Raphael Nadal"
                             value={form.name}
+                            /* → Le state `form` est un objet composé de 3 clés. En écrivant `...form`, je copie l'intégralité
+                                 des valeurs actuelles de l'objet, puis je viens écraser uniquement la clé ciblée (ici `name`).
+                                 C'est crucial en React pour respecter le principe d'immutabilité de l'état. */
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
                             required
                         />
@@ -139,6 +156,7 @@ export default function LoginView({ onLoginSuccess }) {
                     />
                 </div>
 
+                {/* Affichage d'erreur à la volée si l'état `error` contient du texte */}
                 {error && (
                     <p style={{ color: 'red', fontSize: '0.85rem', margin: '5px 0 0 0' }}>{error}</p>
                 )}

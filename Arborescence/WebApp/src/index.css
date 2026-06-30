@@ -1,21 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/*`@tailwind` injecte le cœur du framework utilitaire
+     (système de grille, espacements standards). La directive `@layer base` nous permet de surcharger
+     proprement les éléments HTML natifs en y appliquant notre Design System (Polices Montserrat/Playfair). */
 @layer base {
   html, body {
-    background-color: #FAF7F4 !important;
+    background-color: #FAF7F4 !important; /* Beige lin clair (Identité visuelle réconfortante de Café Velours) */
     color: #0D0D0D;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Montserrat', sans-serif; /* Corps de texte moderne, géométrique et lisible */
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; /* Sécurité anti-scroll horizontal parasite sur mobile */
+    -webkit-font-smoothing: antialiased; /* Optimisation de la netteté des polices sur les écrans Mac/iOS */
   }
 
   .font-serif {
-    font-family: 'Playfair Display', Georgia, serif !important;
+    font-family: 'Playfair Display', Georgia, serif !important; /* Destiné aux titres pour le côté artisanal/luxe */
   }
 
   .font-sans {
@@ -30,14 +32,14 @@
   background-color: #ffffff !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
   border-bottom: 1px solid #e1dbd6 !important;
-  position: sticky !important;
+  position: sticky !important; /* La Navbar reste fixée en haut lors du défilement */
   top: 0 !important;
   /* Garantit que la Navbar reste bien au-dessus du reste du contenu */
-  z-index: 50 !important;
+  z-index: 50 !important; /* Reste au-dessus de l'empilement des cartes et des émojis */
 }
 
 .navbar-container {
-  max-width: 1200px !important;
+  max-width: 1200px !important; /* Largeur maximale standard pour écrans de PC de bureau */
   margin: 0 auto !important;
   padding: 0.75rem 1.25rem !important;
   display: flex !important;
@@ -50,7 +52,7 @@
   font-family: 'Playfair Display', Georgia, serif !important;
   font-size: 1.15rem !important;
   font-weight: 700 !important;
-  color: #0D0D0D !important;
+  color: #0D0D0D !important;  /* Le Cuivré Officiel de Café Velours (Rappelle les machines à expresso en cuivre) */
   text-decoration: none !important;
   letter-spacing: 0.05em !important;
 }
@@ -97,12 +99,12 @@
   font-weight: 600 !important;
 }
 
-/* Force le style de la section Hero avec l'image */
+/* ─── STYLE DE LA SECTION HERO AVEC IMAGE DE FOND ─── */
 .custom-hero {
   background-color: #0D0D0D !important;
   padding: 6rem 1.5rem !important;
   text-align: center !important;
-  border-bottom-left-radius: 36px !important;
+  border-bottom-left-radius: 36px !important; /* Coins arrondis "organiques" selon le mockup */
   border-bottom-right-radius: 36px !important;
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1) !important;
   position: relative !important;
@@ -111,7 +113,7 @@
   background-position: center !important;
 }
 
-/* Force le style du bouton cuivré officiel */
+/* ─── LE COUT D'ÉCLAT : LE BOUTON CUIVRÉ OFFICIEL ─── */
 .btn-cuivre {
   background-color: #B87333 !important;
   color: #ffffff !important;
@@ -129,16 +131,19 @@
 
 .btn-cuivre:hover {
   background-color: #9E5E24 !important;
-  transform: scale(1.05);
+  transform: scale(1.05); /* Effet d'échelle discret et qualitatif au survol */
 }
 
-/* Masquer les scrollbars du carrousel */
+
+/* → Pour l'esthétique mobile et l'immersion (UI/UX). Les barres de défilement natives des navigateurs
+     sont souvent épaisses et disgracieuses. En les masquant via CSS, on préserve l'aspect épuré,
+     tout en conservant la liberté de balayer l'écran horizontalement (Swipe native). */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none; /* Masquage pour IE/Edge */
+  scrollbar-width: none; /* Masquage pour Firefox */
 }
 
 /* ─── AJUSTEMENTS DU TEXTE DU HERO (POUR LA LISIBILITÉ) ─── */
@@ -168,10 +173,11 @@
   margin-bottom: 1.25rem !important;
 }
 
+/* ─── ROUTINE DU CARROUSEL HORIZONTAL ─── */
 .packs-grid {
   display: flex !important;
   gap: 1.25rem !important;
-  overflow-x: auto !important;
+  overflow-x: auto !important; /* Active le défilement latéral fluide sur mobile */
   padding-bottom: 1rem !important;
   padding-top: 0.25rem !important;
 }
@@ -184,6 +190,7 @@
 
 /* Section Hero */
 .hero-banner {
+  /* Image d'ambiance caféinée assombrie via un dégradé linéaire pour préserver la lisibilité parfaite du texte */
   background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1200');
   background-size: cover;
   background-position: center;
@@ -281,7 +288,7 @@
   border-radius: 16px;
   position: relative;
   overflow: hidden;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Empêche la carte d'être écrasée ou rétrécie dans la boîte Flexbox */
 }
 
 .pack-card-overlay {
@@ -289,7 +296,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));  /* Fondu noir pour assurer le contraste des textes blancs */
   padding: 15px;
   color: #ffffff;
   text-align: left;
@@ -339,7 +346,9 @@
   background-color: #8E6543;
 }
 
-/* Grid de l'aperçu du Catalogue */
+/* → Pour construire une vraie structure bi-dimensionnelle stricte et alignée. `display: grid` est l'outil parfait
+     pour forcer l'affichage sur 2 colonnes égales (`1fr 1fr`), garantissant que les fiches produits s'alignent
+     parfaitement au pixel près horizontalement et verticalement, peu importe la longueur du texte. */
 .catalog-preview-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -349,7 +358,7 @@
 
 .preview-product-card {
   background-color: #EAE6DF;
-  border: 1px dashed #000000;
+  border: 1px dashed #000000; /* Style "bordure cousue/pointillée" hérité des codes graphiques de la torréfaction traditionnelle */
   border-radius: 16px;
   overflow: hidden;
   padding: 12px;
@@ -419,7 +428,7 @@
 
 /* Zone Philosophie Sorte (Pied de page de l'accueil) */
 .philosophy-section {
-  background-color: #232323;
+  background-color: #232323; /* Arrière-plan anthracite sombre pour trancher et clore élégamment la page */
   color: #ffffff;
   padding: 40px 20px;
   text-align: center;
@@ -551,16 +560,16 @@
   border-color: #B87333 !important;
 }
 
-/* Grille de produits à 2 colonnes (s'adapte sur PC à 3 ou 4) */
+/* ─ MOTEUR RESPONSIVE DE LA GRILLE DES PRODUITS DU CATALOGUE ─── */
 .products-grid {
   display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Mobile : 2 fiches par ligne */
   gap: 1rem !important;
 }
 
 @media (min-width: 768px) {
   .products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* Tablettes et écrans PC : Extension automatique à 3 colonnes */
     gap: 1.5rem !important;
   }
 }
@@ -582,7 +591,7 @@
   background-color: #FAF7F4 !important;
   border-radius: 1rem !important;
   overflow: hidden !important;
-  aspect-ratio: 1 / 1 !important;
+  aspect-ratio: 1 / 1 !important; /* Carré parfait, crucial pour uniformiser les illustrations */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -617,14 +626,14 @@
   font-size: 0.85rem !important;
   font-weight: 700 !important;
   color: #0D0D0D !important;
-  line-clamp: 1 !important;
+  line-clamp: 1 !important; /* Coupe le texte proprement sur 1 seule ligne avec des points de suspension (...) */
 }
 
 .product-desc {
   font-size: 0.7rem !important;
   color: #9ca3af !important;
   margin-top: 0.25rem !important;
-  line-clamp: 2 !important;
+  line-clamp: 2 !important; /* Tronque la description à la 2ème ligne pour ne pas déformer la grille */
   leading-relaxed: 1.2 !important;
 }
 
@@ -661,7 +670,7 @@
 
 /* Grossit les émojis au centre des cartes */
 .product-image-wrapper span.text-4xl {
-  font-size: 3.5rem !important; /* Rend l'émoji bien visible */
+  font-size: 3.5rem !important; /* Donne du relief et de la visibilité aux émojis en guise d'images */
   display: block !important;
   text-align: center !important;
 }
@@ -694,9 +703,9 @@
   text-align: center !important;
 }
 
-/* ─── NOUVEAU STYLE PROFIL COPIÉ SUR FIGMA ─── */
+/* ─── PAGE PROFIL COMPTE CLIENT ─── */
 .profile-view-wrapper {
-  max-width: 600px !important; /* Format mobile/tablette centré très élégant */
+  max-width: 600px !important; /* Format "Card" centré sur l'ecran */
   margin: 0 auto !important;
   padding: 2rem 1.25rem !important;
   font-family: 'Montserrat', sans-serif !important;
@@ -740,7 +749,7 @@
 }
 
 .role-badge {
-  background-color: #8CE89B !important; /* Vert clair Figma */
+  background-color: #8CE89B !important; /* Vert émeraude clair (Signale un compte actif/vérifié) */
   color: #1e7e34 !important;
   font-size: 0.7rem !important;
   font-weight: 700 !important;
@@ -760,10 +769,10 @@
   margin: 2rem 0 1.25rem 0 !important;
 }
 
-/* Cartes de commande Figma */
+/* Cartes de commande Figma (LIASON BACKEND MYSQL) */
 .order-card-figma {
   background-color: #ffffff !important;
-  border: 1px solid #8E6543 !important; /* Bordure marron dorée fine */
+  border: 1px solid #8E6543 !important; /* Encadrement marron chic reprenant le style de l'interface Panier */
   border-radius: 1rem !important;
   padding: 1.25rem !important;
   margin-bottom: 1rem !important;
@@ -867,6 +876,7 @@
   color: #ffffff !important;
 }
 
+/* ─ INTERFACE DU PANIER D'ACHATS ─── */
 .cart-container {
   display: block !important;
   max-width: 550px !important; /* Format ciblé comme tes maquettes Figma */
@@ -960,7 +970,7 @@
   background-color: #704d31 !important;
 }
 
-/* Conteneur principal de la caisse */
+/* ─ INTERFACE DE PASSAGE EN CAISSE (CHECKOUT FORM) ─── */
 .checkout-container {
   max-width: 600px;
   margin: 40px auto;
@@ -991,6 +1001,9 @@
 }
 
 /* Grilles responsives pour aligner les champs côte à côte */
+/*→ Pour respecter l'ergonomie visuelle métier. Un code postal nécessite peu d'espace (5 caractères),
+tandis qu'un nom de ville requiert une zone plus longue. La grille `1fr 2fr` résout ce problème
+de façon propre sans figer des largeurs en pixels qui détruiraient le responsive. */
 .form-row-half {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -999,7 +1012,7 @@
 
 .form-row-mixed {
   display: grid;
-  grid-template-columns: 1fr 2fr; /* Code postal plus court que la Ville */
+  grid-template-columns: 1fr 2fr; /* Moitié de largeur pour le CP, double pour la Commune */
   gap: 16px;
 }
 
@@ -1029,7 +1042,7 @@
   font-size: 1.25rem;
   font-weight: bold;
   margin: 20px 0;
-  border-top: 2px dashed #e0e0e0;
+  border-top: 2px dashed #e0e0e0;  /* Style ticket de caisse découpé */
   padding-top: 12px;
 }
 
@@ -1085,14 +1098,14 @@
 
 /* Effet d'élévation léger sur la carte produit au survol */
 .product-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px); /* Légère lévitation de la carte produit lors de l'interaction souris */
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
   transition: all 0.2s ease-in-out;
 }
 
 /* État interactif : Quand le produit est dans le panier */
 .btn-add-cart.btn-added {
-  background-color: #385723 !important; /* Vert forêt de validation */
+  background-color: #385723 !important; /* Passage au Vert Forêt : Confirme l'action de manière rassurante */
   color: #ffffff !important;
   font-weight: bold !important;
   border: none !important;
@@ -1107,7 +1120,7 @@
   transition: all 0.2s ease-in-out !important;
 }
 
-/* ─── CONTROLEUR DE QUANTITÉ ADAPTATIF FIGMA ─── */
+/* ─── CONTROLEUR DE QUANTITE INTEGRE (QTY SELECTOR) ─── */
 .qty-selector-container {
   display: flex !important;
   align-items: center !important;
@@ -1146,7 +1159,7 @@
   text-align: center !important;
 }
 
-/* ─── STYLISATION ULTRA-PREMIUM DU FOOTER CAFÉ VELOURS ─── */
+/* ─ 4. LE FOOTER PRESTIGE (FIN DE L'INTERFACE APPLICATION) ─── */
 .custom-footer {
   background-color: #ffffff !important;
   border-top: 1px solid #e1dbd6 !important;
@@ -1159,7 +1172,7 @@
   max-width: 1200px !important;
   margin: 0 auto !important;
   display: grid !important;
-  grid-template-columns: 1fr !important;
+  grid-template-columns: 1fr !important; /* Mobile par défaut : 1 colonne verticale */
   gap: 2.5rem !important;
   text-align: left !important;
 }
@@ -1167,6 +1180,9 @@
 /* Responsiveness : Ajustement pour une structure équilibrée à 4 colonnes */
 @media (min-width: 1024px) {
   .footer-grid-container {
+    /*→ C'est une règle d'or d'ergonomie et de hiérarchie visuelle. On attribue plus de poids (`2fr`)
+         à la première colonne (Histoire/Identité) et à la dernière (Formulaire d'engagement Newsletter).
+         Les colonnes de navigation pures, plus courtes, se partagent le centre à part égale (`1fr`). */
     grid-template-columns: 2fr 1fr 1fr 2fr !important;
     gap: 2rem !important;
   }
@@ -1226,8 +1242,9 @@
 
 .footer-link-item:hover {
   color: #B87333 !important; /* Survol cuivré */
-  padding-left: 2px;
+  padding-left: 2px; /* Micro-décalage au survol pour donner un indice d'interactivité tactile */
 }
+
 
 /* Colonne Newsletter & Formulaire */
 .footer-newsletter-column p {
