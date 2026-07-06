@@ -1,6 +1,6 @@
 # ☕ Café Velours - Microservices Architecture
 
-Welcome to the main repository of **Café Velours**, an e-commerce coffee shop management application built on a highly available, resilient, and scalable microservices architecture.
+Welcome to the main repository of **Café Velours**, an e-commerce coffee shop management application built on a highly available, resilient, and scalable microservices' architecture.
 
 ---
 
