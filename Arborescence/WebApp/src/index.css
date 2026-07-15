@@ -522,7 +522,7 @@
 }
 
 /* Barre de filtres (Pilules) */
-.filter-tabs {
+.catalog-filter-tabs {
   display: flex ;
   gap: 0.5rem ;
   overflow-x: auto ;
@@ -534,7 +534,7 @@
   display: none ; /* Cache la scrollbar des filtres */
 }
 
-.filter-btn {
+.filter-tab-btn {
   background-color: #ffffff ;
   color: #4b5563 ;
   border: 1px solid #e5e7eb ;
@@ -547,7 +547,7 @@
   transition: all 0.2s ease-in-out ;
 }
 
-.filter-btn.active-filter {
+.filter-tab.active-filter {
   background-color: #B87333 ;
   color: #ffffff ;
   border-color: #B87333 ;
@@ -623,11 +623,10 @@
 }
 
 .product-desc {
-  font-size: 0.7rem ;
-  color: #9ca3af ;
-  margin-top: 0.25rem ;
-  line-clamp: 2 ; /* Tronque la description à la 2ème ligne pour ne pas déformer la grille */
-  leading-relaxed: 1.2 ;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .product-footer {
@@ -1336,93 +1335,126 @@ de façon propre sans figer des largeurs en pixels qui détruiraient le responsi
   text-align: center ;
 }
 
-/* ─── BOUTON BURGER (mobile uniquement) ─── */
+/* ─── NAVIGATION MOBILE (comportement PAR DÉFAUT) ─── */
 .burger-btn {
-  display: none ;
-  flex-direction: column ;
-  justify-content: space-between ;
-  width: 26px ;
-  height: 18px ;
-  background: none ;
-  border: none ;
-  cursor: pointer ;
-  padding: 0 ;
-  z-index: 60 ;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 26px;
+  height: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  z-index: 60;
 }
 
 .burger-btn span {
-  display: block ;
-  height: 2px ;
-  width: 100% ;
-  background-color: #0D0D0D ;
-  border-radius: 2px ;
-  transition: all 0.3s ease-in-out ;
+  display: block;
+  height: 2px;
+  width: 100%;
+  background-color: #0D0D0D;
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
 }
 
-/* Animation croix à l'ouverture */
 .burger-btn.is-open span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg) ;
+  transform: translateY(8px) rotate(45deg);
 }
 .burger-btn.is-open span:nth-child(2) {
-  opacity: 0 ;
+  opacity: 0;
 }
 .burger-btn.is-open span:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg) ;
+  transform: translateY(-8px) rotate(-45deg);
 }
 
-/* ─── OVERLAY (fond sombre derrière le menu ouvert) ─── */
-.nav-overlay {
-  position: fixed ;
-  top: 0 ;
-  left: 0 ;
-  width: 100% ;
-  height: 100% ;
-  background: rgba(13, 13, 13, 0.25) ;  /* plus léger qu'avant (0.4 → 0.25) */
-  backdrop-filter: blur(2px) ;            /* légère brume sur le fond aussi */
-  z-index: 55 ;
+.nav-menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  height: 46vh;
+  width: 30%;
+  max-width: 280px;
+  background-color: rgba(250, 247, 244, 0.75);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-left: 1px solid rgba(184, 115, 51, 0.15);
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 5.5rem 1.75rem;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.12);
+  transition: right 0.3s ease-in-out;
+  z-index: 58;
 }
 
-/* ─── RESPONSIVE MOBILE (≤768px) ─── */
-@media (max-width: 768px) {
+.nav-menu.nav-menu-open {
+  right: 0;
+}
+
+.nav-menu li {
+  width: 100%;
+}
+
+.nav-link-btn {
+  width: 100%;
+  text-align: left;
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+/* ─── OVERRIDE DESKTOP (≥769px) ─── */
+@media (min-width: 769px) {
   .burger-btn {
-    display: flex ;
+    display: none;
+  }
+
+  .burger-btn span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background-color: #0D0D0D;
+    border-radius: 2px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Animation croix à l'ouverture */
+  .burger-btn.is-open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .burger-btn.is-open span:nth-child(2) {
+    opacity: 0;
+  }
+  .burger-btn.is-open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
   }
 
   .nav-menu {
-    position: fixed ;
-    top: 0 ;
-    right: -100% ;
-    height: 100vh ;
-    width: 40% ;
-    max-width: 260px ;
-    /* --- EFFET GLASS --- */
-    background-color: rgba(250, 247, 244, 0.75) ; /* ton beige avec transparence */
-    backdrop-filter: blur(16px) saturate(160%) ;
-    -webkit-backdrop-filter: blur(16px) saturate(160%) ; /* support Safari/iOS */
-    border-left: 1px solid rgba(184, 115, 51, 0.15) ; /* liseré cuivré subtil */
-
-    flex-direction: column ;
-    align-items: flex-start ;
-    justify-content: flex-start ;
-    gap: 1.5rem ;
-    padding: 5.5rem 1.75rem ;
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.12) ;
-    transition: right 0.3s ease-in-out ;
-    z-index: 58 ;
-  }
-
-  .nav-menu.nav-menu-open {
-    right: 0 ;
+    position: static;
+    height: auto;
+    width: auto;
+    max-width: none;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-left: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0;
+    box-shadow: none;
+    transition: none;
   }
 
   .nav-menu li {
-    width: 100% ;
+    width: auto;
   }
 
   .nav-link-btn {
-    width: 100% ;
-    text-align: left ;
-    font-size: 0.85rem ;
-    padding: 0.5rem 0 ;
+    width: auto;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.25rem;
   }
 }
