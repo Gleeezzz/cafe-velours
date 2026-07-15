@@ -1,12 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-/*`@tailwind` injecte le cœur du framework utilitaire
-     (système de grille, espacements standards). La directive `@layer base` nous permet de surcharger
-     proprement les éléments HTML natifs en y appliquant notre Design System (Polices Montserrat/Playfair). */
+
 @layer base {
   html, body {
-    background-color: #FAF7F4 !important; /* Beige lin clair (Identité visuelle réconfortante de Café Velours) */
+    background-color: #FAF7F4 ; /* Beige lin clair (Identité visuelle réconfortante de Café Velours) */
     color: #0D0D0D;
     font-family: 'Montserrat', sans-serif; /* Corps de texte moderne, géométrique et lisible */
     min-height: 100vh;
@@ -17,118 +12,118 @@
   }
 
   .font-serif {
-    font-family: 'Playfair Display', Georgia, serif !important; /* Destiné aux titres pour le côté artisanal/luxe */
+    font-family: 'Playfair Display', Georgia, serif ; /* Destiné aux titres pour le côté artisanal/luxe */
   }
 
   .font-sans {
-    font-family: 'Montserrat', sans-serif !important;
+    font-family: 'Montserrat', sans-serif ;
   }
 }
 
 /* ─── STYLE DE LA NAVBAR PREMIUM ─── */
 .custom-header {
-  background-color: #ffffff !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
-  border-bottom: 1px solid #e1dbd6 !important;
-  position: sticky !important; /* La Navbar reste fixée en haut lors du défilement */
-  top: 0 !important;
+  background-color: #ffffff ;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) ;
+  border-bottom: 1px solid #e1dbd6 ;
+  position: sticky ; /* La Navbar reste fixée en haut lors du défilement */
+  top: 0 ;
   /* Garantit que la Navbar reste bien au-dessus du reste du contenu */
-  z-index: 50 !important; /* Reste au-dessus de l'empilement des cartes et des émojis */
+  z-index: 50 ; /* Reste au-dessus de l'empilement des cartes et des émojis */
 }
 
 .navbar-container {
-  max-width: 1200px !important; /* Largeur maximale standard pour écrans de PC de bureau */
-  margin: 0 auto !important;
-  padding: 0.75rem 1.25rem !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
+  max-width: 1200px ; /* Largeur maximale standard pour écrans de PC de bureau */
+  margin: 0 auto ;
+  padding: 0.75rem 1.25rem ;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: center ;
 }
 
 /* Style du Logo */
 .brand-logo {
-  font-family: 'Playfair Display', Georgia, serif !important;
-  font-size: 1.15rem !important;
-  font-weight: 700 !important;
-  color: #0D0D0D !important;  /* Le Cuivré Officiel de Café Velours (Rappelle les machines à expresso en cuivre) */
-  text-decoration: none !important;
-  letter-spacing: 0.05em !important;
+  font-family: 'Playfair Display', Georgia, serif ;
+  font-size: 1.15rem ;
+  font-weight: 700 ;
+  color: #0D0D0D ;  /* Le Cuivré Officiel de Café Velours (Rappelle les machines à expresso en cuivre) */
+  text-decoration: none ;
+  letter-spacing: 0.05em ;
 }
 
 .brand-logo span {
-  font-family: 'Playfair Display', Georgia, serif !important;
-  font-style: italic !important;
-  font-weight: 400 !important;
-  color: #B87333 !important;
+  font-family: 'Playfair Display', Georgia, serif ;
+  font-style: italic ;
+  font-weight: 400 ;
+  color: #B87333 ;
 }
 
 /* Groupe des liens de navigation */
 .nav-menu {
-  display: flex !important;
-  gap: 1.25rem !important;
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  display: flex ;
+  gap: 1.25rem ;
+  list-style: none ;
+  padding: 0 ;
+  margin: 0 ;
 }
 
 /* Boutons de navigation convertis en liens élégants */
 .nav-link-btn {
-  background: none !important;
-  border: none !important;
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  color: #4b5563 !important; /* Gris sobre */
-  cursor: pointer !important;
-  padding: 0.5rem 0.25rem !important;
-  transition: all 0.2s ease-in-out !important;
-  position: relative !important;
+  background: none ;
+  border: none ;
+  font-family: 'Montserrat', sans-serif ;
+  font-size: 0.75rem ;
+  font-weight: 500 ;
+  text-transform: uppercase ;
+  letter-spacing: 0.05em ;
+  color: #4b5563 ; /* Gris sobre */
+  cursor: pointer ;
+  padding: 0.5rem 0.25rem ;
+  transition: all 0.2s ease-in-out ;
+  position: relative ;
 }
 
 .nav-link-btn:hover {
-  color: #B87333 !important; /* Devient cuivré au survol */
+  color: #B87333 ; /* Devient cuivré au survol */
 }
 
 /* Petit effet visuel pour indiquer l'onglet actif */
 .nav-link-btn.active-link {
-  color: #B87333 !important;
-  font-weight: 600 !important;
+  color: #B87333 ;
+  font-weight: 600 ;
 }
 
 /* ─── STYLE DE LA SECTION HERO AVEC IMAGE DE FOND ─── */
 .custom-hero {
-  background-color: #0D0D0D !important;
-  padding: 6rem 1.5rem !important;
-  text-align: center !important;
-  border-bottom-left-radius: 36px !important; /* Coins arrondis "organiques" selon le mockup */
-  border-bottom-right-radius: 36px !important;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  background-size: cover !important;
-  background-position: center !important;
+  background-color: #0D0D0D ;
+  padding: 6rem 1.5rem ;
+  text-align: center ;
+  border-bottom-left-radius: 36px ; /* Coins arrondis "organiques" selon le mockup */
+  border-bottom-right-radius: 36px ;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1) ;
+  position: relative ;
+  overflow: hidden ;
+  background-size: cover ;
+  background-position: center ;
 }
 
 /* ─── LE COUT D'ÉCLAT : LE BOUTON CUIVRÉ OFFICIEL ─── */
 .btn-cuivre {
-  background-color: #B87333 !important;
-  color: #ffffff !important;
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.1em !important;
-  padding: 1rem 2rem !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(184, 115, 51, 0.4) !important;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease-in-out !important;
+  background-color: #B87333 ;
+  color: #ffffff ;
+  font-size: 0.75rem ;
+  font-weight: 600 ;
+  text-transform: uppercase ;
+  letter-spacing: 0.1em ;
+  padding: 1rem 2rem ;
+  border-radius: 12px ;
+  border: 1px solid rgba(184, 115, 51, 0.4) ;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) ;
+  cursor: pointer ;
+  transition: all 0.2s ease-in-out ;
 }
 
 .btn-cuivre:hover {
-  background-color: #9E5E24 !important;
+  background-color: #9E5E24 ;
   transform: scale(1.05); /* Effet d'échelle discret et qualitatif au survol */
 }
 
@@ -146,38 +141,38 @@
 
 /* ─── AJUSTEMENTS DU TEXTE DU HERO (POUR LA LISIBILITÉ) ─── */
 .custom-hero h1 {
-  color: #ffffff !important;
+  color: #ffffff ;
 }
 .custom-hero p {
-  color: #e5e7eb !important; /* text-gray-200 */
+  color: #e5e7eb ; /* text-gray-200 */
 }
 .text-cuivre-theme {
-  color: #B87333 !important;
+  color: #B87333 ;
 }
 .bg-cuivre-theme {
-  background-color: #B87333 !important;
+  background-color: #B87333 ;
 }
 
 /* ─── STYLE DE LA SECTION ET DU CARROUSEL DE PACKS ─── */
 .packs-container {
-  margin-top: 3.5rem !important;
-  padding: 0 1.25rem !important;
+  margin-top: 3.5rem ;
+  padding: 0 1.25rem ;
 }
 
 .packs-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: baseline !important;
-  margin-bottom: 1.25rem !important;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: baseline ;
+  margin-bottom: 1.25rem ;
 }
 
 /* ─── ROUTINE DU CARROUSEL HORIZONTAL ─── */
 .packs-grid {
-  display: flex !important;
-  gap: 1.25rem !important;
-  overflow-x: auto !important; /* Active le défilement latéral fluide sur mobile */
-  padding-bottom: 1rem !important;
-  padding-top: 0.25rem !important;
+  display: flex ;
+  gap: 1.25rem ;
+  overflow-x: auto ; /* Active le défilement latéral fluide sur mobile */
+  padding-bottom: 1rem ;
+  padding-top: 0.25rem ;
 }
 
 /* ─── STYLE COMPLET PAGE D'ACCUEIL FIGMA ─── */
@@ -461,511 +456,542 @@
 
 /* Force le style des cartes comme sur le modèle Figma */
 .pack-card {
-  background-color: #ffffff !important;
-  min-width: 270px !important;
-  max-width: 270px !important;
-  border-radius: 1rem !important; /* rounded-2xl */
-  padding: 1.25rem !important;
-  border: 1px dashed #d1d5db !important; /* gray-300 */
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-  transition: all 0.2s ease-in-out !important;
+  background-color: #ffffff ;
+  min-width: 270px ;
+  max-width: 270px ;
+  border-radius: 1rem ; /* rounded-2xl */
+  padding: 1.25rem ;
+  border: 1px dashed #d1d5db ; /* gray-300 */
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) ;
+  display: flex ;
+  flex-direction: column ;
+  justify-content: space-between ;
+  transition: all 0.2s ease-in-out ;
 }
 
 .pack-card:hover {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) ;
 }
 
 /* Badge de popularité */
 .pack-badge {
-  background-color: rgba(184, 115, 51, 0.1) !important;
-  color: #B87333 !important;
-  font-size: 9px !important;
-  font-weight: 700 !important;
-  padding: 0.25rem 0.6rem !important;
-  border-radius: 0.375rem !important;
-  border: 1px solid rgba(184, 115, 51, 0.2) !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  background-color: rgba(184, 115, 51, 0.1) ;
+  color: #B87333 ;
+  font-size: 9px ;
+  font-weight: 700 ;
+  padding: 0.25rem 0.6rem ;
+  border-radius: 0.375rem ;
+  border: 1px solid rgba(184, 115, 51, 0.2) ;
+  text-transform: uppercase ;
+  letter-spacing: 0.05em ;
 }
 
 /* Bouton secondaire noir d'action pack */
 .btn-pack-dark {
-  margin-top: 1.25rem !important;
-  width: 100% !important;
-  background-color: #0D0D0D !important;
-  color: #ffffff !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  padding: 0.75rem 0 !important;
-  border-radius: 0.75rem !important;
-  transition: all 0.2s !important;
-  cursor: pointer !important;
-  border: none !important;
+  margin-top: 1.25rem ;
+  width: 100% ;
+  background-color: #0D0D0D ;
+  color: #ffffff ;
+  font-size: 0.75rem ;
+  font-weight: 500 ;
+  padding: 0.75rem 0 ;
+  border-radius: 0.75rem ;
+  transition: all 0.2s ;
+  cursor: pointer ;
+  border: none ;
 }
 
 .btn-pack-dark:hover {
-  background-color: #1f2937 !important;
+  background-color: #1f2937 ;
 }
 
 /* ─── STYLE DU CATALOGUE PREMIUM ─── */
 .catalog-container {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 2rem 1.25rem !important;
+  max-width: 1200px ;
+  margin: 0 auto ;
+  padding: 2rem 1.25rem ;
 }
 
 .catalog-title {
-  font-family: 'Playfair Display', Georgia, serif !important;
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  color: #0D0D0D !important;
-  text-align: center !important;
-  margin-bottom: 1.5rem !important;
+  font-family: 'Playfair Display', Georgia, serif ;
+  font-size: 1.5rem ;
+  font-weight: 700 ;
+  color: #0D0D0D ;
+  text-align: center ;
+  margin-bottom: 1.5rem ;
 }
 
 /* Barre de filtres (Pilules) */
 .filter-tabs {
-  display: flex !important;
-  gap: 0.5rem !important;
-  overflow-x: auto !important;
-  padding-bottom: 1rem !important;
-  margin-bottom: 2rem !important;
+  display: flex ;
+  gap: 0.5rem ;
+  overflow-x: auto ;
+  padding-bottom: 1rem ;
+  margin-bottom: 2rem ;
 }
 
 .filter-tabs::-webkit-scrollbar {
-  display: none !important; /* Cache la scrollbar des filtres */
+  display: none ; /* Cache la scrollbar des filtres */
 }
 
 .filter-btn {
-  background-color: #ffffff !important;
-  color: #4b5563 !important;
-  border: 1px solid #e5e7eb !important;
-  padding: 0.5rem 1rem !important;
-  border-radius: 9999px !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  white-space: nowrap !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease-in-out !important;
+  background-color: #ffffff ;
+  color: #4b5563 ;
+  border: 1px solid #e5e7eb ;
+  padding: 0.5rem 1rem ;
+  border-radius: 9999px ;
+  font-size: 0.75rem ;
+  font-weight: 500 ;
+  white-space: nowrap ;
+  cursor: pointer ;
+  transition: all 0.2s ease-in-out ;
 }
 
 .filter-btn.active-filter {
-  background-color: #B87333 !important;
-  color: #ffffff !important;
-  border-color: #B87333 !important;
+  background-color: #B87333 ;
+  color: #ffffff ;
+  border-color: #B87333 ;
 }
 
 /* ─ MOTEUR RESPONSIVE DE LA GRILLE DES PRODUITS DU CATALOGUE ─── */
 .products-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Mobile : 2 fiches par ligne */
-  gap: 1rem !important;
+  display: grid ;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) ; /* Mobile : 2 fiches par ligne */
+  gap: 1rem ;
 }
 
 @media (min-width: 768px) {
   .products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* Tablettes et écrans PC : Extension automatique à 3 colonnes */
-    gap: 1.5rem !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) ; /* Tablettes et écrans PC : Extension automatique à 3 colonnes */
+    gap: 1.5rem ;
   }
 }
 
 /* Fiche Produit */
 .product-card {
-  background-color: #ffffff !important;
-  border-radius: 1.25rem !important;
-  padding: 0.75rem !important;
-  border: 1px solid #f3f4f6 !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-  position: relative !important;
+  background-color: #ffffff ;
+  border-radius: 1.25rem ;
+  padding: 0.75rem ;
+  border: 1px solid #f3f4f6 ;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) ;
+  display: flex ;
+  flex-direction: column ;
+  justify-content: space-between ;
+  position: relative ;
 }
 
 .product-image-wrapper {
-  background-color: #FAF7F4 !important;
-  border-radius: 1rem !important;
-  overflow: hidden !important;
-  aspect-ratio: 1 / 1 !important; /* Carré parfait, crucial pour uniformiser les illustrations */
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  position: relative !important;
+  background-color: #FAF7F4 ;
+  border-radius: 1rem ;
+  overflow: hidden ;
+  aspect-ratio: 1 / 1 ; /* Carré parfait, crucial pour uniformiser les illustrations */
+  display: flex ;
+  align-items: center ;
+  justify-content: center ;
+  position: relative ;
 }
 
 .product-image-wrapper img {
-  max-width: 85% !important;
-  object-fit: contain !important;
+  max-width: 85% ;
+  object-fit: contain ;
 }
 
 /* Petit badge promo/neuf */
 .product-card-badge {
-  position: absolute !important;
-  top: 0.5rem !important;
-  left: 0.5rem !important;
-  background-color: #0D0D0D !important;
-  color: #ffffff !important;
-  font-size: 9px !important;
-  font-weight: 600 !important;
-  padding: 0.25rem 0.5rem !important;
-  border-radius: 0.5rem !important;
-  text-transform: uppercase !important;
+  position: absolute ;
+  top: 0.5rem ;
+  left: 0.5rem ;
+  background-color: #0D0D0D ;
+  color: #ffffff ;
+  font-size: 9px ;
+  font-weight: 600 ;
+  padding: 0.25rem 0.5rem ;
+  border-radius: 0.5rem ;
+  text-transform: uppercase ;
 }
 
 .product-info {
-  margin-top: 0.75rem !important;
+  margin-top: 0.75rem ;
 }
 
 .product-name {
-  font-family: 'Playfair Display', Georgia, serif !important;
-  font-size: 0.85rem !important;
-  font-weight: 700 !important;
-  color: #0D0D0D !important;
-  line-clamp: 1 !important; /* Coupe le texte proprement sur 1 seule ligne avec des points de suspension (...) */
+  font-family: 'Playfair Display', Georgia, serif ;
+  font-size: 0.85rem ;
+  font-weight: 700 ;
+  color: #0D0D0D ;
+  line-clamp: 1 ; /* Coupe le texte proprement sur 1 seule ligne avec des points de suspension (...) */
 }
 
 .product-desc {
-  font-size: 0.7rem !important;
-  color: #9ca3af !important;
-  margin-top: 0.25rem !important;
-  line-clamp: 2 !important; /* Tronque la description à la 2ème ligne pour ne pas déformer la grille */
-  leading-relaxed: 1.2 !important;
+  font-size: 0.7rem ;
+  color: #9ca3af ;
+  margin-top: 0.25rem ;
+  line-clamp: 2 ; /* Tronque la description à la 2ème ligne pour ne pas déformer la grille */
+  leading-relaxed: 1.2 ;
 }
 
 .product-footer {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-top: 0.75rem !important;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: center ;
+  margin-top: 0.75rem ;
 }
 
 .product-price {
-  font-family: 'Playfair Display', Georgia, serif !important;
-  font-weight: 700 !important;
-  color: #B87333 !important;
-  font-size: 0.95rem !important;
+  font-family: 'Playfair Display', Georgia, serif ;
+  font-weight: 700 ;
+  color: #B87333 ;
+  font-size: 0.95rem ;
 }
 
 .btn-add-cart {
-  background-color: #0D0D0D !important;
-  color: #ffffff !important;
-  border: none !important;
-  padding: 0.5rem !important;
-  border-radius: 0.75rem !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: background-color 0.2s !important;
+  background-color: #0D0D0D ;
+  color: #ffffff ;
+  border: none ;
+  padding: 0.5rem ;
+  border-radius: 0.75rem ;
+  cursor: pointer ;
+  display: flex ;
+  align-items: center ;
+  justify-content: center ;
+  transition: background-color 0.2s ;
 }
 
 .btn-add-cart:hover {
-  background-color: #B87333 !important;
+  background-color: #B87333 ;
 }
 
 /* Grossit les émojis au centre des cartes */
 .product-image-wrapper span.text-4xl {
-  font-size: 3.5rem !important; /* Donne du relief et de la visibilité aux émojis en guise d'images */
-  display: block !important;
-  text-align: center !important;
+  font-size: 3.5rem ; /* Donne du relief et de la visibilité aux émojis en guise d'images */
+  display: block ;
+  text-align: center ;
 }
 
 /* Bandeau marron pour les filtres comme sur Figma */
 .catalog-breadcrumb-bar {
-  background-color: #8E6543 !important; /* Le marron chaud du mockup */
-  padding: 0.75rem 1.5rem !important;
-  color: #ffffff !important;
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 0.85rem !important;
-  display: flex !important;
-  gap: 0.5rem !important;
-  align-items: center !important;
-  margin-bottom: 2rem !important;
+  background-color: #8E6543 ; /* Le marron chaud du mockup */
+  padding: 0.75rem 1.5rem ;
+  color: #ffffff ;
+  font-family: 'Montserrat', sans-serif ;
+  font-size: 0.85rem ;
+  display: flex ;
+  gap: 0.5rem ;
+  align-items: center ;
+  margin-bottom: 2rem ;
 }
 
 .catalog-breadcrumb-bar span {
-  opacity: 0.7 !important;
+  opacity: 0.7 ;
+}
+
+/* Onglets de filtre catégorie comme sur Figma */
+.catalog-filter-tabs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 24px 20px;
+}
+
+.filter-tab-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid #d9c7ae;
+  background: transparent;
+  color: #5c4a3a;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tab-btn:hover:not(.filter-tab-active) {
+  background: #f2e7d8;
+}
+
+.filter-tab-active {
+  background: #8E6543; /* même marron que ton .catalog-breadcrumb-bar pour la cohérence */
+  color: white;
+  border-color: #8E6543;
 }
 
 /* ─── SECTION HISTOIRE / PHILOSOPHIE ─── */
 .history-card {
-  margin-top: 3rem !important;
-  margin-bottom: 4rem !important;
-  padding: 1.5rem !important;
-  background-color: rgba(243, 230, 217, 0.4) !important; /* beige très léger */
-  border-radius: 1.5rem !important;
-  border: 1px dashed rgba(184, 115, 51, 0.2) !important;
-  text-align: center !important;
+  margin-top: 3rem ;
+  margin-bottom: 4rem ;
+  padding: 1.5rem ;
+  background-color: rgba(243, 230, 217, 0.4) ; /* beige très léger */
+  border-radius: 1.5rem ;
+  border: 1px dashed rgba(184, 115, 51, 0.2) ;
+  text-align: center ;
 }
 
 /* ─── PAGE PROFIL COMPTE CLIENT ─── */
 .profile-view-wrapper {
-  max-width: 600px !important; /* Format "Card" centré sur l'ecran */
-  margin: 0 auto !important;
-  padding: 2rem 1.25rem !important;
-  font-family: 'Montserrat', sans-serif !important;
+  max-width: 600px ; /* Format "Card" centré sur l'ecran */
+  margin: 0 auto ;
+  padding: 2rem 1.25rem ;
+  font-family: 'Montserrat', sans-serif ;
 }
 
 /* En-tête de l'avatar */
 .profile-avatar-header {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  text-align: center !important;
-  margin-bottom: 2.5rem !important;
+  display: flex ;
+  flex-direction: column ;
+  align-items: center ;
+  text-align: center ;
+  margin-bottom: 2.5rem ;
 }
 
 .avatar-circle {
-  width: 100px !important;
-  height: 100px !important;
-  background-color: #8E6543 !important; /* Marron chaud Figma */
-  color: #ffffff !important;
-  border-radius: 50% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 2rem !important;
-  font-weight: 600 !important;
-  margin-bottom: 1rem !important;
+  width: 100px ;
+  height: 100px ;
+  background-color: #8E6543 ; /* Marron chaud Figma */
+  color: #ffffff ;
+  border-radius: 50% ;
+  display: flex ;
+  align-items: center ;
+  justify-content: center ;
+  font-size: 2rem ;
+  font-weight: 600 ;
+  margin-bottom: 1rem ;
 }
 
 .profile-name {
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  color: #000000 !important;
-  margin: 0 0 0.25rem 0 !important;
+  font-family: 'Montserrat', sans-serif ;
+  font-size: 1.5rem ;
+  font-weight: 700 ;
+  color: #000000 ;
+  margin: 0 0 0.25rem 0 ;
 }
 
 .profile-email {
-  font-size: 0.9rem !important;
-  color: #4b5563 !important;
-  margin: 0 0 0.75rem 0 !important;
+  font-size: 0.9rem ;
+  color: #4b5563 ;
+  margin: 0 0 0.75rem 0 ;
 }
 
 .role-badge {
-  background-color: #8CE89B !important; /* Vert émeraude clair (Signale un compte actif/vérifié) */
-  color: #1e7e34 !important;
-  font-size: 0.7rem !important;
-  font-weight: 700 !important;
-  padding: 0.25rem 0.75rem !important;
-  border-radius: 9999px !important;
-  text-transform: uppercase !important;
+  background-color: #8CE89B ; /* Vert émeraude clair (Signale un compte actif/vérifié) */
+  color: #1e7e34 ;
+  font-size: 0.7rem ;
+  font-weight: 700 ;
+  padding: 0.25rem 0.75rem ;
+  border-radius: 9999px ;
+  text-transform: uppercase ;
 }
 
 /* Titres des sections (Mes commandes, Mon profil) */
 .profile-group-title {
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
-  color: #8E6543 !important; /* Texte marron */
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  margin: 2rem 0 1.25rem 0 !important;
+  font-family: 'Montserrat', sans-serif ;
+  font-size: 0.95rem ;
+  font-weight: 700 ;
+  color: #8E6543 ; /* Texte marron */
+  text-transform: uppercase ;
+  letter-spacing: 0.05em ;
+  margin: 2rem 0 1.25rem 0 ;
 }
 
 /* Cartes de commande Figma (LIASON BACKEND MYSQL) */
 .order-card-figma {
-  background-color: #ffffff !important;
-  border: 1px solid #8E6543 !important; /* Encadrement marron chic reprenant le style de l'interface Panier */
-  border-radius: 1rem !important;
-  padding: 1.25rem !important;
-  margin-bottom: 1rem !important;
+  background-color: #ffffff ;
+  border: 1px solid #8E6543 ; /* Encadrement marron chic reprenant le style de l'interface Panier */
+  border-radius: 1rem ;
+  padding: 1.25rem ;
+  margin-bottom: 1rem ;
 }
 
 .order-card-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-bottom: 0.5rem !important;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: center ;
+  margin-bottom: 0.5rem ;
 }
 
 .order-id-txt {
-  font-size: 1.1rem !important;
-  font-weight: 700 !important;
-  color: #000000 !important;
-  margin: 0 !important;
+  font-size: 1.1rem ;
+  font-weight: 700 ;
+  color: #000000 ;
+  margin: 0 ;
 }
 
 .status-tag {
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  padding: 0.35rem 1rem !important;
-  border-radius: 9999px !important;
+  font-size: 0.75rem ;
+  font-weight: 600 ;
+  padding: 0.35rem 1rem ;
+  border-radius: 9999px ;
 }
 
-.tag-confirmed { background-color: #8CE89B !important; color: #1e7e34 !important; }
-.tag-shipped { background-color: #A3C1AD !important; color: #2e4f3b !important; }
+.tag-confirmed { background-color: #8CE89B ; color: #1e7e34 ; }
+.tag-shipped { background-color: #A3C1AD ; color: #2e4f3b ; }
 
 .order-date-txt {
-  font-size: 0.8rem !important;
-  color: #6b7280 !important;
-  margin: 0 0 0.5rem 0 !important;
+  font-size: 0.8rem ;
+  color: #6b7280 ;
+  margin: 0 0 0.5rem 0 ;
 }
 
 .order-items-details {
-  font-size: 0.85rem !important;
-  color: #4b5563 !important;
-  margin: 0 0 1rem 0 !important;
+  font-size: 0.85rem ;
+  color: #4b5563 ;
+  margin: 0 0 1rem 0 ;
 }
 
 .order-card-footer {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-top: 0.5rem !important;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: center ;
+  margin-top: 0.5rem ;
 }
 
 .order-total-price {
-  font-size: 1.1rem !important;
-  font-weight: 700 !important;
-  color: #000000 !important;
+  font-size: 1.1rem ;
+  font-weight: 700 ;
+  color: #000000 ;
 }
 
 .btn-order-details {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border: 1px solid #d1d5db !important;
-  padding: 0.4rem 1.5rem !important;
-  border-radius: 0.5rem !important;
-  font-size: 0.8rem !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
+  background-color: #ffffff ;
+  color: #000000 ;
+  border: 1px solid #d1d5db ;
+  padding: 0.4rem 1.5rem ;
+  border-radius: 0.5rem ;
+  font-size: 0.8rem ;
+  font-weight: 500 ;
+  cursor: pointer ;
 }
 
 /* Section Mon Profil / Infos textuelles */
 .info-row-figma {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 0.85rem 0 !important;
-  font-size: 0.95rem !important;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: center ;
+  padding: 0.85rem 0 ;
+  font-size: 0.95rem ;
 }
 
 .info-label-figma {
-  font-weight: 700 !important;
-  color: #000000 !important;
+  font-weight: 700 ;
+  color: #000000 ;
 }
 
 .info-value-figma {
-  color: #333333 !important;
+  color: #333333 ;
 }
 
 /* Gros bouton modifier */
 .btn-edit-profile-figma {
-  background-color: #ffffff !important;
-  color: #8E6543 !important;
-  border: 1px solid #8E6543 !important;
-  width: 100% !important;
-  padding: 0.85rem !important;
-  border-radius: 0.75rem !important;
-  font-size: 0.95rem !important;
-  font-weight: 600 !important;
-  margin-top: 2rem !important;
-  cursor: pointer !important;
-  transition: all 0.2s !important;
+  background-color: #ffffff ;
+  color: #8E6543 ;
+  border: 1px solid #8E6543 ;
+  width: 100% ;
+  padding: 0.85rem ;
+  border-radius: 0.75rem ;
+  font-size: 0.95rem ;
+  font-weight: 600 ;
+  margin-top: 2rem ;
+  cursor: pointer ;
+  transition: all 0.2s ;
 }
 
 .btn-edit-profile-figma:hover {
-  background-color: #8E6543 !important;
-  color: #ffffff !important;
+  background-color: #8E6543 ;
+  color: #ffffff ;
 }
 
 /* ─ INTERFACE DU PANIER D'ACHATS ─── */
 .cart-container {
-  display: block !important;
-  max-width: 550px !important; /* Format ciblé comme tes maquettes Figma */
-  margin: 40px auto !important;
-  padding: 20px !important;
-  font-family: 'Montserrat', sans-serif !important;
+  display: block ;
+  max-width: 550px ; /* Format ciblé comme tes maquettes Figma */
+  margin: 40px auto ;
+  padding: 20px ;
+  font-family: 'Montserrat', sans-serif ;
 }
 
 .cart-title {
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  color: #8E6543 !important;
-  text-align: left !important;
-  margin-bottom: 25px !important;
+  font-family: 'Montserrat', sans-serif ;
+  font-size: 1.5rem ;
+  font-weight: 700 ;
+  color: #8E6543 ;
+  text-align: left ;
+  margin-bottom: 25px ;
 }
 
 /* La fameuse carte avec le liseré marron de ton Figma */
 .cart-card {
-  background: #ffffff !important;
-  border: 1px solid #8E6543 !important;
-  border-radius: 12px !important;
-  padding: 20px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  background: #ffffff ;
+  border: 1px solid #8E6543 ;
+  border-radius: 12px ;
+  padding: 20px ;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) ;
 }
 
 /* Lignes de produits */
 .cart-item-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 15px 0 !important;
-  border-bottom: 1px solid #e5e7eb !important;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: center ;
+  padding: 15px 0 ;
+  border-bottom: 1px solid #e5e7eb ;
 }
 
 .cart-item-info h4 {
-  font-size: 1rem !important;
-  font-weight: 700 !important;
-  color: #000000 !important;
-  margin: 0 !important;
+  font-size: 1rem ;
+  font-weight: 700 ;
+  color: #000000 ;
+  margin: 0 ;
 }
 
 .cart-item-info p {
-  font-size: 0.85rem !important;
-  color: #6b7280 !important;
-  margin: 4px 0 0 0 !important;
+  font-size: 0.85rem ;
+  color: #6b7280 ;
+  margin: 4px 0 0 0 ;
 }
 
 .cart-item-price {
-  font-size: 1rem !important;
-  font-weight: 700 !important;
-  color: #000000 !important;
+  font-size: 1rem ;
+  font-weight: 700 ;
+  color: #000000 ;
 }
 
 /* Zone du total */
 .cart-summary-box {
-  margin-top: 15px !important;
-  padding-top: 15px !important;
+  margin-top: 15px ;
+  padding-top: 15px ;
 }
 
 .summary-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
+  display: flex ;
+  justify-content: space-between ;
+  align-items: center ;
 }
 
 .summary-total {
-  font-size: 1.2rem !important;
-  font-weight: 700 !important;
-  color: #000000 !important;
+  font-size: 1.2rem ;
+  font-weight: 700 ;
+  color: #000000 ;
 }
 
 /* Gros bouton marron Figma */
 .btn-checkout-cart {
-  display: block !important;
-  width: 100% !important;
-  background-color: #8E6543 !important;
-  color: #ffffff !important;
-  border: none !important;
-  padding: 12px !important;
-  border-radius: 8px !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  margin-top: 20px !important;
-  text-align: center !important;
-  transition: background-color 0.2s !important;
+  display: block ;
+  width: 100% ;
+  background-color: #8E6543 ;
+  color: #ffffff ;
+  border: none ;
+  padding: 12px ;
+  border-radius: 8px ;
+  font-size: 1rem ;
+  font-weight: 600 ;
+  cursor: pointer ;
+  margin-top: 20px ;
+  text-align: center ;
+  transition: background-color 0.2s ;
 }
 
 .btn-checkout-cart:hover {
-  background-color: #704d31 !important;
+  background-color: #704d31 ;
 }
 
 /* ─ INTERFACE DE PASSAGE EN CAISSE (CHECKOUT FORM) ─── */
@@ -1086,93 +1112,93 @@ de façon propre sans figer des largeurs en pixels qui détruiraient le responsi
 
 /* Force l'image du microservice à respecter le carré du wrapper sans déborder */
 .product-image-wrapper img {
-  width: auto !important;
-  height: auto !important;
-  max-width: 80% !important;
-  max-height: 80% !important;
-  object-fit: contain !important;
-  transition: transform 0.3s ease !important;
+  width: auto ;
+  height: auto ;
+  max-width: 80% ;
+  max-height: 80% ;
+  object-fit: contain ;
+  transition: transform 0.3s ease ;
 }
 
 /* Effet d'élévation léger sur la carte produit au survol */
 .product-card:hover {
   transform: translateY(-4px); /* Légère lévitation de la carte produit lors de l'interaction souris */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) ;
   transition: all 0.2s ease-in-out;
 }
 
 /* État interactif : Quand le produit est dans le panier */
 .btn-add-cart.btn-added {
-  background-color: #385723 !important; /* Passage au Vert Forêt : Confirme l'action de manière rassurante */
-  color: #ffffff !important;
-  font-weight: bold !important;
-  border: none !important;
+  background-color: #385723 ; /* Passage au Vert Forêt : Confirme l'action de manière rassurante */
+  color: #ffffff ;
+  font-weight: bold ;
+  border: none ;
 }
 
 .btn-add-cart.btn-added:hover {
-  background-color: #2d421b !important; /* Vert un peu plus sombre au survol */
+  background-color: #2d421b ; /* Vert un peu plus sombre au survol */
 }
 
 /* Transition générale pour adoucir le changement de couleur du bouton */
 .btn-add-cart {
-  transition: all 0.2s ease-in-out !important;
+  transition: all 0.2s ease-in-out ;
 }
 
 /* ─── CONTROLEUR DE QUANTITE INTEGRE (QTY SELECTOR) ─── */
 .qty-selector-container {
-  display: flex !important;
-  align-items: center !important;
-  background-color: #385723 !important; /* Le vert forêt de validation */
-  border-radius: 0.75rem !important; /* Même arrondi que ton bouton d'origine */
-  overflow: hidden !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  display: flex ;
+  align-items: center ;
+  background-color: #385723 ; /* Le vert forêt de validation */
+  border-radius: 0.75rem ; /* Même arrondi que ton bouton d'origine */
+  overflow: hidden ;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) ;
 }
 
 .qty-btn-minus, .qty-btn-plus {
-  background: transparent !important;
-  border: none !important;
-  color: #ffffff !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  padding: 0.5rem 0.75rem !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s !important;
+  background: transparent ;
+  border: none ;
+  color: #ffffff ;
+  font-size: 1rem ;
+  font-weight: 600 ;
+  padding: 0.5rem 0.75rem ;
+  cursor: pointer ;
+  transition: background-color 0.2s ;
 }
 
 .qty-btn-minus:hover {
-  background-color: rgba(0, 0, 0, 0.15) !important;
+  background-color: rgba(0, 0, 0, 0.15) ;
 }
 
 .qty-btn-plus:hover {
-  background-color: rgba(0, 0, 0, 0.15) !important;
+  background-color: rgba(0, 0, 0, 0.15) ;
 }
 
 .qty-display-value {
-  color: #ffffff !important;
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 0.85rem !important;
-  font-weight: 700 !important;
-  padding: 0 0.25rem !important;
-  min-width: 20px !important;
-  text-align: center !important;
+  color: #ffffff ;
+  font-family: 'Montserrat', sans-serif ;
+  font-size: 0.85rem ;
+  font-weight: 700 ;
+  padding: 0 0.25rem ;
+  min-width: 20px ;
+  text-align: center ;
 }
 
 /* ─ 4. LE FOOTER PRESTIGE (FIN DE L'INTERFACE APPLICATION) ─── */
 .custom-footer {
-  background-color: #ffffff !important;
-  border-top: 1px solid #e1dbd6 !important;
-  padding: 4rem 1.5rem 2rem 1.5rem !important;
-  font-family: 'Montserrat', sans-serif !important;
+  background-color: #ffffff ;
+  border-top: 1px solid #e1dbd6 ;
+  padding: 4rem 1.5rem 2rem 1.5rem ;
+  font-family: 'Montserrat', sans-serif ;
 }
 
 /* Grille principale du footer */
 .footer-grid-container {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  display: grid !important;
-  grid-template-columns: 1fr !important; /* Mobile par défaut : 1 colonne verticale */
-  gap: 2.5rem !important;
-  text-align: left !important;
+  max-width: 1200px ;
+  margin: 0 auto ;
+  display: grid ;
+  grid-template-columns: 1fr ; /* Mobile par défaut : 1 colonne verticale */
+  gap: 2.5rem ;
+  text-align: left ;
 }
 
 /* Responsiveness : Ajustement pour une structure équilibrée à 4 colonnes */
@@ -1181,222 +1207,222 @@ de façon propre sans figer des largeurs en pixels qui détruiraient le responsi
     /*→ C'est une règle d'or d'ergonomie et de hiérarchie visuelle. On attribue plus de poids (`2fr`)
          à la première colonne (Histoire/Identité) et à la dernière (Formulaire d'engagement Newsletter).
          Les colonnes de navigation pures, plus courtes, se partagent le centre à part égale (`1fr`). */
-    grid-template-columns: 2fr 1fr 1fr 2fr !important;
-    gap: 2rem !important;
+    grid-template-columns: 2fr 1fr 1fr 2fr ;
+    gap: 2rem ;
   }
 }
 
 /* Colonne Marque */
 .footer-brand-title {
-  font-family: 'Playfair Display', Georgia, serif !important;
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  color: #0D0D0D !important;
-  margin-bottom: 1rem !important;
-  letter-spacing: 0.05em !important;
+  font-family: 'Playfair Display', Georgia, serif ;
+  font-size: 1.5rem ;
+  font-weight: 700 ;
+  color: #0D0D0D ;
+  margin-bottom: 1rem ;
+  letter-spacing: 0.05em ;
 }
 
 .footer-brand-title span {
-  font-style: italic !important;
-  font-weight: 400 !important;
-  color: #B87333 !important; /* Cuivré Figma */
+  font-style: italic ;
+  font-weight: 400 ;
+  color: #B87333 ; /* Cuivré Figma */
 }
 
 .footer-brand-text {
-  font-size: 0.85rem !important;
-  color: #6b7280 !important;
-  line-height: 1.6 !important;
+  font-size: 0.85rem ;
+  color: #6b7280 ;
+  line-height: 1.6 ;
   max-width: 320px;
 }
 
 /* Colonnes Titres (Navigation & Newsletter) */
 .footer-grid-container h4 {
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 0.9rem !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
-  color: #0D0D0D !important;
-  margin-bottom: 1.25rem !important;
+  font-family: 'Montserrat', sans-serif ;
+  font-size: 0.9rem ;
+  font-weight: 700 ;
+  text-transform: uppercase ;
+  letter-spacing: 0.08em ;
+  color: #0D0D0D ;
+  margin-bottom: 1.25rem ;
 }
 
 /* Liste de liens */
 .footer-links-column ul {
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  list-style: none ;
+  padding: 0 ;
+  margin: 0 ;
 }
 
 .footer-links-column li {
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.75rem ;
 }
 
 .footer-link-item {
-  font-size: 0.85rem !important;
-  color: #4b5563 !important;
-  text-decoration: none !important;
-  transition: color 0.2s ease-in-out !important;
+  font-size: 0.85rem ;
+  color: #4b5563 ;
+  text-decoration: none ;
+  transition: color 0.2s ease-in-out ;
 }
 
 .footer-link-item:hover {
-  color: #B87333 !important; /* Survol cuivré */
+  color: #B87333 ; /* Survol cuivré */
   padding-left: 2px; /* Micro-décalage au survol pour donner un indice d'interactivité tactile */
 }
 
 
 /* Colonne Newsletter & Formulaire */
 .footer-newsletter-column p {
-  font-size: 0.85rem !important;
-  color: #6b7280 !important;
-  margin-bottom: 1rem !important;
-  line-height: 1.5 !important;
+  font-size: 0.85rem ;
+  color: #6b7280 ;
+  margin-bottom: 1rem ;
+  line-height: 1.5 ;
 }
 
 .footer-newsletter-form {
-  display: flex !important;
-  gap: 0.5rem !important;
-  width: 100% !important;
+  display: flex ;
+  gap: 0.5rem ;
+  width: 100% ;
   max-width: 400px;
 }
 
 .footer-input {
-  flex-grow: 1 !important;
-  padding: 0.65rem 1rem !important;
-  border: 1px solid #d1d5db !important;
-  border-radius: 8px !important;
-  font-size: 0.85rem !important;
-  outline: none !important;
-  font-family: 'Montserrat', sans-serif !important;
-  transition: border-color 0.2s !important;
+  flex-grow: 1 ;
+  padding: 0.65rem 1rem ;
+  border: 1px solid #d1d5db ;
+  border-radius: 8px ;
+  font-size: 0.85rem ;
+  outline: none ;
+  font-family: 'Montserrat', sans-serif ;
+  transition: border-color 0.2s ;
 }
 
 .footer-input:focus {
-  border-color: #B87333 !important; /* Focus cuivré */
+  border-color: #B87333 ; /* Focus cuivré */
 }
 
 .footer-btn-submit {
-  background-color: #0D0D0D !important; /* Bouton noir élégant */
-  color: #ffffff !important;
-  border: none !important;
-  padding: 0.65rem 1.25rem !important;
-  border-radius: 8px !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s !important;
+  background-color: #0D0D0D ; /* Bouton noir élégant */
+  color: #ffffff ;
+  border: none ;
+  padding: 0.65rem 1.25rem ;
+  border-radius: 8px ;
+  font-size: 0.8rem ;
+  font-weight: 600 ;
+  cursor: pointer ;
+  transition: background-color 0.2s ;
 }
 
 .footer-btn-submit:hover {
-  background-color: #B87333 !important; /* Devient cuivré au survol */
+  background-color: #B87333 ; /* Devient cuivré au survol */
 }
 
 /* Barre de bas de page */
 .footer-bottom-bar {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  margin-top: 3rem !important;
+  max-width: 1200px ;
+  margin: 0 auto ;
+  margin-top: 3rem ;
 }
 
 .footer-divider {
-  border: 0 !important;
-  height: 1px !important;
-  background-color: #e5e7eb !important;
-  margin-bottom: 1.5rem !important;
+  border: 0 ;
+  height: 1px ;
+  background-color: #e5e7eb ;
+  margin-bottom: 1.5rem ;
 }
 
 .footer-credits {
-  font-size: 0.75rem !important;
-  color: #9ca3af !important;
-  text-align: center !important;
+  font-size: 0.75rem ;
+  color: #9ca3af ;
+  text-align: center ;
 }
 
 /* ─── BOUTON BURGER (mobile uniquement) ─── */
 .burger-btn {
-  display: none !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-  width: 26px !important;
-  height: 18px !important;
-  background: none !important;
-  border: none !important;
-  cursor: pointer !important;
-  padding: 0 !important;
-  z-index: 60 !important;
+  display: none ;
+  flex-direction: column ;
+  justify-content: space-between ;
+  width: 26px ;
+  height: 18px ;
+  background: none ;
+  border: none ;
+  cursor: pointer ;
+  padding: 0 ;
+  z-index: 60 ;
 }
 
 .burger-btn span {
-  display: block !important;
-  height: 2px !important;
-  width: 100% !important;
-  background-color: #0D0D0D !important;
-  border-radius: 2px !important;
-  transition: all 0.3s ease-in-out !important;
+  display: block ;
+  height: 2px ;
+  width: 100% ;
+  background-color: #0D0D0D ;
+  border-radius: 2px ;
+  transition: all 0.3s ease-in-out ;
 }
 
 /* Animation croix à l'ouverture */
 .burger-btn.is-open span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg) !important;
+  transform: translateY(8px) rotate(45deg) ;
 }
 .burger-btn.is-open span:nth-child(2) {
-  opacity: 0 !important;
+  opacity: 0 ;
 }
 .burger-btn.is-open span:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg) !important;
+  transform: translateY(-8px) rotate(-45deg) ;
 }
 
 /* ─── OVERLAY (fond sombre derrière le menu ouvert) ─── */
 .nav-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: rgba(13, 13, 13, 0.25) !important;  /* plus léger qu'avant (0.4 → 0.25) */
-  backdrop-filter: blur(2px) !important;            /* légère brume sur le fond aussi */
-  z-index: 55 !important;
+  position: fixed ;
+  top: 0 ;
+  left: 0 ;
+  width: 100% ;
+  height: 100% ;
+  background: rgba(13, 13, 13, 0.25) ;  /* plus léger qu'avant (0.4 → 0.25) */
+  backdrop-filter: blur(2px) ;            /* légère brume sur le fond aussi */
+  z-index: 55 ;
 }
 
 /* ─── RESPONSIVE MOBILE (≤768px) ─── */
 @media (max-width: 768px) {
   .burger-btn {
-    display: flex !important;
+    display: flex ;
   }
 
   .nav-menu {
-    position: fixed !important;
-    top: 0 !important;
-    right: -100% !important;
-    height: 100vh !important;
-    width: 40% !important;
-    max-width: 260px !important;
+    position: fixed ;
+    top: 0 ;
+    right: -100% ;
+    height: 100vh ;
+    width: 40% ;
+    max-width: 260px ;
     /* --- EFFET GLASS --- */
-    background-color: rgba(250, 247, 244, 0.75) !important; /* ton beige avec transparence */
-    backdrop-filter: blur(16px) saturate(160%) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(160%) !important; /* support Safari/iOS */
-    border-left: 1px solid rgba(184, 115, 51, 0.15) !important; /* liseré cuivré subtil */
+    background-color: rgba(250, 247, 244, 0.75) ; /* ton beige avec transparence */
+    backdrop-filter: blur(16px) saturate(160%) ;
+    -webkit-backdrop-filter: blur(16px) saturate(160%) ; /* support Safari/iOS */
+    border-left: 1px solid rgba(184, 115, 51, 0.15) ; /* liseré cuivré subtil */
 
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    gap: 1.5rem !important;
-    padding: 5.5rem 1.75rem !important;
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.12) !important;
-    transition: right 0.3s ease-in-out !important;
-    z-index: 58 !important;
+    flex-direction: column ;
+    align-items: flex-start ;
+    justify-content: flex-start ;
+    gap: 1.5rem ;
+    padding: 5.5rem 1.75rem ;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.12) ;
+    transition: right 0.3s ease-in-out ;
+    z-index: 58 ;
   }
 
   .nav-menu.nav-menu-open {
-    right: 0 !important;
+    right: 0 ;
   }
 
   .nav-menu li {
-    width: 100% !important;
+    width: 100% ;
   }
 
   .nav-link-btn {
-    width: 100% !important;
-    text-align: left !important;
-    font-size: 0.85rem !important;
-    padding: 0.5rem 0 !important;
+    width: 100% ;
+    text-align: left ;
+    font-size: 0.85rem ;
+    padding: 0.5rem 0 ;
   }
 }
