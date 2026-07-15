@@ -153,6 +153,20 @@ export default function CatalogView({ onAddToCart, onRemoveFromCart, cart, onVie
                 {/* 🏷️ Filtre actif actuel (Texte en Blanc pur pour ressortir au maximum) */}
                 <strong style={{ color: '#FFFFFF', fontWeight: '600' }}>{activeFilter}</strong>
             </div>
+
+            {/* --- ONGLETS DE FILTRE --- */}
+            <div className="catalog-filter-tabs">
+                {categories.map(cat => (
+                    <button
+                        key={cat}
+                        className={`filter-tab-btn ${activeFilter === cat ? 'filter-tab-active' : ''}`}
+                        onClick={() => setActiveFilter(cat)}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+
             {/* Grille d'affichage des cartes produits */}
             <div className="products-grid">
                 {filteredProducts.map(product => {
