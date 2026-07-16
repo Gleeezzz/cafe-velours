@@ -1,44 +1,35 @@
 import React, { useState } from 'react';
-// 1. IMPORTATION DU LOGO DEPUIS LES ASSETS
 import logoCafe from '../assets/LogoCafe.png';
 
 export default function Navbar({ currentView, onNavigate, cartCount }) {
     const [menuOpen, setMenuOpen] = useState(false);
+
     const handleNavigate = (view) => {
         onNavigate(view);
-        setMenuOpen(false); // close burger menu
+        setMenuOpen(false); // Ferme le menu burger sur mobile
     }
 
     return (
         <header className="custom-header">
             <nav className="navbar-container">
 
-                {/* LOGO CLIQUABLE ET VISUEL */}
+                {/* LOGO CLIQUABLE */}
                 <a
                     href="#home"
                     onClick={(e) => {
-                        e.preventDefault(); // Évite le comportement d'ancre par défaut
+                        e.preventDefault();
                         onNavigate('home');
                     }}
                     className="brand-logo"
-                    style={{ display: 'flex', alignItems: 'center' }}
                 >
                     <img
                         src={logoCafe}
                         alt="Café Velours Logo"
                         className="navbar-logo-img"
-                        style={{
-                            height: '40px',       // Ajuste la hauteur selon tes envies (ex: 40px ou 45px)
-                            width: 'auto',        // Garde les proportions de ton logo intactes
-                            objectContain: 'contain'
-                        }}
                     />
-                    {/* Optionnel : Si ton image ne contient QUE le dessin/symbole et que tu veux
-                        garder l'écriture "Café Velours" juste à côté, décommente la ligne ci-dessous : */}
-                    {/* <span style={{ marginLeft: '10px' }}>Café <span>Velours</span></span> */}
                 </a>
 
-                {/* BOUTON BURGER - visible uniquement en mobile via CSS */}
+                {/* BOUTON BURGER (Mobile) */}
                 <button
                     className={`burger-btn ${menuOpen ? 'is-open' : ''}`}
                     onClick={() => setMenuOpen(!menuOpen)}
@@ -50,7 +41,12 @@ export default function Navbar({ currentView, onNavigate, cartCount }) {
                     <span></span>
                 </button>
 
-                {/* Liens de navigation */}
+                {/* OVERLAY SOMBRE (Mobile) - Placé avant le menu pour l'ordre d'empilement DOM */}
+                {menuOpen && (
+                    <div className="nav-overlay" onClick={() => setMenuOpen(false)}></div>
+                )}
+
+                {/* LIENS DE NAVIGATION */}
                 <ul className={`nav-menu ${menuOpen ? 'nav-menu-open' : ''}`}>
                     <li>
                         <button
@@ -76,26 +72,21 @@ export default function Navbar({ currentView, onNavigate, cartCount }) {
                             Profil
                         </button>
                     </li>
-
                     <li>
                         <button
                             onClick={() => handleNavigate('cart')}
-                            className={`nav-link-btn relative ${currentView === 'cart' ? 'active-link' : ''}`}
-                            style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                            className={`nav-link-btn nav-link-cart ${currentView === 'cart' ? 'active-link' : ''}`}
                         >
                             Panier 🛒
                             {cartCount > 0 && (
                                 <span className="nav-cart-badge">
-                    {cartCount}
-                </span>
+                                    {cartCount}
+                                </span>
                             )}
                         </button>
                     </li>
                 </ul>
-                {/* Overlay sombre derrière le menu mobile ouvert */}
-                {menuOpen && (
-                    <div className="nav-overlay" onClick={() => setMenuOpen(false)}></div>
-                )}
+
             </nav>
         </header>
     );

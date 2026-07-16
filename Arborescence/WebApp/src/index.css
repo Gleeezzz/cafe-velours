@@ -22,74 +22,194 @@
 
 /* ─── STYLE DE LA NAVBAR PREMIUM ─── */
 .custom-header {
-  background-color: #ffffff ;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) ;
-  border-bottom: 1px solid #e1dbd6 ;
-  position: sticky ; /* La Navbar reste fixée en haut lors du défilement */
-  top: 0 ;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid #e1dbd6;
+  position: sticky; /* La Navbar reste fixée en haut lors du défilement */
+  top: 0;
   /* Garantit que la Navbar reste bien au-dessus du reste du contenu */
-  z-index: 50 ; /* Reste au-dessus de l'empilement des cartes et des émojis */
+  z-index: 50; /* Reste au-dessus de l'empilement des cartes et des émojis */
 }
 
 .navbar-container {
-  max-width: 1200px ; /* Largeur maximale standard pour écrans de PC de bureau */
-  margin: 0 auto ;
-  padding: 0.75rem 1.25rem ;
-  display: flex ;
-  justify-content: space-between ;
-  align-items: center ;
+  max-width: 1200px; /* Largeur maximale standard pour écrans de PC de bureau */
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 /* Style du Logo */
 .brand-logo {
-  font-family: 'Playfair Display', Georgia, serif ;
-  font-size: 1.15rem ;
-  font-weight: 700 ;
-  color: #0D0D0D ;  /* Le Cuivré Officiel de Café Velours (Rappelle les machines à expresso en cuivre) */
-  text-decoration: none ;
-  letter-spacing: 0.05em ;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0D0D0D;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  display: flex;       /* AJOUTÉ : Permet d'aligner l'image du logo */
+  align-items: center; /* AJOUTÉ */
+}
+
+.navbar-logo-img {
+  height: 40px;        /* AJOUTÉ : Géré en CSS pur */
+  width: auto;         /* AJOUTÉ */
+  object-fit: contain; /* AJOUTÉ */
 }
 
 .brand-logo span {
-  font-family: 'Playfair Display', Georgia, serif ;
-  font-style: italic ;
-  font-weight: 400 ;
-  color: #B87333 ;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  color: #B87333;
 }
 
 /* Groupe des liens de navigation */
 .nav-menu {
-  display: flex ;
-  gap: 1.25rem ;
-  list-style: none ;
-  padding: 0 ;
-  margin: 0 ;
+  display: flex;
+  gap: 1.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  align-items: center;
 }
 
 /* Boutons de navigation convertis en liens élégants */
 .nav-link-btn {
-  background: none ;
-  border: none ;
-  font-family: 'Montserrat', sans-serif ;
-  font-size: 0.75rem ;
-  font-weight: 500 ;
-  text-transform: uppercase ;
-  letter-spacing: 0.05em ;
-  color: #4b5563 ; /* Gris sobre */
-  cursor: pointer ;
-  padding: 0.5rem 0.25rem ;
-  transition: all 0.2s ease-in-out ;
-  position: relative ;
+  background: none;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4b5563; /* Gris sobre */
+  cursor: pointer;
+  padding: 0.5rem 0.25rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
 }
 
 .nav-link-btn:hover {
-  color: #B87333 ; /* Devient cuivré au survol */
+  color: #B87333; /* Devient cuivré au survol */
 }
 
 /* Petit effet visuel pour indiquer l'onglet actif */
 .nav-link-btn.active-link {
-  color: #B87333 ;
-  font-weight: 600 ;
+  color: #B87333;
+  font-weight: 600;
+}
+
+/* Bouton spécifique du panier (Flexbox pour l'icône) */
+.nav-link-cart {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Bulle du Panier (Badge) */
+.nav-cart-badge {
+  background-color: #B87333; /* Cuivré officiel de ton thème */
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 50%;
+  min-width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+/* ─── RESPONSIVE & BURGER (MOBILE) ─── */
+
+/* 1. Bouton Burger (masqué par défaut sur PC) */
+.burger-btn {
+  display: none; /* Masqué sur écran d'ordinateur */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  position: relative; /* INDISPENSABLE pour que le z-index fonctionne */
+  z-index: 1000;      /* Doit être au-dessus de TOUT */
+}
+
+.burger-btn span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: #0D0D0D;
+  transition: all 0.3s ease;
+}
+
+/* Animation de transformation en croix quand ouvert */
+.burger-btn.is-open span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.burger-btn.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.burger-btn.is-open span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* 2. L'overlay (Masqué par défaut sur PC et mobile fermé) */
+.nav-overlay {
+  display: none; /* Masqué par défaut */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px); /* Flou d'arrière-plan très propre */
+  z-index: 998; /* Sous le menu blanc (999) */
+}
+
+/* L'overlay s'affiche UNIQUEMENT quand le menu est ouvert */
+.nav-overlay.is-open {
+  display: block;
+}
+
+/* 3. Media Query pour écrans mobiles (Tablettes et Smartphones) */
+@media (max-width: 768px) {
+
+  /* On affiche le bouton burger sur mobile */
+  .burger-btn {
+    display: flex;
+  }
+
+  /* Style du menu déroulant mobile */
+  .nav-menu {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Caché à droite de l'écran par défaut */
+    width: 260px;
+    height: 100vh;
+    background-color: #ffffff; /* Fond blanc opaque solide */
+    display: flex; /* On force le display flex sur mobile */
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 80px 24px 24px 24px;
+    gap: 1.5rem;
+    transition: right 0.3s ease-in-out;
+    z-index: 999; /* Strictement supérieur à l'overlay (998) */
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Fait glisser le menu sur l'écran */
+  .nav-menu.nav-menu-open {
+    right: 0;
+  }
 }
 
 /* ─── STYLE DE LA SECTION HERO AVEC IMAGE DE FOND ─── */
