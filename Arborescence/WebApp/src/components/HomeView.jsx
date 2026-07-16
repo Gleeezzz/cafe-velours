@@ -10,7 +10,8 @@ export default function HomeView({ onNavigate, onViewProduct }) {
         { id: 21, name: 'Duo Douceur Brésilienne', price: '24,50$', img: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=400' },
         { id: 22, name: 'Duo Exploration Épicée', price: '28,00$', img: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=400' },
     ];
-    // Données statiques des packs promotionnels mis en avant
+
+    // Données statiques des produits individuels
     const featuredProducts = [
         { id: 3, name: 'Finca el Paraiso', type: 'Café', price: '18,90$', img: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=400' },
         { id: 16, name: 'Noir Fleur de Sel & Piment', type: 'Chocolat', price: '9,50$', img: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?q=80&w=400' },
@@ -19,16 +20,10 @@ export default function HomeView({ onNavigate, onViewProduct }) {
     ];
 
     // --- Logique du carrousel ---
-
-    // → J'utilise l'état local `currentIndex` combiné aux propriétés CSS de rendu matériel (`transform` et `willChange`).
-    //   Chaque clic sur 'Suivant' ou 'Précédent' fait évoluer l'index. Dans le JSX, le conteneur (`track`) calcule dynamiquement son décalage en pixels ou pourcentage via un template string :
-    //   `translateX(calc(-${currentIndex * ...}%))`.
-    //   Le navigateur utilise l'accélération matérielle du GPU pour animer la translation de manière fluide à 60fps.
     const [currentIndex, setCurrentIndex] = useState(0);
     const visibleCount = 3;  // Nombre de cartes visibles simultanément à l'écran
     const maxIndex = featuredPacks.length - visibleCount;
 
-    // Fonctions de calcul sécurisées utilisant les bornes Math.min et Math.max pour éviter les décalages infinis
     const goNext = () => setCurrentIndex(prev => Math.min(prev + 1, maxIndex));
     const goPrev = () => setCurrentIndex(prev => Math.max(prev - 1, 0));
 
@@ -53,18 +48,18 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                 <h2 className="section-main-title">Nos Packs Café + Chocolat</h2>
                 <p className="section-sub-title">Des duos soigneusement sélectionnés pour éveiller vos sens</p>
 
-                <div style={{ position: 'relative', overflow: 'hidden', padding: '10px 0' }}>
+                <div className="carousel-container">
                     {/* Track animé */}
-                    <div style={{
-                        display: 'flex',
-                        gap: '16px',
-                        transform: `translateX(calc(-${currentIndex * (100 / visibleCount)}% - ${currentIndex * 16 / visibleCount}px))`,
-                        transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                        willChange: 'transform'
-                    }}>
+                    <div
+                        className="carousel-track"
+                        style={{
+                            transform: `translateX(calc(-${currentIndex * (100 / visibleCount)}% - ${currentIndex * 16 / visibleCount}px))`
+                        }}
+                    >
                         {featuredPacks.map((pack) => (
                             <div
                                 key={pack.id}
+                                className="carousel-card"
                                 onClick={() => {
                                     if (typeof onViewProduct === 'function') {
                                         onViewProduct(pack.id);
@@ -72,68 +67,36 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                                 }}
                                 style={{
                                     minWidth: `calc(${100 / visibleCount}% - ${16 * (visibleCount - 1) / visibleCount}px)`,
-                                    height: '260px',
-                                    borderRadius: '14px',
-                                    backgroundImage: `url(${pack.img})`,
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'center',
-                                    position: 'relative',
-                                    cursor: 'pointer',
-                                    flexShrink: 0,
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                    overflow: 'hidden'
-                                }}
-                                /* Animations JS Inline réactives au survol de la souris */
-                                onMouseEnter={e => {
-                                    e.currentTarget.style.transform = 'scale(1.03)';
-                                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.25)';
-                                }}
-                                onMouseLeave={e => {
-                                    e.currentTarget.style.transform = 'scale(1)';
-                                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                                    backgroundImage: `url(${pack.img})`
                                 }}
                             >
-                                {/* Overlay dégradé linéaire pour garantir le contraste et la lisibilité du texte sur l'image */}                                <div style={{
-                                    position: 'absolute', bottom: 0, left: 0, right: 0,
-                                    background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                                    padding: '20px 16px 16px',
-                                    borderRadius: '0 0 14px 14px'
-                                }}>
-                                    <h4 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>{pack.name}</h4>
-                                    <p style={{ color: '#e0c9a6', margin: '4px 0 0', fontSize: '0.9rem' }}>{pack.price}</p>
+                                {/* Overlay dégradé */}
+                                <div className="carousel-card-overlay">
+                                    <h4 className="carousel-card-title">{pack.name}</h4>
+                                    <p className="carousel-card-price">{pack.price}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Contrôles du Carrousel (Flèches et Points indicateurs) */}                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+                {/* Contrôles du Carrousel */}
+                <div className="carousel-controls">
                     <button
                         onClick={goPrev}
                         disabled={currentIndex === 0}
-                        style={{
-                            width: '40px', height: '40px', borderRadius: '50%',
-                            border: '1px solid #8B5A2B', background: currentIndex === 0 ? '#f5f5f5' : '#8B5A2B',
-                            color: currentIndex === 0 ? '#ccc' : '#fff',
-                            fontSize: '1.1rem', cursor: currentIndex === 0 ? 'not-allowed' : 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >←</button>
+                        className="carousel-btn-nav"
+                    >
+                        ←
+                    </button>
 
-                {/* Pagination par points dynamiques reliés à l'index courant */}                    <div style={{ display: 'flex', gap: '8px' }}>
+                    {/* Pagination par points dynamiques */}
+                    <div className="carousel-dots">
                         {Array.from({ length: maxIndex + 1 }).map((_, i) => (
                             <span
                                 key={i}
                                 onClick={() => setCurrentIndex(i)}
-                                style={{
-                                    width: i === currentIndex ? '20px' : '8px',
-                                    height: '8px',
-                                    borderRadius: '4px',
-                                    backgroundColor: i === currentIndex ? '#8B5A2B' : '#ddd',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s ease'
-                                }}
+                                className={`carousel-dot ${i === currentIndex ? 'active' : ''}`}
                             />
                         ))}
                     </div>
@@ -141,103 +104,54 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                     <button
                         onClick={goNext}
                         disabled={currentIndex === maxIndex}
-                        style={{
-                            width: '40px', height: '40px', borderRadius: '50%',
-                            border: '1px solid #8B5A2B', background: currentIndex === maxIndex ? '#f5f5f5' : '#8B5A2B',
-                            color: currentIndex === maxIndex ? '#ccc' : '#fff',
-                            fontSize: '1.1rem', cursor: currentIndex === maxIndex ? 'not-allowed' : 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >→</button>
+                        className="carousel-btn-nav"
+                    >
+                        →
+                    </button>
                 </div>
             </section>
 
             <hr className="section-divider" />
 
-                {/* 3. CATALOGUE APERÇU */}
+            {/* 3. CATALOGUE APERÇU */}
             <section className="home-section">
-                <h2 className="section-main-title" style={{ marginBottom: '12px' }}>Catalogue Aperçu</h2>
-                <p className="section-sub-title" style={{ marginBottom: '30px', maxWidth: '600px', margin: '0 auto 30px auto', lineHeight: '1.7' }}>
+                <h2 className="section-main-title margin-bottom-12">Catalogue Aperçu</h2>
+                <p className="section-sub-title catalogue-intro">
                     Une sélection de nos meilleurs cafés single-origin et chocolats premium — torréfiés avec passion,
                     choisis pour révéler les meilleurs accords sensoriels.
                 </p>
 
-                {/* Structure en Grille CSS responsive (Grid layout) */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '20px',
-                    maxWidth: '860px',
-                    margin: '0 auto'
-                }}>
+                {/* Structure en Grille CSS responsive */}
+                <div className="home-product-grid">
                     {featuredProducts.map(product => (
                         <div
                             key={product.id}
-                            style={{
-                                borderRadius: '16px',
-                                overflow: 'hidden',
-                                backgroundColor: '#fff',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                cursor: 'pointer'
-                            }}
-                            onMouseEnter={e => {
-                                e.currentTarget.style.transform = 'translateY(-6px)';
-                                e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.15)';
-                            }}
-                            onMouseLeave={e => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
-                            }}
+                            className="home-product-card"
                             onClick={() => {
                                 if (typeof onViewProduct === 'function') {
                                     onViewProduct(product.id);
                                 }
                             }}
                         >
-                                {/* Section Image */}                            <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
+                            {/* Section Image */}
+                            <div className="home-product-img-wrapper">
                                 <img
                                     src={product.img}
                                     alt={product.name}
-                                    style={{
-                                        width: '100%', height: '100%', objectFit: 'cover',
-                                        transition: 'transform 0.4s ease'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-                                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                                    className="home-product-img"
                                 />
-                                {/* Badge type */}
-                                <span style={{
-                                    position: 'absolute', top: '12px', left: '12px',
-                                    backgroundColor: 'rgba(139, 90, 43, 0.9)',
-                                    color: '#fff', padding: '4px 12px', borderRadius: '20px',
-                                    fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.5px'
-                                }}>
+                                <span className="home-product-badge">
                                     {product.type}
                                 </span>
                             </div>
 
-                                {/* Section Descriptif de la carte */}                            <div style={{ padding: '16px 18px 20px' }}>
-                                <h4 style={{ margin: '0 0 6px', fontSize: '1rem', color: '#1a1a1a', fontWeight: '700' }}>
-                                    {product.name}
-                                </h4>
-                                <p style={{ margin: '0 0 14px', color: '#8B5A2B', fontWeight: '600', fontSize: '1rem' }}>
-                                    {product.price}
-                                </p>
+                            {/* Section Descriptif */}
+                            <div className="home-product-info">
+                                <h4 className="home-product-name">{product.name}</h4>
+                                <p className="home-product-price">{product.price}</p>
 
-                            {/*→ C'est une mesure d'arrêt de la propagation des événements bulles (Event Bubbling).
-                            Comme la carte entière possède déjà un événement `onClick`, cliquer sur le bouton déclencherait l'événement du bouton ET celui de la carte parente par ricochet.
-                             Ajouter `e.stopPropagation()` isole l'action du bouton et évite une double exécution involontaire dans l'arbre React. */}
                                 <button
-                                    style={{
-                                        width: '100%', padding: '10px',
-                                        backgroundColor: '#8B5A2B', color: '#fff',
-                                        border: 'none', borderRadius: '8px',
-                                        fontSize: '0.9rem', fontWeight: '600',
-                                        cursor: 'pointer', transition: 'background 0.2s ease'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#6d4422'}
-                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#8B5A2B'}
+                                    className="home-product-btn"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         if (typeof onViewProduct === 'function') {
@@ -252,7 +166,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                     ))}
                 </div>
 
-                <div style={{ textAlign: 'center', marginTop: '35px' }}>
+                <div className="view-all-container">
                     <button className="btn-view-all-catalog" onClick={() => onNavigate('catalog')}>
                         Voir tout le catalogue <span className="arrow">→</span>
                     </button>
@@ -264,7 +178,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                 <div className="philosophy-container">
                     <span className="philosophy-tag">Notre Philosophie</span>
                     <h3 className="philosophy-title">
-                        Le café et le chocolat, deux univers d'exception qui se révèlent ensemble.
+                        Le café et le chocolat, deux univers d'exception qui se révèleront ensemble.
                     </h3>
                     <p className="philosophy-text">
                         Chaque pack duo est le fruit d'une sélection rigoureuse pour vous offrir l'accord parfait.
@@ -272,7 +186,7 @@ export default function HomeView({ onNavigate, onViewProduct }) {
                 </div>
                 <button
                     onClick={() => onNavigate('philosophy')}
-                    className="mt-4 px-6 py-2 bg-[#271206] text-white font-medium rounded hover:bg-[#4e2f1d] transition-colors"
+                    className="philosophy-btn"
                 >
                     Découvrir
                 </button>

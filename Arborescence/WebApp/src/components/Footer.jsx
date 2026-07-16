@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logoCafe from '../assets/LogoCafe.png';
 /**
  * ─── 📦 DICTIONNAIRE DE DONNÉES CENTRALISÉ (STATIC DATA) ───
  * Plutôt que de dupliquer ou de créer 6 composants de modales différents,
@@ -113,8 +114,11 @@ export default function Footer({ onNavigate }) {
 
                     {/* Colonne 1 : À Propos */}
                     <div className="footer-brand-column">
-                        <h3 className="footer-brand-title">Café <span>Velours</span></h3>
-                        <p className="footer-brand-text">
+                        <img
+                            src={logoCafe}
+                            alt="Café Velours Logo"
+                            className="footer-logo-img"
+                        />                        <p className="footer-brand-text">
                             Une sélection rigoureuse de grains fins, torréfiés avec passion pour offrir une expérience sensorielle d'exception à chaque tasse.
                         </p>
                     </div>
