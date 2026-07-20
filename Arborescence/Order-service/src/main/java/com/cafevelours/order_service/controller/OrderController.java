@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -124,10 +125,12 @@ public class OrderController {
                         .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(order.getTotalAmount());
 
                 if (discountOpt.isPresent()) {
+                    System.out.println("Discount");
                     double rate = discountOpt.get().getDiscountRate();
                     order.setDiscountRate(rate);
                     order.setFinalAmount(order.getTotalAmount() * (1 - rate));
                 } else {
+                    System.out.println("No Discount");
                     order.setDiscountRate(0.0);
                     order.setFinalAmount(order.getTotalAmount());
                 }
@@ -148,6 +151,28 @@ public class OrderController {
         return orders;
     }
 
+    // GET /api/orders/discount-preview?amount=X → Prévisualisation de la remise applicable
+// → Expose la même source de vérité (MongoDB) que celle utilisée lors de la création réelle
+//   de la commande. Le frontend n'a plus à deviner ou dupliquer la règle métier : il interroge
+//   ce endpoint pour savoir exactement quel taux s'appliquera au moment du paiement.
+    @GetMapping("/discount-preview")
+    public ResponseEntity<Map<String, Object>> getDiscountPreview(@RequestParam double amount) {
+        Optional<Discount> discountOpt = discountRepository
+                .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(amount);
+
+        double rate = discountOpt.map(Discount::getDiscountRate).orElse(0.0);
+        double discountAmount = amount * rate;
+        double finalAmount = amount - discountAmount;
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("subtotal", amount);
+        response.put("discountRate", rate);
+        response.put("discountAmount", discountAmount);
+        response.put("finalAmount", finalAmount);
+
+        return ResponseEntity.ok(response);
+    }
+
     // POST /api/orders → Passer une commande
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Map<String, Object> body) {
@@ -157,23 +182,21 @@ public class OrderController {
 
             // Étape 1 : Initialisation de la commande (MySQL)
             Order order = orderService.createOrder(cartItems, userId);
-            double finalAmountCalculated = order.getTotalAmount() != null ? order.getTotalAmount() : 45.40;
-            order.setDiscountRate(0.0);
+            double finalAmountCalculated = order.getTotalAmount() != null ? order.getTotalAmount() : 0.0;
 
             // Étape 2 : Recherche de réduction (MongoDB) avec gestion de panne isolée
             try {
-                if (discountRepository != null) {
-                    Optional<Discount> discountOpt = discountRepository
-                            .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(finalAmountCalculated);
+                Optional<Discount> discountOpt = discountRepository
+                        .findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(finalAmountCalculated);
 
-                    if (discountOpt.isPresent()) {
-                        double rate = discountOpt.get().getDiscountRate();
-                        order.setDiscountRate(rate);
-                        finalAmountCalculated = finalAmountCalculated * (1 - rate);
-                    }
+                if (discountOpt.isPresent()) {
+                    double rate = discountOpt.get().getDiscountRate();
+                    order.setDiscountRate(rate);
+                    finalAmountCalculated = finalAmountCalculated * (1 - rate);
                 }
             } catch (Exception mongoEx) {
-                // 🛡️ Si le serveur MongoDB est inaccessible, le client peut quand même commander ! L'application ignore la remise mais valide le panier.
+                // 🛡️ Si le serveur MongoDB est inaccessible, le client peut quand même commander !
+                // L'application ignore la remise mais valide le panier.
                 System.out.println("⚠️ MongoDB indisponible, on continue sans remise : " + mongoEx.getMessage());
             }
 

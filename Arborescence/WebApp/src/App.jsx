@@ -34,20 +34,34 @@ export default function App() {
         return localStorage.getItem('selectedProductId') || null;
     });
 
-    // États globaux de session utilisateur
-    const [userId, setUserId] = useState(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    // ❌ ANCIEN CODE :
+    // const [userId, setUserId] = useState(null);
+    // const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    // Profil de l'utilisateur connecté (initialisé avec des valeurs par défaut)
-    const [userProfile, setUserProfile] = useState({
-        firstname: "",
-        lastname: "",
-        email: "",
-        address: "",
-        zip: "",
-        city: "",
-        phone: "06 12 34 56 78",
-        memberSince: "Janvier 2026"
+    // ✅ NOUVEAU CODE : On va chercher la session sauvegardée dans le navigateur
+    const [savedSession] = useState(() => {
+        const session = localStorage.getItem('userSession');
+        return session ? JSON.parse(session) : null;
+    });
+
+    const [userId, setUserId] = useState(() => savedSession ? savedSession.userId : null);
+    const [isLoggedIn, setIsLoggedIn] = useState(() => savedSession ? savedSession.isLoggedIn : false);
+
+    // Profil de l'utilisateur connecté (restauré si présent en session)
+    const [userProfile, setUserProfile] = useState(() => {
+        if (savedSession && savedSession.userProfile) {
+            return savedSession.userProfile;
+        }
+        return {
+            firstname: "",
+            lastname: "",
+            email: "",
+            address: "",
+            zip: "",
+            city: "",
+            phone: "06 12 34 56 78",
+            memberSince: "Janvier 2026"
+        };
     });
 
     // Stockage de l'historique des commandes récupéré depuis l'Order-Service via l'API
@@ -98,19 +112,31 @@ export default function App() {
         const firstname = nameParts[0] || "";
         const lastname = nameParts.slice(1).join(" ") || "";
 
-        setUserId(user.id);
-        setUserProfile({
+        const newProfile = {
             firstname,
             lastname,
             email: user.email || "",
             address: user.address || "",
+            zip: user.zip || "",
+            city: user.city || "",
             phone: user.phoneNumber || "06 12 34 56 78",
             memberSince: user.memberSince || "Juin 2026"
-        });
+        };
+
+        setUserId(user.id);
+        setUserProfile(newProfile);
         setIsLoggedIn(true);
+
+        // 💾 SAUVEGARDE EN DURA DANS LE NAVIGATEUR
+        localStorage.setItem('userSession', JSON.stringify({
+            userId: user.id,
+            isLoggedIn: true,
+            userProfile: newProfile
+        }));
+
         fetchOrderHistory(user.id);
 
-        // 🔄 FIX : Rediriger l'utilisateur vers la boutique plutôt que de le laisser bloqué
+        // 🔄 Redirection vers la boutique
         handleNavigate('catalog');
     };
 
@@ -171,23 +197,25 @@ export default function App() {
     const totalArticles = cart.reduce((total, item) => total + item.quantity, 0);
 
     // Fonction de réinitialisation de session lors de la déconnexion
-    const handleLogout = () => {
-        setUserId(null);
-        setIsLoggedIn(false);
-        setUserProfile({
-            firstname: "",
-            lastname: "",
-            email: "",
-            address: "",
-            zip: "",
-            city: "",
-            phone: "06 12 34 56 78",
-            memberSince: ""
-        });
-        setOrdersHistory([]);
-        window.location.hash = 'home'; // Redirection vers l'accueil
-    };
+const handleLogout = () => {
+    // 🗑️ SUPPRESSION DE LA SESSION STOCKÉE
+    localStorage.removeItem('userSession');
 
+    setUserId(null);
+    setIsLoggedIn(false);
+    setUserProfile({
+        firstname: "",
+        lastname: "",
+        email: "",
+        address: "",
+        zip: "",
+        city: "",
+        phone: "06 12 34 56 78",
+        memberSince: ""
+    });
+    setOrdersHistory([]);
+    window.location.hash = 'home';
+};
     // → L'utilisateur peut demander la suppression définitive de ses données depuis son profil.
     // Un appel HTTP avec la méthode `DELETE` est envoyé à la Gateway (qui route vers l'Order-Service).
     // Si le serveur confirme la suppression complète des lignes MySQL, l'interface déconnecte immédiatement l'utilisateur et nettoie le cache d'état.
@@ -286,5 +314,5 @@ export default function App() {
             </main>
             <Footer onNavigate={handleNavigate} />
         </div>
-    );
+    )
 }

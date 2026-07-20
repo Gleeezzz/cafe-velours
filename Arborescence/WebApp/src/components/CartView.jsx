@@ -58,11 +58,51 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
     };
 
     // ── LOGIQUE MÉTIER DE CALCUL DU PANIER ──
-    const subtotal = cart.reduce((sum, item) => sum + (safeParsePrice(item.price) * item.quantity), 0);
-    const hasDiscount = subtotal > 50;
-    const discountAmount = hasDiscount ? subtotal * 0.10 : 0;
-    const total = subtotal - discountAmount;
 
+    // 1. On calcule d'abord le sous-total brut en faisant la somme du panier
+    // 1. Sous-total brut
+    // ── LOGIQUE MÉTIER DE CALCUL DU PANIER ──
+
+    // 1. Sous-total brut calculé côté client
+    const subtotal = cart.reduce((acc, item) => {
+        return acc + (safeParsePrice(item.price) * (item.quantity || 1));
+    }, 0);
+
+    // 2. État pour synchroniser les calculs de MongoDB
+    const [discountInfo, setDiscountInfo] = useState({
+        discountRate: 0,
+        discountAmount: 0,
+        finalAmount: subtotal
+    });
+
+    // 3. Appel synchrone au backend Java (MongoDB) à chaque modification du panier
+    React.useEffect(() => {
+        if (subtotal <= 0) {
+            setDiscountInfo({ discountRate: 0, discountAmount: 0, finalAmount: 0 });
+            return;
+        }
+
+        // On interroge directement ton endpoint Spring Boot @GetMapping("/discount-preview")
+        fetch(`http://localhost:8080/api/orders/discount-preview?amount=${subtotal}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Erreur HTTP " + res.status);
+                return res.json();
+            })
+            .then(data => {
+                // Mettre à jour l'état React avec la réponse exacte de MongoDB
+                setDiscountInfo(data);
+            })
+            .catch(err => {
+                console.error("⚠️ Erreur lors de la récupération de la remise depuis l'API :", err);
+                // Fallback de sécurité si le microservice est momentanément indisponible
+                setDiscountInfo({ discountRate: 0, discountAmount: 0, finalAmount: subtotal });
+            });
+    }, [subtotal]);
+
+    // 4. Variables associées à l'affichage
+    const hasDiscount = discountInfo.discountRate > 0;
+    const discountAmount = discountInfo.discountAmount;
+    const total = discountInfo.finalAmount;
     // Passage à l'étape de paiement
     // Enregistre les modifications de coordonnées de livraison dans l'état global et passe au paiement
     const handleGoToPayment = (e) => {
@@ -194,8 +234,7 @@ export default function CartView({ cart, setCart, userProfile, setUserProfile, o
                     {/* Rendu conditionnel de la réduction commerciale */}
                         {hasDiscount && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#2e7d32', fontWeight: 'bold', margin: '10px 0' }}>
-                                <span>Remise automatique (-10%) :</span>
-                                <span>-{discountAmount.toFixed(2)} $</span>
+                                <span>Remise automatique (-{(discountInfo.discountRate * 100).toFixed(0)}%) :</span>                                <span>-{discountAmount.toFixed(2)} $</span>
                             </div>
                         )}
 

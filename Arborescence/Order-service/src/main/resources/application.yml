@@ -19,6 +19,11 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  #MONGO
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/cafe-velours-mongo
+
   # 🔗 CONFIGURATION CONSUL POUR L'HÔTE
   cloud:
     compatibility-verifier:

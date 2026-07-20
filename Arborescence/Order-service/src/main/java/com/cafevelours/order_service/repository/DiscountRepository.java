@@ -11,6 +11,5 @@ public interface DiscountRepository extends MongoRepository<Discount, String> {
     //    ou égal (`LessThanEqual`) au montant du panier passé en paramètre. Ensuite, elle trie les résultats par ordre
     //    décroissant (`OrderByMinAmountDesc`) et ne récupère que le tout premier (`findFirst`), c'est-à-dire le palier de remise
     //    le plus avantageux pour le client.
-    Optional<Discount> findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(double amount);
-    // Extraction dynamique du palier de réduction maximal applicable
+    Optional<Discount> findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(double amount);// Extraction dynamique du palier de réduction maximal applicable
 }
