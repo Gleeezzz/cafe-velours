@@ -44,21 +44,20 @@ export default function ProductDetailView({ productId = 1, onAddToCart, onNaviga
         : { intensite: '9/10', corps: 'Puissant', acidite: 'Nulle', aromes: 'Épices, Fruits Rouges, Miel' };
 
     return (
-        <div className="product-detail-container" style={{ padding: '40px 20px', maxWidth: '1100px', margin: '0 auto', color: '#3e2723' }}>
-            <div style={{ display: 'flex', gap: '50px', flexWrap: 'wrap' }}>
+        <div className="product-detail-container">
+            <div className="product-detail-flex">
 
                 {/* Gauche : Image Block */}
-                <div style={{ flex: '1', minWidth: '350px', textAlign: 'center', backgroundColor: '#fdfbf7', padding: '30px', borderRadius: '12px' }}>
+                <div className="product-detail-image-block">
                     <img
                         src={product.imageUrl || "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400"}
                         alt={product.name}
-                        style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }}
+                        className="product-detail-img"
                     />
                 </div>
 
                 {/* Droite : Info Block */}
-                <div style={{ flex: '1.2', minWidth: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div>
+                <div className="product-detail-info-block"><div>
                         <span style={{ backgroundColor: '#eae0d5', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
                             {product.category}
                         </span>
