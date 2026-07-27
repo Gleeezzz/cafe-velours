@@ -3,7 +3,8 @@
   html, body {
     background-color: #FAF7F4 ; /* Beige lin clair (Identité visuelle réconfortante de Café Velours) */
     color: #0D0D0D;
-    font-family: 'Montserrat', sans-serif; /* Corps de texte moderne, géométrique et lisible */
+    font-family: 'Lato' , sans-serif; /* Corps de texte moderne, géométrique et lisible */
+    font-weight: 400;
     min-height: 100vh;
     margin: 0;
     padding: 0;
@@ -230,8 +231,9 @@
 .btn-cuivre {
   background-color: #B87333 ;
   color: #ffffff ;
+  font-family: 'Montserrat', sans-serif;
   font-size: 0.75rem ;
-  font-weight: 600 ;
+  font-weight: 700 ;
   text-transform: uppercase ;
   letter-spacing: 0.1em ;
   padding: 1rem 2rem ;
@@ -243,7 +245,7 @@
 }
 
 .btn-cuivre:hover {
-  background-color: #9E5E24 ;
+  background-color: #8B5E3C ;
   transform: scale(1.05); /* Effet d'échelle discret et qualitatif au survol */
 }
 
@@ -262,9 +264,14 @@
 /* ─── AJUSTEMENTS DU TEXTE DU HERO (POUR LA LISIBILITÉ) ─── */
 .custom-hero h1 {
   color: #ffffff ;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-style: italic;
 }
 .custom-hero p {
   color: #e5e7eb ; /* text-gray-200 */
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
 }
 .text-cuivre-theme {
   color: #B87333 ;
@@ -273,10 +280,64 @@
   background-color: #B87333 ;
 }
 
+/* ─── TITRES DE SECTIONS (H2 & H3) ─── */
+
+h2, .title-h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600; /* SemiBold */
+  color: #8B5E3C; /* Cuivre Profond exclusif aux H2 */
+  font-size: 1.75rem; /* Taille à ajuster selon tes maquettes */
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+h3, .title-h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500; /* Medium */
+  color: #0D0D0D; /* Noir Velours */
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+
+/* ─── NOTES AROMATIQUES & ÉDITORIAL ─── */
+
+.notes-aromatiques {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300; /* Light */
+  font-style: italic; /* Italique obligatoire pour le raffinement */
+  color: #4A4A4A; /* Gris Moyen pour la lisibilité en texte secondaire */
+  font-size: 1rem;
+  line-height: 1.6; /* Un bon interligne pour laisser respirer le texte */
+}
+
+/* Optionnel : Si tu veux styliser les petits tags (les "pilules") des notes aromatiques comme dans ton wireframe */
+.tag-aromatique {
+  display: inline-block;
+  background-color: #F5E6D3; /* Cuivre Pâle pour les fonds de petits éléments */
+  color: #8B5E3C; /* Cuivre Profond pour le texte du tag */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
 /* ─── STYLE DE LA SECTION ET DU CARROUSEL DE PACKS ─── */
-.packs-container {
-  margin-top: 3.5rem ;
-  padding: 0 1.25rem ;
+@media (max-width: 640px) {
+  .packs-container { /* Remplace par ta classe de conteneur de cartes */
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 15px;
+  }
+  .pack-card { /* Remplace par la classe de ta carte */
+    flex: 0 0 75%; /* La carte prend 75% de la largeur de l'écran */
+    scroll-snap-align: center;
+  }
 }
 
 .packs-header {
@@ -307,7 +368,7 @@
   background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1200');
   background-size: cover;
   background-position: center;
-  height: 420px;
+  min-height: 420px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -339,7 +400,7 @@
 }
 
 .btn-hero-action {
-  background-color: #8E6543;
+  background-color: #B87333;
   color: #ffffff;
   border: 1px solid #D4A373;
   padding: 12px 30px;
@@ -350,6 +411,11 @@
   align-items: center;
   gap: 10px;
 }
+
+btn-hero:hover {
+  background-color: #8B5E3C ;
+  transform: scale(1.05);
+ }
 
 /* Sections communes */
 .home-section {
@@ -383,34 +449,50 @@
 }
 
 /* ==========================================================================
-   NOUVEAU CARROUSEL DE PACKS & APERÇU CATALOGUE (ACCUEIL)
+   CARROUSEL DE PACKS & APERÇU CATALOGUE (ACCUEIL)
    ========================================================================== */
 
 /* --- LE CARROUSEL --- */
 .carousel-container {
-  position: relative;
-  overflow: hidden;
-  padding: 10px 0;
+  width: 100%;
+  max-width: 960px;            /* Largeur maximale sur grand écran */
+  margin: 0 auto;
+  overflow: hidden;            /* Cadre qui masque les cartes hors écran */
+  box-sizing: border-box;
 }
 
 .carousel-track {
   display: flex;
-  gap: 16px;
+  gap: 16px;                   /* Espace unique entre les cartes */
   transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
+  width: 100%;
 }
 
+/* --- MOBILE (Par défaut) : EXACTEMENT 1 CARTE VISIBLE --- */
 .carousel-card {
+  flex: 0 0 100%;              /* Prend 100% de la largeur du cadre */
+  width: 100%;
+  min-width: 0;                /* Empêche le contenu de déformer la carte */
   height: 260px;
   border-radius: 14px;
   background-size: cover;
   background-position: center;
   position: relative;
   cursor: pointer;
-  flex-shrink: 0;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* --- DESKTOP (Écrans >= 768px) : EXACTEMENT 3 CARTES VISIBLES --- */
+@media (min-width: 768px) {
+  .carousel-card {
+    /* Calcul : (100% de la largeur - 2 espaces de 16px) divisé par 3 cartes */
+    flex: 0 0 calc((100% - 32px) / 3);
+    width: calc((100% - 32px) / 3);
+  }
 }
 
 /* Effets de survol matériels ultra-fluides */
@@ -455,8 +537,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid #8B5A2B;
-  background-color: #8B5A2B;
+  border: 1px solid #B87333;
+  background-color: #B87333;
   color: #fff;
   font-size: 1.1rem;
   cursor: pointer;
@@ -464,8 +546,8 @@
 }
 
 .carousel-btn-nav:disabled {
-  background-color: #f5f5f5 !important;
-  color: #ccc !important;
+  background-color: #f5f5f5;
+  color: #ccc;
   cursor: not-allowed;
 }
 
@@ -505,6 +587,11 @@
   gap: 20px;
   max-width: 860px;
   margin: 0 auto;
+}
+@media (max-width: 640px) {
+  .home-product-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .home-product-card {
@@ -572,18 +659,19 @@
 .home-product-btn {
   width: 100%;
   padding: 10px;
-  background-color: #8B5A2B;
+  background-color: #B87333;
   color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   border: none;
   border-radius: 8px;
   font-size: 0.9rem;
-  font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .home-product-btn:hover {
-  background-color: #6d4422;
+  background-color: #8B5E3C;
 }
 
 .view-all-container {
@@ -592,141 +680,276 @@
 }
 
 .btn-view-all-catalog {
-  background-color: #C69469;
+  background-color: #B87333;
   color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   border: none;
   padding: 12px 25px;
   border-radius: 8px;
   font-size: 0.95rem;
-  font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  transition: background-color 0.2s ease;
 }
 
-/* --- BOUTON DE PHILOSOPHIE (Figma : Marron foncé, coins arrondis, transitions propres) --- */
-.philosophy-btn {
-  margin-top: 1.5rem;
+.btn-view-all-catalog:hover {
+  background-color: #8B5A2B;
+}
+/* ==========================================================================
+   PAGE PHILOSOPHIE COMPLETE (PhilosophyView.jsx)
+   ========================================================================== */
+
+.philosophy-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px 80px 20px;
+  font-family: 'Lato', sans-serif;
+  color: #271206;
+  box-sizing: border-box;
+}
+
+/* --- HEADER DE LA PAGE --- */
+.philosophy-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.philosophy-subtitle {
+  display: block;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.9rem;
-  font-weight: 500;
-  color: #ffffff;
-  background-color: #271206; /* Le marron chocolat foncé stylé */
-  padding: 10px 24px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  display: inline-block;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #c28e5d; /* Bronze / Doré élégant */
+  margin-bottom: 10px;
 }
 
-.philosophy-btn:hover {
-  background-color: #4e2f1d;
+.philosophy-main-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.8rem;
+  color: #271206;
+  margin: 0 0 16px 0;
+  font-weight: 700;
 }
 
-.philosophy-btn:active {
-  transform: scale(0.97);
+.philosophy-divider {
+  width: 60px;
+  height: 3px;
+  background-color: #c28e5d;
+  margin: 0 auto;
+  border-radius: 2px;
 }
 
-/* --- RESPONSIVITÉ DE LA PAGE D'ACCUEIL --- */
-@media (max-width: 768px) {
-  .home-product-grid {
-    grid-template-columns: 1fr; /* Une seule colonne sur mobile pour aérer l'affichage */
-    padding: 0 15px;
-  }
+/* --- SECTION 1 : HISTOIRE (TEXTE + IMAGE) --- */
+.philosophy-row {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  margin-bottom: 80px;
 }
 
-/* ==========================================================================
-   PAGE PHILOSOPHIE COMPLETE (Grande vue)
-   ========================================================================== */
+.philosophy-col-text {
+  flex: 1;
+}
 
-/* ==========================================================================
-   STYLE DE LA SECTION PHILOSOPHIE (ACCUEIL CHIC)
-   ========================================================================== */
+.philosophy-col-img {
+  flex: 1;
+}
 
-.philosophy-section {
-  background-color: #271206; /* Magnifique marron chocolat très chic */
-  color: #ffffff;
-  padding: 60px 24px;
+.philosophy-section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
+  color: #271206;
+  margin-bottom: 20px;
+}
+
+.philosophy-paragraph {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #4a4a4a;
+}
+
+.philosophy-img-growers {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* --- SECTION 2 : CARTES D'ENGAGEMENTS --- */
+.philosophy-cards-section {
+  background-color: #fcf9f6;
+  padding: 60px 30px;
+  border-radius: 16px;
+  margin-bottom: 80px;
   text-align: center;
+}
+
+.philosophy-cards-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
+  color: #271206;
+  margin-bottom: 40px;
+}
+
+.philosophy-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.philosophy-card {
+  background-color: #ffffff;
+  padding: 30px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+}
+
+.philosophy-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.philosophy-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.philosophy-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  color: #271206;
+  margin-bottom: 12px;
+}
+
+.philosophy-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #666;
+  margin: 0;
+}
+
+/* --- SECTION 3 : BANNIÈRE --- */
+.philosophy-banner {
   width: 100%;
-  box-sizing: border-box;
-  margin-top: 60px;
+  height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.philosophy-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.philosophy-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: #0D0D0D; /* Noir Velours — charte : "Contraste fort", fond sombre en alternance avec le clair */
+  padding: 90px 20px;
+  margin: 0;
 }
 
 .philosophy-container {
-  max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 700px;
+  margin-bottom: 30px;
 }
 
 .philosophy-tag {
   display: block;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: #c28e5d; /* Bronze doré élégant */
+  color: #B87333; /* Cuivre Signature */
   margin-bottom: 16px;
 }
 
 .philosophy-title {
   font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
-  font-weight: 400;
-  font-size: 2.2rem; /* Écriture élégante et aérée */
-  line-height: 1.4;
+  font-size: 2rem;
   color: #ffffff;
-  max-width: 750px;
-  margin: 0 auto 16px auto;
-  text-align: center;
-}
-
-/* Ajustement de la taille du titre sur mobile */
-@media (max-width: 768px) {
-  .philosophy-title {
-    font-size: 1.6rem;
-  }
+  line-height: 1.4;
+  margin: 0 0 16px 0;
+  font-weight: 700;
 }
 
 .philosophy-text {
   font-family: 'Lato', sans-serif;
   font-size: 1rem;
-  color: #f3ece6; /* Blanc cassé très doux */
-  line-height: 1.6;
-  max-width: 550px;
-  margin: 0 auto 32px auto;
-  text-align: center;
-  opacity: 0.95;
+  line-height: 1.7;
+  color: #e5e7eb; /* même gris clair que .custom-hero p, pour la cohérence des sections sombres */
+  margin: 0;
 }
 
 .philosophy-btn {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #271206; /* Écrit en marron foncé sur le bouton clair */
-  background-color: #ecebe9; /* Fond beige/crème très clair */
-  padding: 12px 32px;
+  color: #0D0D0D;
+  background-color: #F2F2F2;
   border: none;
+  padding: 12px 34px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .philosophy-btn:hover {
-  background-color: #c28e5d; /* Devient doré au survol */
-  color: #ffffff;
-  transform: translateY(-2px); /* Petit effet de lévitation premium */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  background-color: #B87333;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .philosophy-section {
+    padding: 50px 16px;
+  }
+
+  .philosophy-title {
+    font-size: 1.4rem;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE (MOBILE & TABLETTE)
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .philosophy-row {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .philosophy-cards-grid {
+    grid-template-columns: 1fr; /* Cartes empilées sur mobile */
+    gap: 20px;
+  }
+
+  .philosophy-main-title {
+    font-size: 2.2rem;
+  }
+
+  .philosophy-img-growers {
+    height: 280px;
+  }
+
+  .philosophy-banner {
+    height: 200px;
+  }
 }
 
 /* Force le style des cartes comme sur le modèle Figma */
@@ -805,27 +1028,29 @@
   margin-bottom: 2rem ;
 }
 
-.filter-tabs::-webkit-scrollbar {
-  display: none ; /* Cache la scrollbar des filtres */
-}
-
 .filter-tab-btn {
-  background-color: #ffffff ;
-  color: #4b5563 ;
-  border: 1px solid #e5e7eb ;
-  padding: 0.5rem 1rem ;
-  border-radius: 9999px ;
-  font-size: 0.75rem ;
-  font-weight: 500 ;
-  white-space: nowrap ;
-  cursor: pointer ;
-  transition: all 0.2s ease-in-out ;
+  background-color: transparent;
+  color: #4A4A4A;
+  border: 1px solid #e5e7eb;
+  padding: 8px 18px;
+  border-radius: 20px; /* pilule volontairement ronde, cohérent avec le style "tag" existant */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
-.filter-tab.active-filter {
-  background-color: #B87333 ;
-  color: #ffffff ;
-  border-color: #B87333 ;
+.filter-tab-btn:hover:not(.filter-tab-active) {
+  background-color: #F5E6D3;
+}
+
+/* Nom de classe unique pour l'état actif — à utiliser tel quel côté JSX */
+.filter-tab-active {
+  background-color: #B87333;
+  color: #ffffff;
+  border-color: #B87333;
 }
 
 /* ─ MOTEUR RESPONSIVE DE LA GRILLE DES PRODUITS DU CATALOGUE ─── */
@@ -842,7 +1067,64 @@
   }
 }
 
-/* Fiche Produit */
+/* --- FICHE PRODUIT --- */
+.product-detail-container {
+  padding: 40px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  color: #3e2723;
+  box-sizing: border-box;
+}
+
+.product-detail-flex {
+  display: flex;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+.product-detail-image-block {
+  flex: 1;
+  min-width: 350px;
+  text-align: center;
+  background-color: #fdfbf7;
+  padding: 30px;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.product-detail-info-block {
+  flex: 1.2;
+  min-width: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.product-detail-img {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+/* --- MOBILE : on neutralise le min-width fixe qui causait le débordement --- */
+@media (max-width: 768px) {
+  .product-detail-container {
+    padding: 20px 16px;
+  }
+
+  .product-detail-flex {
+    gap: 24px;
+  }
+
+  .product-detail-image-block,
+  .product-detail-info-block {
+    min-width: 0;
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}
+
 .product-card {
   background-color: #ffffff ;
   border-radius: 1.25rem ;
@@ -912,14 +1194,14 @@
 }
 
 .product-price {
-  font-family: 'Playfair Display', Georgia, serif ;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700 ;
   color: #B87333 ;
   font-size: 0.95rem ;
 }
 
 .btn-add-cart {
-  background-color: #0D0D0D ;
+  background-color: #B87333 ;
   color: #ffffff ;
   border: none ;
   padding: 0.5rem ;
@@ -932,7 +1214,7 @@
 }
 
 .btn-add-cart:hover {
-  background-color: #B87333 ;
+  background-color: #8B5E3C ;
 }
 
 /* Grossit les émojis au centre des cartes */
@@ -944,7 +1226,7 @@
 
 /* Bandeau marron pour les filtres comme sur Figma */
 .catalog-breadcrumb-bar {
-  background-color: #8E6543 ; /* Le marron chaud du mockup */
+  background-color: #8B5E3C ; /* Le marron chaud du mockup */
   padding: 0.75rem 1.5rem ;
   color: #ffffff ;
   font-family: 'Montserrat', sans-serif ;
@@ -1001,177 +1283,386 @@
   text-align: center ;
 }
 
-/* ─── PAGE PROFIL COMPTE CLIENT ─── */
-.profile-view-wrapper {
-  max-width: 600px ; /* Format "Card" centré sur l'ecran */
-  margin: 0 auto ;
-  padding: 2rem 1.25rem ;
-  font-family: 'Montserrat', sans-serif ;
+/* ==========================================================================
+   PROFILE VIEW — à coller dans index.css
+   ========================================================================== */
+
+/* --- État vide (aucune commande) --- */
+.profile-empty {
+  max-width: 500px;
+  margin: 50px auto;
+  text-align: center;
+  padding: 40px 20px;
 }
 
-/* En-tête de l'avatar */
-.profile-avatar-header {
-  display: flex ;
-  flex-direction: column ;
-  align-items: center ;
-  text-align: center ;
-  margin-bottom: 2.5rem ;
+.profile-empty-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
 }
 
-.avatar-circle {
-  width: 100px ;
-  height: 100px ;
-  background-color: #8E6543 ; /* Marron chaud Figma */
-  color: #ffffff ;
-  border-radius: 50% ;
-  display: flex ;
-  align-items: center ;
-  justify-content: center ;
-  font-size: 2rem ;
-  font-weight: 600 ;
-  margin-bottom: 1rem ;
+.profile-empty-title {
+  font-size: 1.4rem;
+  color: #8B5A2B;
+  margin-bottom: 10px;
 }
 
-.profile-name {
-  font-family: 'Montserrat', sans-serif ;
-  font-size: 1.5rem ;
-  font-weight: 700 ;
-  color: #000000 ;
-  margin: 0 0 0.25rem 0 ;
+.profile-empty-text {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 30px;
 }
 
-.profile-email {
-  font-size: 0.9rem ;
-  color: #4b5563 ;
-  margin: 0 0 0.75rem 0 ;
+.profile-empty-btn {
+  width: 100%;
+  padding: 12px;
 }
 
-.role-badge {
-  background-color: #8CE89B ; /* Vert émeraude clair (Signale un compte actif/vérifié) */
-  color: #1e7e34 ;
-  font-size: 0.7rem ;
-  font-weight: 700 ;
-  padding: 0.25rem 0.75rem ;
-  border-radius: 9999px ;
-  text-transform: uppercase ;
+/* --- Conteneur général --- */
+.profile-page {
+  max-width: 600px;
+  margin: 30px auto;
 }
 
-/* Titres des sections (Mes commandes, Mon profil) */
-.profile-group-title {
-  font-family: 'Montserrat', sans-serif ;
-  font-size: 0.95rem ;
-  font-weight: 700 ;
-  color: #8E6543 ; /* Texte marron */
-  text-transform: uppercase ;
-  letter-spacing: 0.05em ;
-  margin: 2rem 0 1.25rem 0 ;
+/* --- Header / avatar --- */
+.profile-header {
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-/* Cartes de commande Figma (LIASON BACKEND MYSQL) */
-.order-card-figma {
-  background-color: #ffffff ;
-  border: 1px solid #8E6543 ; /* Encadrement marron chic reprenant le style de l'interface Panier */
-  border-radius: 1rem ;
-  padding: 1.25rem ;
-  margin-bottom: 1rem ;
+.profile-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: #8B5A2B;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0 auto 10px auto;
 }
 
-.order-card-header {
-  display: flex ;
-  justify-content: space-between ;
-  align-items: center ;
-  margin-bottom: 0.5rem ;
+.profile-page-name {
+  margin: 5px 0 0 0;
+  font-size: 1.5rem;
 }
 
-.order-id-txt {
-  font-size: 1.1rem ;
-  font-weight: 700 ;
-  color: #000000 ;
-  margin: 0 ;
+.profile-page-email {
+  margin: 2px 0 10px 0;
+  color: #666;
+  font-size: 0.9rem;
 }
 
-.status-tag {
-  font-size: 0.75rem ;
-  font-weight: 600 ;
-  padding: 0.35rem 1rem ;
-  border-radius: 9999px ;
+.profile-badge {
+  background-color: #E8F5E9;
+  color: #2e7d32;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
-.tag-confirmed { background-color: #8CE89B ; color: #1e7e34 ; }
-.tag-shipped { background-color: #A3C1AD ; color: #2e4f3b ; }
-
-.order-date-txt {
-  font-size: 0.8rem ;
-  color: #6b7280 ;
-  margin: 0 0 0.5rem 0 ;
+/* --- Section commandes --- */
+.profile-orders-section {
+  margin-bottom: 30px;
 }
 
-.order-items-details {
-  font-size: 0.85rem ;
-  color: #4b5563 ;
-  margin: 0 0 1rem 0 ;
+.profile-section-title {
+  font-size: 1rem;
+  color: #8B5A2B;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
 }
 
-.order-card-footer {
-  display: flex ;
-  justify-content: space-between ;
-  align-items: center ;
-  margin-top: 0.5rem ;
+.profile-section-title-flush {
+  margin-top: 0;
 }
 
-.order-total-price {
-  font-size: 1.1rem ;
-  font-weight: 700 ;
-  color: #000000 ;
+.order-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.btn-order-details {
-  background-color: #ffffff ;
-  color: #000000 ;
-  border: 1px solid #d1d5db ;
-  padding: 0.4rem 1.5rem ;
-  border-radius: 0.5rem ;
-  font-size: 0.8rem ;
-  font-weight: 500 ;
-  cursor: pointer ;
+.order-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-/* Section Mon Profil / Infos textuelles */
-.info-row-figma {
-  display: flex ;
-  justify-content: space-between ;
-  align-items: center ;
-  padding: 0.85rem 0 ;
-  font-size: 0.95rem ;
+.order-id {
+  font-size: 1rem;
 }
 
-.info-label-figma {
-  font-weight: 700 ;
-  color: #000000 ;
+.order-status {
+  background-color: #E2F0D9;
+  color: #385723;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
-.info-value-figma {
-  color: #333333 ;
+.order-date {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 2px 0;
 }
 
-/* Gros bouton modifier */
-.btn-edit-profile-figma {
-  background-color: #ffffff ;
-  color: #8E6543 ;
-  border: 1px solid #8E6543 ;
-  width: 100% ;
-  padding: 0.85rem ;
-  border-radius: 0.75rem ;
-  font-size: 0.95rem ;
-  font-weight: 600 ;
-  margin-top: 2rem ;
-  cursor: pointer ;
-  transition: all 0.2s ;
+.order-items {
+  margin: 12px 0;
+  padding: 5px 0;
 }
 
-.btn-edit-profile-figma:hover {
-  background-color: #8E6543 ;
-  color: #ffffff ;
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+}
+
+.order-item-separator {
+  border-bottom: 1px dashed #f0f0f0;
+}
+
+.order-item-qty {
+  font-weight: 600;
+  color: #8B5A2B;
+}
+
+.order-item-price {
+  font-weight: 500;
+}
+
+.order-item-fallback {
+  font-size: 0.9rem;
+  color: #444;
+  margin: 4px 0;
+  font-weight: 500;
+}
+
+.order-details {
+  margin-top: 12px;
+  padding: 12px;
+  border-top: 1px dashed #eee;
+  background-color: #FAF9F6;
+  border-radius: 6px;
+}
+
+.order-details-title {
+  margin: 0 0 8px 0;
+  color: #8B5A2B;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-details-line {
+  font-size: 0.85rem;
+  margin: 4px 0;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  border-top: 1px solid #f5f5f5;
+  padding-top: 10px;
+}
+
+.order-total {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #111;
+}
+
+.btn-toggle-details {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-toggle-details.active {
+  background-color: #8B5A2B;
+  color: #fff;
+}
+
+/* --- Bloc "Mon Profil" --- */
+.profile-section {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.profile-view-mode {
+  font-size: 0.95rem;
+  line-height: 2.2;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.profile-row-label {
+  color: #666;
+}
+
+.profile-row-value {
+  font-weight: 500;
+}
+
+.profile-edit-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+}
+
+/* --- Formulaire d'édition --- */
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.profile-form-group {
+  flex: 1;
+}
+
+.profile-form-group label {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.profile-form-group input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-save-profile {
+  flex: 1;
+  padding: 10px;
+  background-color: #385723;
+}
+
+.btn-cancel-profile {
+  flex: 1;
+  padding: 10px;
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ccc;
+}
+
+@media (max-width: 480px) {
+  .form-row,
+  .form-actions {
+    flex-direction: column; /* Empile les champs et boutons à la verticale */
+    gap: 12px;
+  }
+}
+
+/* --- Bouton retour catalogue --- */
+.btn-back-catalog {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: transparent;
+  color: #B87333;
+  border: 1px solid #B87333;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-back-catalog:hover {
+  background-color: #F5E6D3;
+  color: #8B5E3C;
+}
+
+/* --- Options du compte (RGPD) --- */
+.account-options {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px dashed #e0e0e0;
+}
+
+.account-options-title {
+  color: #666;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-delete-account {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: transparent;
+  color: #B71C1C;
+  border: 1px solid #B71C1C;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete-account:hover {
+  background-color: #B71C1C;
+  color: #fff;
 }
 
 /* ─ INTERFACE DU PANIER D'ACHATS ─── */
@@ -1251,7 +1742,7 @@
 .btn-checkout-cart {
   display: block ;
   width: 100% ;
-  background-color: #8E6543 ;
+  background-color: #B87333 ;
   color: #ffffff ;
   border: none ;
   padding: 12px ;
@@ -1265,7 +1756,7 @@
 }
 
 .btn-checkout-cart:hover {
-  background-color: #704d31 ;
+  background-color: #8B5E3C ;
 }
 
 /* ─ INTERFACE DE PASSAGE EN CAISSE (CHECKOUT FORM) ─── */
@@ -1363,7 +1854,7 @@ de façon propre sans figer des largeurs en pixels qui détruiraient le responsi
 .btn-confirm {
   width: 100%;
   padding: 14px;
-  background-color: #8B5A2B;
+  background-color: #B87333;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -1374,7 +1865,7 @@ de façon propre sans figer des largeurs en pixels qui détruiraient le responsi
 }
 
 .btn-confirm:hover {
-  background-color: #6F441F;
+  background-color: #8B5E3C;
 }
 
 /* Garder le style d'origine mais appliquer une transition fluide */
@@ -1403,14 +1894,14 @@ de façon propre sans figer des largeurs en pixels qui détruiraient le responsi
 
 /* État interactif : Quand le produit est dans le panier */
 .btn-add-cart.btn-added {
-  background-color: #385723 ; /* Passage au Vert Forêt : Confirme l'action de manière rassurante */
+  background-color: #2e7d32 ; /* Passage au Vert Forêt : Confirme l'action de manière rassurante */
   color: #ffffff ;
   font-weight: bold ;
   border: none ;
 }
 
 .btn-add-cart.btn-added:hover {
-  background-color: #2d421b ; /* Vert un peu plus sombre au survol */
+  background-color: #256428 ; /* Vert un peu plus sombre au survol */
 }
 
 /* Transition générale pour adoucir le changement de couleur du bouton */
