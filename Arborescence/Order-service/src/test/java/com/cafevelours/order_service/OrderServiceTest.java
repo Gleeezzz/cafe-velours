@@ -4,6 +4,7 @@ import com.cafevelours.order_service.client.ProductClient;
 import com.cafevelours.order_service.dto.ProductDTO;
 import com.cafevelours.order_service.model.Order;
 import com.cafevelours.order_service.model.User;
+import com.cafevelours.order_service.repository.DiscountRepository;
 import com.cafevelours.order_service.repository.OrderRepository;
 import com.cafevelours.order_service.repository.UserRepository;
 import com.cafevelours.order_service.service.OrderService;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +37,10 @@ class OrderServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    // 1. Déclaration du mock DiscountRepository
+    @Mock
+    private DiscountRepository discountRepository;
 
     @InjectMocks
     private OrderService orderService;
@@ -55,6 +61,10 @@ class OrderServiceTest {
         mockProduct.setId(1L);
         mockProduct.setName("Finca El Paraiso");
         mockProduct.setPrice(18.90);
+
+        // 2. Comportement par défaut : aucun discount dans MongoDB pendant les tests
+        lenient().when(discountRepository.findFirstByMinAmountLessThanEqualOrderByMinAmountDesc(anyDouble()))
+                .thenReturn(Optional.empty());
     }
 
     // ── TEST 1 : Création commande avec succès ──
@@ -78,8 +88,8 @@ class OrderServiceTest {
         assertNotNull(result);
         assertEquals(37.80, result.getTotalAmount(), 0.01);
         assertEquals("PENDING", result.getStatus());
-        assertEquals(1, result.getItems().size()); // ✅ 1 item avec quantity=2
-        assertEquals(2, result.getItems().get(0).getQuantity()); // ✅ quantité correcte
+        assertEquals(1, result.getItems().size());
+        assertEquals(2, result.getItems().get(0).getQuantity());
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 

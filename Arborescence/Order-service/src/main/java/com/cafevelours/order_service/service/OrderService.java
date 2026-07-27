@@ -28,7 +28,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final UserRepository userRepository;
-    private final DiscountRepository discountRepository; // ✅ Injecté
+    private final DiscountRepository discountRepository; //  Injecté
 
     public OrderService(OrderRepository orderRepository,
                         ProductClient productClient,

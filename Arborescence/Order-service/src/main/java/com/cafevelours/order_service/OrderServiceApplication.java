@@ -25,11 +25,11 @@ public class OrderServiceApplication {
         return new BCryptPasswordEncoder();
     }
 
-    // 🧪 TEST ULTIME : Initialisation et vérification explicite de la collection MongoDB
+    // TEST ULTIME : Initialisation et vérification explicite de la collection MongoDB
     @Bean
     CommandLineRunner initMongoData(DiscountRepository discountRepository) {
         return args -> {
-            System.out.println("🧹 Nettoyage de la collection Mongo...");
+            System.out.println(" Nettoyage de la collection Mongo...");
             discountRepository.deleteAll();
 
             Discount discount = new Discount();
@@ -39,8 +39,8 @@ public class OrderServiceApplication {
             discountRepository.save(discount);
 
             System.out.println("=================================================");
-            System.out.println("✅ Règle de remise insérée avec succès dans MongoDB !");
-            System.out.println("📊 Nombre total de documents dans 'discounts' : " + discountRepository.count());
+            System.out.println("Regle de remise inseree avec succes dans MongoDB !");
+            System.out.println(" Nombre total de documents dans 'discounts' : " + discountRepository.count());
             System.out.println("=================================================");
         };
     }

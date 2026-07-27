@@ -27,4 +27,29 @@ public class Discount {
     private String id;
     private double minAmount; // Montant minimum d'achat requis dans le panier (ex: 30.00 $)
     private double discountRate; // Taux de réduction appliqué (ex: 0.10 pour 10% de remise)
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public double getMinAmount() {
+        return minAmount;
+    }
+
+    public void setMinAmount(double minAmount) {
+        this.minAmount = minAmount;
+    }
+
+    public double getDiscountRate() {
+        return discountRate;
+    }
+
+    public void setDiscountRate(double discountRate) {
+        this.discountRate = discountRate;
+    }
 }
+
