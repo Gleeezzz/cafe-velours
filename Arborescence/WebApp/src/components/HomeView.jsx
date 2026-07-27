@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 export default function HomeView({ onNavigate, onViewProduct }) {
 
     // Données statiques des packs promotionnels mis en avant
@@ -21,8 +20,20 @@ export default function HomeView({ onNavigate, onViewProduct }) {
 
     // --- Logique du carrousel ---
     const [currentIndex, setCurrentIndex] = useState(0);
-    const visibleCount = 3;  // Nombre de cartes visibles simultanément à l'écran
-    const maxIndex = featuredPacks.length - visibleCount;
+    // Nombre de cartes visibles, adapté au breakpoint CSS (768px)
+    const getVisibleCount = () => (window.innerWidth >= 768 ? 3 : 1);
+    const [visibleCount, setVisibleCount] = useState(getVisibleCount());
+
+    useEffect(() => {
+        const handleResize = () => {
+            setVisibleCount(getVisibleCount());
+            setCurrentIndex(0); // évite un index hors limites après un changement de breakpoint
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const maxIndex = Math.max(0, featuredPacks.length - visibleCount);
 
     const goNext = () => setCurrentIndex(prev => Math.min(prev + 1, maxIndex));
     const goPrev = () => setCurrentIndex(prev => Math.max(prev - 1, 0));
