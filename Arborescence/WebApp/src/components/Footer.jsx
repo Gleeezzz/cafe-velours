@@ -54,7 +54,7 @@ Pour toute réclamation ou question sur votre commande, merci de préciser votre
 
 Pour toute contestation, le tribunal compétent sera celui du siège social de Café Velours.
 
-Projet fictif — CDA 2026`
+Projet fictif — CDPI 2026`
     },
     mentions: {
         title: "⚖️ Mentions Légales",
@@ -66,7 +66,7 @@ Capital social : 10 000 €
 Directeur de publication : Braulio Umbert
 Hébergeur : OVH SAS, 2 rue Kellermann, 59100 Roubaix
 
-Ce site est un projet fictif réalisé dans le cadre d'une formation CDA (Concepteur Développeur d'Applications) — 2026.`
+Ce site est un projet fictif réalisé dans le cadre d'une formation CDPI - DWWM (Developper web, web mobile) — 2026.`
     },
     rgpd: {
         title: "🔒 RGPD & Données Personnelles",
@@ -79,7 +79,7 @@ Ce site est un projet fictif réalisé dans le cadre d'une formation CDA (Concep
 
 Durée de conservation : 3 ans après le dernier achat.
 
-Projet fictif — CDA 2026`
+Projet fictif — CDPI 2026`
     }
 };
 
