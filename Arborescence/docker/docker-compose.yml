@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # 1. L'ANNUAIRE DE SERVICES (HASHICORP CONSUL)
@@ -21,8 +20,8 @@ services:
     ports:
       - "3310:3306"       # Redirection externe 3310 pour éviter les conflits hôte
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: cafe_velours_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -36,8 +35,8 @@ services:
     ports:
       - "3312:3306"       # Redirection externe 3312
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: payment_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     networks:
       - cafe-velours-network
 
